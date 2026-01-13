@@ -2,8 +2,8 @@ import './index.css';
 import { createElement } from 'react';
 import type { Root } from 'react-dom/client';
 import { createRoot } from 'react-dom/client';
+import type { Doi } from '@/shared';
 import App from './App';
-import type { Doi } from './shared';
 
 // Export the component for React projects
 export { default as MetricsWidget } from './App';
@@ -24,7 +24,7 @@ export interface MetricsWidgetInstance {
  * ```js
  * import { initMetricsWidget } from 'metrics-widget';
  *
- * const widget = initMetricsWidget('app', '10.1038/s41598-025-00000-0');
+ * const widget = initMetricsWidget('app', 'https://doi.org/10.36615/9781776402304' or '10.36615/9781776402304');
  */
 const initMetricsWidget = (
 	containerId: string,

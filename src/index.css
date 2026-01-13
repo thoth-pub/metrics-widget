@@ -1,4 +1,65 @@
+@layer reset, theme, base, mui, components, utilities;
+
 @import "tailwindcss";
 
+@layer reset {
+	*,
+	*::before,
+	*::after {
+		box-sizing: border-box;
+	}
+	body {
+		margin: unset;
+	}
+	button,
+	input,
+	textarea,
+	select {
+		font: inherit;
+	}
+	img,
+	picture,
+	svg,
+	canvas {
+		display: block;
+		max-inline-size: 100%;
+		height: auto;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		*,
+		*::before,
+		*::after {
+			animation-duration: 0.01ms;
+			animation-iteration-count: 1;
+			transition-duration: 0.01ms;
+			scroll-behavior: auto;
+		}
+	}
+}
+
+@layer base {
+	body {
+		margin: unset;
+		background: var(--color-background);
+		color: var(--color-typography);
+		/* font-family: var(--font-open-sans), sans-serif; */
+		font-display: swap;
+	}
+}
+
 :root {
+	/* Tier 1 */
+	--yellow: #fff2d9;
+	--purple: #744d82;
+	--white: #fff;
+	--white-opacity-50: rgba(255, 255, 255, 0.5);
+	--black: #0e1828;
+	--black-opacity-50: rgba(14, 24, 40, 0.5);
+
+	/* Tier 2 */
+	--color-background: var(--yellow);
+	--color-typography: var(--black);
+
+	/* Tier 3 */
 }

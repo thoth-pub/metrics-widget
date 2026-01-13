@@ -5,6 +5,6 @@ import App from './App.tsx';
 
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
-		<App doi="10.1038/s41598-025-00000-0" />
+		<App doi="https://doi.org/10.36615/9781776402304" />
 	</StrictMode>,
 );
