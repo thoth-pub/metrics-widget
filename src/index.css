@@ -41,7 +41,7 @@
 @layer base {
 	body {
 		margin: unset;
-		background: var(--color-background);
+		/* background: var(--color-background); */
 		color: var(--color-typography);
 		/* font-family: var(--font-open-sans), sans-serif; */
 		font-display: swap;

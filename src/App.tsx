@@ -19,7 +19,7 @@ function App({ doi }: { doi: Doi }) {
 	}
 
 	return (
-		<div className="max-w-[630px] max-h-[500px] mx-auto bg-background">
+		<div className="max-w-[630px] w-full h-[500px] mx-auto bg-background">
 			<h1 className="text-3xl font-bold underline">
 				Metrics Widget. Doi is valid: {normalizeDoi(doi)}
 			</h1>
