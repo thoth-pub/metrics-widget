@@ -1,0 +1,4 @@
+export const QUERY_KEYS = {
+	META_DATA: 'META_DATA',
+	METRICS_BY_YEAR: 'METRICS_BY_YEAR',
+};

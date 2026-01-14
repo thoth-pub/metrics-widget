@@ -8,14 +8,13 @@ export const config = {
 	metaApi: {
 		url: import.meta.env.VITE_THOTH_API_URL ?? 'https://api.thoth.pub/graphql',
 		itemsPerRequestLimit: 100,
-		doiPrefix: 'https://doi.org/',
-		rorPrefix: 'https://ror.org/',
 	},
 	metricsApi: {
 		url:
 			import.meta.env.VITE_METRICS_API_URL ??
 			'https://metrics-api.operas-eu.org',
 		dateFormat: 'YYYY-MM-DD',
+		itemsPerRequestLimit: 30,
 		trackedMetrics: [
 			'https://metrics.operas-eu.org/google-books/views/v1',
 			'https://metrics.operas-eu.org/obp-html/sessions/v1',

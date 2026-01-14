@@ -63,3 +63,7 @@
 
 	/* Tier 3 */
 }
+
+@theme {
+	--color-background: var(--color-background);
+}

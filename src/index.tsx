@@ -3,6 +3,7 @@ import { createElement } from 'react';
 import type { Root } from 'react-dom/client';
 import { createRoot } from 'react-dom/client';
 import type { Doi } from '@/shared';
+import { Providers } from '@/shared';
 import App from './App';
 
 // Export the component for React projects
@@ -39,7 +40,7 @@ const initMetricsWidget = (
 	const root: Root = createRoot(container);
 
 	const render = () => {
-		root.render(createElement(App, { doi }));
+		root.render(createElement(Providers, null, createElement(App, { doi })));
 	};
 
 	render();

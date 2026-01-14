@@ -1,18 +1,29 @@
 import type { Doi } from '@/shared';
 import { NoDataPlaceholder } from '@/shared/ui';
-import { isValidDoi, normalizeDoi } from './shared/utils';
+import { useMetricsByYear } from './shared/hooks';
+import { normalizeDoi } from './shared/utils';
 
 function App({ doi }: { doi: Doi }) {
-	const isValid = isValidDoi(doi);
+	const { data, isLoading, error } = useMetricsByYear(doi);
 
-	if (!isValid) {
+	if (isLoading) {
+		return <div>Loading...</div>;
+	}
+
+	if (error) {
+		return <div>Error: {error.message}</div>;
+	}
+
+	if (!data) {
 		return <NoDataPlaceholder />;
 	}
 
 	return (
-		<h1 className="text-3xl font-bold underline">
-			Metrics Widget. Doi is valid: {normalizeDoi(doi)}
-		</h1>
+		<div className="max-w-[630px] max-h-[500px] mx-auto bg-background">
+			<h1 className="text-3xl font-bold underline">
+				Metrics Widget. Doi is valid: {normalizeDoi(doi)}
+			</h1>
+		</div>
 	);
 }
 
