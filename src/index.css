@@ -1,6 +1,7 @@
 @layer reset, theme, base, mui, components, utilities;
 
 @import "tailwindcss";
+@import "tw-animate-css";
 
 @layer reset {
 	*,
@@ -41,7 +42,7 @@
 @layer base {
 	body {
 		margin: unset;
-		/* background: var(--color-background); */
+		background-color: red;
 		color: var(--color-typography);
 		/* font-family: var(--font-open-sans), sans-serif; */
 		font-display: swap;
@@ -50,20 +51,108 @@
 
 :root {
 	/* Tier 1 */
-	--yellow: #fff2d9;
-	--purple: #744d82;
-	--white: #fff;
-	--white-opacity-50: rgba(255, 255, 255, 0.5);
-	--black: #0e1828;
-	--black-opacity-50: rgba(14, 24, 40, 0.5);
+	--gray-50: hsl(0, 0%, 98%);
+	--gray-100: hsl(210, 38%, 95%);
+	--gray-300: hsl(213, 27%, 84%);
+	--black: hsl(0, 0%, 0%);
+	--white: hsl(0, 0%, 100%);
 
 	/* Tier 2 */
-	--color-background: var(--yellow);
+	--color-background: var(--gray-50);
+	--color-background-alt: var(--gray-300);
 	--color-typography: var(--black);
 
 	/* Tier 3 */
+	--color-nav-background: var(--gray-100);
+	--color-nav-background-active: var(--gray-300);
+	--radius: 0.625rem;
+	--background: hsl(0, 0%, 100%);
+	--foreground: hsl(0, 0%, 4%);
+	--card: hsl(0, 0%, 100%);
+	--card-foreground: hsl(0, 0%, 4%);
+	--popover: hsl(0, 0%, 100%);
+	--popover-foreground: hsl(0, 0%, 4%);
+	--primary: hsl(0, 0%, 9%);
+	--primary-foreground: hsl(0, 0%, 98%);
+	--secondary: hsl(0, 0%, 96%);
+	--secondary-foreground: hsl(0, 0%, 9%);
+	--muted: hsl(0, 0%, 96%);
+	--muted-foreground: hsl(0, 0%, 45%);
+	--accent: hsl(0, 0%, 96%);
+	--accent-foreground: hsl(0, 0%, 9%);
+	--destructive: hsl(357, 100%, 45%);
+	--border: hsl(0, 0%, 90%);
+	--input: hsl(0, 0%, 90%);
+	--ring: hsl(0, 0%, 63%);
+	--chart-1: hsl(18, 100%, 48%);
+	--chart-2: hsl(175, 100%, 29%);
+	--chart-3: hsl(196, 72%, 23%);
+	--chart-4: hsl(44, 100%, 50%);
+	--chart-5: hsl(36, 100%, 50%);
+	--sidebar: hsl(0, 0%, 98%);
+	--sidebar-foreground: hsl(0, 0%, 4%);
+	--sidebar-primary: hsl(0, 0%, 9%);
+	--sidebar-primary-foreground: hsl(0, 0%, 98%);
+	--sidebar-accent: hsl(0, 0%, 96%);
+	--sidebar-accent-foreground: hsl(0, 0%, 9%);
+	--sidebar-border: hsl(0, 0%, 90%);
+	--sidebar-ring: hsl(0, 0%, 63%);
 }
 
 @theme {
 	--color-background: var(--color-background);
+	--color-background-alt: var(--color-background-alt);
+	--color-typography: var(--color-typography);
+	--color-nav-background: var(--color-nav-background);
+	--color-nav-background-active: var(--color-nav-background-active);
+}
+
+@theme inline {
+	--radius-sm: calc(var(--radius) - 4px);
+	--radius-md: calc(var(--radius) - 2px);
+	--radius-lg: var(--radius);
+	--radius-xl: calc(var(--radius) + 4px);
+	--radius-2xl: calc(var(--radius) + 8px);
+	--radius-3xl: calc(var(--radius) + 12px);
+	--radius-4xl: calc(var(--radius) + 16px);
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
+	--color-card: var(--card);
+	--color-card-foreground: var(--card-foreground);
+	--color-popover: var(--popover);
+	--color-popover-foreground: var(--popover-foreground);
+	--color-primary: var(--primary);
+	--color-primary-foreground: var(--primary-foreground);
+	--color-secondary: var(--secondary);
+	--color-secondary-foreground: var(--secondary-foreground);
+	--color-muted: var(--muted);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-accent: var(--accent);
+	--color-accent-foreground: var(--accent-foreground);
+	--color-destructive: var(--destructive);
+	--color-border: var(--border);
+	--color-input: var(--input);
+	--color-ring: var(--ring);
+	--color-chart-1: var(--chart-1);
+	--color-chart-2: var(--chart-2);
+	--color-chart-3: var(--chart-3);
+	--color-chart-4: var(--chart-4);
+	--color-chart-5: var(--chart-5);
+	--color-sidebar: var(--sidebar);
+	--color-sidebar-foreground: var(--sidebar-foreground);
+	--color-sidebar-primary: var(--sidebar-primary);
+	--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+	--color-sidebar-accent: var(--sidebar-accent);
+	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+	--color-sidebar-border: var(--sidebar-border);
+	--color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+	* {
+		@apply border-border outline-ring/50;
+	}
+	body {
+		@apply bg-background text-foreground;
+	}
 }

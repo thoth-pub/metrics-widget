@@ -7,7 +7,7 @@ import { useServices } from './useServices';
 export const useMetricsByYear = (doi: Doi) => {
 	const { metricsService } = useServices();
 	const {
-		dois,
+		normalizedDois,
 		isLoading: isLoadingMetaData,
 		error: errorMetaData,
 	} = useMetaData(doi);
@@ -17,8 +17,8 @@ export const useMetricsByYear = (doi: Doi) => {
 		error: metricsError,
 	} = useQuery({
 		queryKey: [QUERY_KEYS.METRICS_BY_YEAR],
-		queryFn: () => metricsService.getMetricsByYear(dois),
-		enabled: dois.length > 0,
+		queryFn: () => metricsService.getMetricsByYear(normalizedDois),
+		enabled: normalizedDois.length > 0,
 	});
 
 	const isLoading = isLoadingMetaData || metricsLoading;

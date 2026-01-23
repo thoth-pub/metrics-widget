@@ -11,3 +11,7 @@ export const normalizeDoi = (doi: string): string => {
 
 	return doiUtils.normalize(doi) ?? '';
 };
+
+export const buildDoiUrl = (doi: string): string => {
+	return doiUtils.buildUrl(doi) ?? '';
+};

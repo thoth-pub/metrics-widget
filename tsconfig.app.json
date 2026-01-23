@@ -7,10 +7,9 @@
 		"module": "ESNext",
 		"types": ["vite/client"],
 		"skipLibCheck": true,
-		"baseUrl": ".", // Base directory for resolving non-relative module names
+		"baseUrl": ".",
 		"paths": {
-			"@/*": ["src/*"] // Map '@/*' to 'src/*'
-			// "@components/*": ["src/components/*"]
+			"@/*": ["./src/*"]
 		},
 
 		/* Bundler mode */

@@ -16,7 +16,12 @@ export type WorkDto = {
 	title: string;
 	workType: WorkType;
 	relations?: {
-		relationOrdinal?: number;
+		relationOrdinal: number;
+		relatedWork: {
+			doi: Doi;
+			title: string;
+			workType: WorkType;
+		};
 	}[];
 };
 
