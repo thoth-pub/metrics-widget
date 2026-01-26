@@ -1,10 +1,11 @@
 import { type Doi, isValidDoi } from '@/shared';
 import {
+	ContentTab,
 	NoDataPlaceholder,
 	Tabs,
-	TabsContent,
 	TabsList,
 	TabsTrigger,
+	Wrapper,
 } from '@/shared/ui';
 import {
 	ChartBar,
@@ -13,11 +14,14 @@ import {
 	Globe,
 	Map as MapIcon,
 } from 'lucide-react';
+import { useState } from 'react';
 import { useMetricsByYear } from './shared/hooks';
 
 function App({ doi }: { doi: Doi }) {
 	const isValid = isValidDoi(doi);
 	const { data, isLoading, error } = useMetricsByYear(doi);
+
+	const [isInfoOpen, setIsInfoOpen] = useState(false);
 
 	if (!isValid) {
 		return <div>Invalid DOI</div>;
@@ -35,25 +39,61 @@ function App({ doi }: { doi: Doi }) {
 		return <NoDataPlaceholder />;
 	}
 
+	const toggleInfo = () => setIsInfoOpen((prev) => !prev);
+
+	const closeInfo = () => setIsInfoOpen(false);
+
 	return (
-		<div className="max-w-[630px] flex flex-col w-full h-[490px] mx-auto bg-background">
-			<div className="h-12.5 bg-background-alt" />
-			<Tabs defaultValue="measures" className="h-full">
-				<TabsContent value="measures" className="bg-red-500">
-					<h1 className="text-2xl font-bold">Measures</h1>
-				</TabsContent>
-				<TabsContent value="timeline" className="bg-blue-500">
-					<h1 className="text-2xl font-bold">Timeline</h1>
-				</TabsContent>
-				<TabsContent value="map" className="bg-green-500">
-					<h1 className="text-2xl font-bold">Map</h1>
-				</TabsContent>
-				<TabsContent value="regions" className="bg-yellow-500">
-					<h1 className="text-2xl font-bold">Regions</h1>
-				</TabsContent>
-				<TabsContent value="countries" className="bg-purple-500">
-					<h1 className="text-2xl font-bold">Countries</h1>
-				</TabsContent>
+		<Wrapper>
+			<Tabs
+				defaultValue="measures"
+				className="h-full"
+				onValueChange={closeInfo}
+			>
+				<ContentTab
+					value="measures"
+					title="Usage by measure"
+					isInfoOpen={isInfoOpen}
+					onToggleInfo={toggleInfo}
+				>
+					Measures
+				</ContentTab>
+				<ContentTab
+					value="timeline"
+					className="bg-blue-500"
+					title="Usage by measure over time"
+					isInfoOpen={isInfoOpen}
+					onToggleInfo={toggleInfo}
+				>
+					Timeline
+				</ContentTab>
+				<ContentTab
+					value="map"
+					className="bg-green-500"
+					title="Geographical Usage"
+					isInfoOpen={isInfoOpen}
+					onToggleInfo={toggleInfo}
+				>
+					Map
+				</ContentTab>
+				<ContentTab
+					value="regions"
+					className="bg-yellow-500"
+					title="Continent Usage"
+					isInfoOpen={isInfoOpen}
+					onToggleInfo={toggleInfo}
+				>
+					Regions
+				</ContentTab>
+				<ContentTab
+					value="countries"
+					className="bg-purple-500"
+					title="Top 10 countries"
+					isInfoOpen={isInfoOpen}
+					onToggleInfo={toggleInfo}
+				>
+					Countries
+				</ContentTab>
 				<TabsList className="w-full">
 					<TabsTrigger value="measures">
 						<ChartBar /> Measures
@@ -73,7 +113,7 @@ function App({ doi }: { doi: Doi }) {
 					</TabsTrigger>
 				</TabsList>
 			</Tabs>
-		</div>
+		</Wrapper>
 	);
 }
 

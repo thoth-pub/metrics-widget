@@ -26,6 +26,9 @@
 		max-inline-size: 100%;
 		height: auto;
 	}
+	* {
+		transition-duration: 300ms;
+	}
 
 	@media (prefers-reduced-motion: reduce) {
 		*,
@@ -42,29 +45,78 @@
 @layer base {
 	body {
 		margin: unset;
-		background-color: red;
 		color: var(--color-typography);
-		/* font-family: var(--font-open-sans), sans-serif; */
+		font-family: var(--font-open-sans);
 		font-display: swap;
+	}
+
+	@font-face {
+		font-family: "Economica";
+		src: url("./economica.woff2") format("woff2");
+		font-weight: 700;
+		font-display: swap;
+	}
+
+	@font-face {
+		font-family: "Open Sans";
+		src: url("./open_sans.woff2") format("woff2");
+		font-weight: 400;
+		font-display: swap;
+	}
+
+	@font-face {
+		font-family: "Open Sans";
+		src: url("./open_sans_semibold.woff2") format("woff2");
+		font-weight: 600;
+		font-display: swap;
+	}
+
+	* {
+		@apply border-border outline-ring/50;
 	}
 }
 
 :root {
 	/* Tier 1 */
-	--gray-50: hsl(0, 0%, 98%);
-	--gray-100: hsl(210, 38%, 95%);
-	--gray-300: hsl(213, 27%, 84%);
+	--yellow: hsl(39, 100%, 93%);
+	--yellow-alt: hsl(40, 100%, 98%);
+	--purple-light: hsl(284, 36%, 59%, 1);
+	--purple-dark: hsl(284, 36%, 28%);
+	--purple: hsl(276, 26%, 50%);
+	--purple-alt: hsl(284, 26%, 41%);
 	--black: hsl(0, 0%, 0%);
 	--white: hsl(0, 0%, 100%);
+	--font-economica: "Economica", sans-serif;
+	--font-open-sans: "Open Sans", sans-serif;
 
 	/* Tier 2 */
-	--color-background: var(--gray-50);
-	--color-background-alt: var(--gray-300);
+	--color-background: var(--yellow);
+	--color-background-active: var(--purple);
+	--color-background-alt: var(--yellow-alt);
 	--color-typography: var(--black);
+	--color-typography-alt: var(--white);
+	--color-border: var(--purple-alt);
+	--color-active: var(--purple-light);
 
 	/* Tier 3 */
-	--color-nav-background: var(--gray-100);
-	--color-nav-background-active: var(--gray-300);
+	--color-nav-background: var(--color-background);
+	--color-nav-background-active: var(--color-active);
+	--color-header-background: var(--color-background);
+
+	--color-button-background: var(--white);
+	--color-button-typography: var(--purple-alt);
+	--color-button-border: var(--color-border);
+
+	--color-button-typography-hover: var(--purple);
+	--color-button-border-hover: var(--purple);
+
+	--color-button-typography-active: var(--purple-dark);
+	--color-button-border-active: var(--purple-dark);
+
+	--color-button-active-background: var(--color-active);
+	--color-button-active-typography: var(--color-typography-alt);
+	--color-button-active-border: var(--color-active);
+
 	--radius: 0.625rem;
 	--background: hsl(0, 0%, 100%);
 	--foreground: hsl(0, 0%, 4%);
@@ -77,7 +129,7 @@
 	--secondary: hsl(0, 0%, 96%);
 	--secondary-foreground: hsl(0, 0%, 9%);
 	--muted: hsl(0, 0%, 96%);
-	--muted-foreground: hsl(0, 0%, 45%);
+	--muted-foreground: hsl(217, 27%, 30%);
 	--accent: hsl(0, 0%, 96%);
 	--accent-foreground: hsl(0, 0%, 9%);
 	--destructive: hsl(357, 100%, 45%);
@@ -103,8 +155,30 @@
 	--color-background: var(--color-background);
 	--color-background-alt: var(--color-background-alt);
 	--color-typography: var(--color-typography);
+	--color-typography-alt: var(--color-typography-alt);
 	--color-nav-background: var(--color-nav-background);
 	--color-nav-background-active: var(--color-nav-background-active);
+	--color-header-background: var(--color-header-background);
+
+	--color-button-background: var(--color-button-background);
+	--color-button-background-active: var(--color-button-background-active);
+	--color-button-border: var(--color-button-border);
+
+	/* Button */
+	--color-button-background: var(--color-button-background);
+	--color-button-typography: var(--color-button-typography);
+	--color-button-border: var(--color-button-border);
+	--color-button-typography-hover: var(--color-button-typography-hover);
+	--color-button-border-hover: var(--color-button-border-hover);
+	--color-button-typography-active: var(--color-button-typography-active);
+	--color-button-border-active: var(--color-button-border-active);
+
+	--color-button-active-background: var(--color-button-active-background);
+	--color-button-active-typography: var(--color-button-active-typography);
+	--color-button-active-border: var(--color-button-active-border);
+
+	--font-family-economica: "Economica", sans-serif;
+	--font-family-open-sans: "Open Sans", sans-serif;
 }
 
 @theme inline {
@@ -148,11 +222,9 @@
 	--color-sidebar-ring: var(--sidebar-ring);
 }
 
-@layer base {
-	* {
-		@apply border-border outline-ring/50;
-	}
-	body {
-		@apply bg-background text-foreground;
+@layer components {
+	.economica {
+		font-family: var(--font-economica);
+		@apply uppercase text-base font-bold;
 	}
 }

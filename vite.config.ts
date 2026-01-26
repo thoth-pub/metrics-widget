@@ -23,5 +23,7 @@ export default defineConfig({
 		rollupOptions: {
 			external: ['react', 'react-dom', 'react-dom/client', 'react/jsx-runtime'],
 		},
+		copyPublicDir: true,
 	},
+	publicDir: 'public',
 });

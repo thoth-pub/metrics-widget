@@ -23,7 +23,7 @@ function TabsList({
 		<TabsPrimitive.List
 			data-slot="tabs-list"
 			className={cn(
-				'bg-nav-background text-typography inline-flex h-10 w-fit items-center justify-center',
+				'bg-nav-background text-typography inline-flex h-10 w-fit items-center justify-center economica',
 				className,
 			)}
 			{...props}
@@ -39,7 +39,7 @@ function TabsTrigger({
 		<TabsPrimitive.Trigger
 			data-slot="tabs-trigger"
 			className={cn(
-				"data-[state=active]:bg-nav-background-active focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring text-foreground inline-flex flex-1 items-center justify-center gap-1.5 px-2 py-1 h-full text-sm whitespace-nowrap transition-[color,box-shadow] focus-visible:ring-[3px] focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+				"economica data-[state=active]:bg-nav-background-active cursor-pointer data-[state=active]:text-typography-alt focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring text-typography inline-flex flex-1 items-center justify-center gap-1.5 px-2 py-1 h-full whitespace-nowrap transition-[color,box-shadow] focus-visible:ring-[3px] focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
 				className,
 			)}
 			{...props}
