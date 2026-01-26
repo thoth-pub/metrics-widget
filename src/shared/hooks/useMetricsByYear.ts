@@ -7,6 +7,7 @@ import { useServices } from './useServices';
 export const useMetricsByYear = (doi: Doi) => {
 	const { metricsService } = useServices();
 	const {
+		data,
 		normalizedDois,
 		isLoading: isLoadingMetaData,
 		error: errorMetaData,
@@ -24,5 +25,5 @@ export const useMetricsByYear = (doi: Doi) => {
 	const isLoading = isLoadingMetaData || metricsLoading;
 	const error = errorMetaData || metricsError;
 
-	return { data: metricsData, isLoading, error };
+	return { metaData: data, metricsData, isLoading, error };
 };

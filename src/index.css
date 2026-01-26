@@ -80,12 +80,16 @@
 	/* Tier 1 */
 	--yellow: hsl(39, 100%, 93%);
 	--yellow-alt: hsl(40, 100%, 98%);
-	--purple-light: hsl(284, 36%, 59%, 1);
+	--purple-lightest: hsl(285, 62%, 94%);
+	--purple-light: hsl(284, 36%, 59%);
 	--purple-dark: hsl(284, 36%, 28%);
 	--purple: hsl(276, 26%, 50%);
 	--purple-alt: hsl(284, 26%, 41%);
 	--black: hsl(0, 0%, 0%);
 	--white: hsl(0, 0%, 100%);
+	--gray: hsl(0, 0%, 91%);
+	--gray-alt: hsl(213, 9%, 62%);
+
 	--font-economica: "Economica", sans-serif;
 	--font-open-sans: "Open Sans", sans-serif;
 
@@ -97,6 +101,7 @@
 	--color-typography-alt: var(--white);
 	--color-border: var(--purple-alt);
 	--color-active: var(--purple-light);
+	--ring: var(--purple);
 
 	/* Tier 3 */
 	--color-nav-background: var(--color-background);
@@ -117,6 +122,12 @@
 	--color-button-active-typography: var(--color-typography-alt);
 	--color-button-active-border: var(--color-active);
 
+	--color-input-background: var(--white);
+	--color-input-border: var(--gray);
+	--color-input-typography: var(--color-typography);
+	--color-select-background-selected: var(--purple-lightest);
+  --color-input-start-icon: var(--gray-alt);
+
 	--radius: 0.625rem;
 	--background: hsl(0, 0%, 100%);
 	--foreground: hsl(0, 0%, 4%);
@@ -134,8 +145,6 @@
 	--accent-foreground: hsl(0, 0%, 9%);
 	--destructive: hsl(357, 100%, 45%);
 	--border: hsl(0, 0%, 90%);
-	--input: hsl(0, 0%, 90%);
-	--ring: hsl(0, 0%, 63%);
 	--chart-1: hsl(18, 100%, 48%);
 	--chart-2: hsl(175, 100%, 29%);
 	--chart-3: hsl(196, 72%, 23%);
@@ -163,6 +172,11 @@
 	--color-button-background: var(--color-button-background);
 	--color-button-background-active: var(--color-button-background-active);
 	--color-button-border: var(--color-button-border);
+	--color-ring: var(--color-ring);
+
+	/* Font */
+	--font-economica: var(--font-economica);
+	--font-open-sans: var(--font-open-sans);
 
 	/* Button */
 	--color-button-background: var(--color-button-background);
@@ -177,8 +191,12 @@
 	--color-button-active-typography: var(--color-button-active-typography);
 	--color-button-active-border: var(--color-button-active-border);
 
-	--font-family-economica: "Economica", sans-serif;
-	--font-family-open-sans: "Open Sans", sans-serif;
+	/* Input Group */
+	--color-input-background: var(--color-input-background);
+	--color-input-border: var(--color-input-border);
+	--color-input-typography: var(--color-input-typography);
+	--color-select-background-selected: var(--color-select-background-selected);
+	--color-input-start-icon: var(--color-input-start-icon);
 }
 
 @theme inline {
@@ -205,8 +223,7 @@
 	--color-accent-foreground: var(--accent-foreground);
 	--color-destructive: var(--destructive);
 	--color-border: var(--border);
-	--color-input: var(--input);
-	--color-ring: var(--ring);
+	--color-ring: var(--gray);
 	--color-chart-1: var(--chart-1);
 	--color-chart-2: var(--chart-2);
 	--color-chart-3: var(--chart-3);

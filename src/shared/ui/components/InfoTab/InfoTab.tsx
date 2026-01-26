@@ -5,7 +5,7 @@ import {
 	AccordionTrigger,
 } from '../../core/Accordion/Accordion';
 
-const InfoTab = () => {
+export const InfoTab = () => {
 	return (
 		<div className="flex flex-col gap-4">
 			<h2 className="font-semibold text-sm">Measures</h2>
@@ -53,5 +53,3 @@ const InfoTab = () => {
 		</div>
 	);
 };
-
-export default InfoTab;

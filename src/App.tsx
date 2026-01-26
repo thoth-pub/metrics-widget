@@ -1,12 +1,5 @@
 import { type Doi, isValidDoi } from '@/shared';
-import {
-	ContentTab,
-	NoDataPlaceholder,
-	Tabs,
-	TabsList,
-	TabsTrigger,
-	Wrapper,
-} from '@/shared/ui';
+import { Tabs, TabsList, TabsTrigger, Wrapper } from '@/shared/ui';
 import {
 	ChartBar,
 	ChartLine,
@@ -16,10 +9,17 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { useMetricsByYear } from './shared/hooks';
+import {
+	CountriesTab,
+	MapTab,
+	MeasuresTab,
+	RegionsTab,
+	TimelineTab,
+} from './widgets';
 
 function App({ doi }: { doi: Doi }) {
 	const isValid = isValidDoi(doi);
-	const { data, isLoading, error } = useMetricsByYear(doi);
+	const { metaData, isLoading, error } = useMetricsByYear(doi);
 
 	const [isInfoOpen, setIsInfoOpen] = useState(false);
 
@@ -35,10 +35,6 @@ function App({ doi }: { doi: Doi }) {
 		return <div>Error: {error.message}</div>;
 	}
 
-	if (!data) {
-		return <NoDataPlaceholder />;
-	}
-
 	const toggleInfo = () => setIsInfoOpen((prev) => !prev);
 
 	const closeInfo = () => setIsInfoOpen(false);
@@ -50,50 +46,31 @@ function App({ doi }: { doi: Doi }) {
 				className="h-full"
 				onValueChange={closeInfo}
 			>
-				<ContentTab
-					value="measures"
-					title="Usage by measure"
+				<MeasuresTab
+					metaData={metaData}
 					isInfoOpen={isInfoOpen}
-					onToggleInfo={toggleInfo}
-				>
-					Measures
-				</ContentTab>
-				<ContentTab
-					value="timeline"
-					className="bg-blue-500"
-					title="Usage by measure over time"
+					toggleInfo={toggleInfo}
+				/>
+				<TimelineTab
+					metaData={metaData}
 					isInfoOpen={isInfoOpen}
-					onToggleInfo={toggleInfo}
-				>
-					Timeline
-				</ContentTab>
-				<ContentTab
-					value="map"
-					className="bg-green-500"
-					title="Geographical Usage"
+					toggleInfo={toggleInfo}
+				/>
+				<MapTab
+					metaData={metaData}
 					isInfoOpen={isInfoOpen}
-					onToggleInfo={toggleInfo}
-				>
-					Map
-				</ContentTab>
-				<ContentTab
-					value="regions"
-					className="bg-yellow-500"
-					title="Continent Usage"
+					toggleInfo={toggleInfo}
+				/>
+				<RegionsTab
+					metaData={metaData}
 					isInfoOpen={isInfoOpen}
-					onToggleInfo={toggleInfo}
-				>
-					Regions
-				</ContentTab>
-				<ContentTab
-					value="countries"
-					className="bg-purple-500"
-					title="Top 10 countries"
+					toggleInfo={toggleInfo}
+				/>
+				<CountriesTab
+					metaData={metaData}
 					isInfoOpen={isInfoOpen}
-					onToggleInfo={toggleInfo}
-				>
-					Countries
-				</ContentTab>
+					toggleInfo={toggleInfo}
+				/>
 				<TabsList className="w-full">
 					<TabsTrigger value="measures">
 						<ChartBar /> Measures

@@ -1,3 +1,4 @@
+import { ChaptersProvider } from './ChaptersProvider';
 import { QueryClientProvider } from './QueryClient';
 import { ServicesProvider } from './ServicesProvider';
 
@@ -8,7 +9,9 @@ type ProvidersProps = {
 const Providers = ({ children }: ProvidersProps) => {
 	return (
 		<QueryClientProvider>
-			<ServicesProvider>{children}</ServicesProvider>
+			<ServicesProvider>
+				<ChaptersProvider>{children}</ChaptersProvider>
+			</ServicesProvider>
 		</QueryClientProvider>
 	);
 };

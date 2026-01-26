@@ -1,6 +1,10 @@
-export { default as ContentTab } from './components/ContentTab/ContentTab';
+export * from './components/ContentTab/ContentTab';
 export * from './core/Accordion/Accordion';
 export * from './core/Button/Button';
+export * from './core/Combobox/Combobox';
+export * from './core/Input/Input';
+export * from './core/InputGroup/InputGroup';
 export * from './core/Tabs/Tabs';
-export { default as Wrapper } from './layout/Wrapper/Wrapper';
+export * from './core/Textarea/Textarea';
+export * from './layout/Wrapper/Wrapper';
 export * from './NoDataPlaceholder/NoDataPlaceholder';
