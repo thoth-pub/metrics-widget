@@ -12,7 +12,7 @@ export const RegionsTab = ({
 }: RegionsTabProps) => {
 	return (
 		<ContentTab
-			headerComponent={<ChaptersDropdown chapters={metaData.chapters} />}
+			filter={<ChaptersDropdown chapters={metaData.chapters} />}
 			value="regions"
 			className="bg-yellow-500"
 			title="Continent Usage"

@@ -126,8 +126,16 @@
 	--color-input-border: var(--gray);
 	--color-input-typography: var(--color-typography);
 	--color-select-background-selected: var(--purple-lightest);
-  --color-input-start-icon: var(--gray-alt);
+	--color-input-start-icon: var(--gray-alt);
 
+	--color-tooltip-background: var(--white);
+	--color-divider: var(--gray);
+
+	--color-spinner: var(--purple);
+
+	--chart-legend-background: var(--purple);
+
+	/* Shadcn UI */
 	--radius: 0.625rem;
 	--background: hsl(0, 0%, 100%);
 	--foreground: hsl(0, 0%, 4%);
@@ -197,6 +205,12 @@
 	--color-input-typography: var(--color-input-typography);
 	--color-select-background-selected: var(--color-select-background-selected);
 	--color-input-start-icon: var(--color-input-start-icon);
+
+	--color-tooltip-background: var(--color-tooltip-background);
+	--color-divider: var(--color-divider);
+
+	--color-spinner: var(--color-spinner);
+	--color-chart-legend-background: var(--chart-legend-background);
 }
 
 @theme inline {

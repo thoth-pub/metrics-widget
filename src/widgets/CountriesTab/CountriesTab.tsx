@@ -12,7 +12,7 @@ export const CountriesTab = ({
 }: CountriesTabProps) => {
 	return (
 		<ContentTab
-			headerComponent={<ChaptersDropdown chapters={metaData.chapters} />}
+			filter={<ChaptersDropdown chapters={metaData.chapters} />}
 			value="countries"
 			className="bg-purple-500"
 			title="Top 10 countries"

@@ -12,7 +12,7 @@ export const TimelineTab = ({
 }: TimelineTabProps) => {
 	return (
 		<ContentTab
-			headerComponent={<ChaptersDropdown chapters={metaData.chapters} />}
+			filter={<ChaptersDropdown chapters={metaData.chapters} />}
 			value="timeline"
 			className="bg-blue-500"
 			title="Usage by measure over time"

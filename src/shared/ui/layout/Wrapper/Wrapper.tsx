@@ -4,7 +4,7 @@ export const Wrapper = ({
 	children: Readonly<React.ReactNode>;
 }) => {
 	return (
-		<div className="max-w-[630px] flex flex-col w-full h-[490px] mx-auto bg-background">
+		<div className="max-w-[630px] flex flex-col w-full h-[490px] mx-auto bg-background-alt">
 			{children}
 		</div>
 	);

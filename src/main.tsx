@@ -7,7 +7,7 @@ import './index.css';
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
 		<Providers>
-			<App doi="https://doi.org/10.36615/9781776402304" />
+			<App doi="https://doi.org/10.11647/OBP.0159" />
 		</Providers>
 	</StrictMode>,
 );

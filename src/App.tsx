@@ -1,5 +1,11 @@
-import { type Doi, isValidDoi } from '@/shared';
-import { Tabs, TabsList, TabsTrigger, Wrapper } from '@/shared/ui';
+import { type Doi, isValidDoi, useMetaData } from '@/shared';
+import {
+	ErrorBoundary,
+	Tabs,
+	TabsList,
+	TabsTrigger,
+	Wrapper,
+} from '@/shared/ui';
 import {
 	ChartBar,
 	ChartLine,
@@ -8,7 +14,7 @@ import {
 	Map as MapIcon,
 } from 'lucide-react';
 import { useState } from 'react';
-import { useMetricsByYear } from './shared/hooks';
+import { TABS } from './shared/constants';
 import {
 	CountriesTab,
 	MapTab,
@@ -19,20 +25,22 @@ import {
 
 function App({ doi }: { doi: Doi }) {
 	const isValid = isValidDoi(doi);
-	const { metaData, isLoading, error } = useMetricsByYear(doi);
+	const { error, refetch } = useMetaData(doi);
 
 	const [isInfoOpen, setIsInfoOpen] = useState(false);
 
 	if (!isValid) {
-		return <div>Invalid DOI</div>;
-	}
-
-	if (isLoading) {
-		return <div>Loading...</div>;
+		return (
+			<Wrapper>
+				<div className="flex items-center justify-center h-full">
+					Invalid DOI
+				</div>
+			</Wrapper>
+		);
 	}
 
 	if (error) {
-		return <div>Error: {error.message}</div>;
+		return <ErrorBoundary onRetry={() => refetch()} />;
 	}
 
 	const toggleInfo = () => setIsInfoOpen((prev) => !prev);
@@ -42,49 +50,61 @@ function App({ doi }: { doi: Doi }) {
 	return (
 		<Wrapper>
 			<Tabs
-				defaultValue="measures"
+				defaultValue={TABS.MEASURES}
 				className="h-full"
 				onValueChange={closeInfo}
 			>
 				<MeasuresTab
-					metaData={metaData}
+					doi={doi}
 					isInfoOpen={isInfoOpen}
 					toggleInfo={toggleInfo}
 				/>
 				<TimelineTab
-					metaData={metaData}
+					metaData={{
+						chapters: [],
+						book: { doi, title: '', type: '', ordinal: 0 },
+					}}
 					isInfoOpen={isInfoOpen}
 					toggleInfo={toggleInfo}
 				/>
 				<MapTab
-					metaData={metaData}
+					metaData={{
+						chapters: [],
+						book: { doi, title: '', type: '', ordinal: 0 },
+					}}
 					isInfoOpen={isInfoOpen}
 					toggleInfo={toggleInfo}
 				/>
 				<RegionsTab
-					metaData={metaData}
+					metaData={{
+						chapters: [],
+						book: { doi, title: '', type: '', ordinal: 0 },
+					}}
 					isInfoOpen={isInfoOpen}
 					toggleInfo={toggleInfo}
 				/>
 				<CountriesTab
-					metaData={metaData}
+					metaData={{
+						chapters: [],
+						book: { doi, title: '', type: '', ordinal: 0 },
+					}}
 					isInfoOpen={isInfoOpen}
 					toggleInfo={toggleInfo}
 				/>
 				<TabsList className="w-full">
-					<TabsTrigger value="measures">
+					<TabsTrigger value={TABS.MEASURES}>
 						<ChartBar /> Measures
 					</TabsTrigger>
-					<TabsTrigger value="timeline">
+					<TabsTrigger value={TABS.TIMELINE}>
 						<ChartLine /> Timeline
 					</TabsTrigger>
-					<TabsTrigger value="map">
+					<TabsTrigger value={TABS.MAP}>
 						<MapIcon /> Map
 					</TabsTrigger>
-					<TabsTrigger value="regions">
+					<TabsTrigger value={TABS.REGIONS}>
 						<Globe /> Regions
 					</TabsTrigger>
-					<TabsTrigger value="countries">
+					<TabsTrigger value={TABS.COUNTRIES}>
 						<Earth />
 						Countries
 					</TabsTrigger>

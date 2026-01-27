@@ -20,11 +20,10 @@ export const ChaptersDropdown = ({ chapters }: { chapters: WorkEntity[] }) => {
 		};
 	});
 
-	// const selectedTitles = selectedChapters.map((item) => item.label).join(', ');
 	const chaptersSelected =
 		selectedChapters.length > 1
-			? `Selected ${selectedChapters.length} chapters`
-			: 'Selected 1 chapter';
+			? ` ${selectedChapters.length} chapters`
+			: '1 chapter';
 	const placeholder =
 		selectedChapters.length > 0 ? chaptersSelected : 'All chapters';
 
@@ -42,17 +41,12 @@ export const ChaptersDropdown = ({ chapters }: { chapters: WorkEntity[] }) => {
 				<InputGroupAddon>
 					<Search />
 				</InputGroupAddon>
-				{/* {selectedChapters.length > 0 && (
-					<div className="focus:none absolute top-2 w-4 h-4 bg-red-500 right-6 font-inherit text-sm">
-						+{selectedChapters.length}
-					</div>
-				)} */}
 			</ComboboxInput>
 			<ComboboxContent className="w-46" alignOffset={-28}>
 				<ComboboxList>
 					{(chapter) => (
 						<ComboboxItem key={chapter.value} value={chapter}>
-							{chapter.label}
+							<span className="max-w-30 truncate">{chapter.label}</span>
 						</ComboboxItem>
 					)}
 				</ComboboxList>

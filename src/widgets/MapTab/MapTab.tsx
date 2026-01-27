@@ -8,7 +8,7 @@ type MapTabProps = TabProps & {
 export const MapTab = ({ isInfoOpen, toggleInfo, metaData }: MapTabProps) => {
 	return (
 		<ContentTab
-			headerComponent={<ChaptersDropdown chapters={metaData.chapters} />}
+			filter={<ChaptersDropdown chapters={metaData.chapters} />}
 			value="map"
 			className="bg-green-500"
 			title="Geographical Usage"

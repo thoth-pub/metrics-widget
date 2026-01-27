@@ -14,6 +14,7 @@ export const useMetaData = (doi: Doi) => {
 		data = { book: { doi, title: '', type: '', ordinal: 0 }, chapters: [] },
 		isLoading,
 		error,
+		refetch,
 	} = useQuery({
 		queryKey: [QUERY_KEYS.META_DATA, doiUrl],
 		queryFn: () => metaService.getMetadata(doiUrl),
@@ -21,8 +22,16 @@ export const useMetaData = (doi: Doi) => {
 	});
 
 	const chaptersDois = data.chapters.map((chapter) => chapter.doi);
-	const dois = [data.book.doi, ...chaptersDois];
-	const normalizedDois = dois.map(normalizeDoi);
+	const normalizedChaptersDois = chaptersDois.map(normalizeDoi);
 
-	return { data, dois, normalizedDois, isLoading, error };
+	return {
+		data,
+		normalizedDois: {
+			bookDoi: normalizeDoi(data.book.doi),
+			chaptersDois: normalizedChaptersDois,
+		},
+		isLoading,
+		error,
+		refetch,
+	};
 };
