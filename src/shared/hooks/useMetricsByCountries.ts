@@ -5,13 +5,14 @@ import { useDOIs } from './useDOIs';
 import { useMetaData } from './useMetaData';
 import { useServices } from './useServices';
 
-export const useMetricsByYear = (doi: Doi) => {
+export const useMetricsByCountries = (doi: Doi) => {
 	const { metricsService } = useServices();
 	const {
 		data,
 		isLoading: isLoadingMetaData,
 		error: errorMetaData,
 	} = useMetaData(doi);
+
 	const { bookDoi, chaptersDois } = useDOIs(doi);
 
 	const {
@@ -19,13 +20,13 @@ export const useMetricsByYear = (doi: Doi) => {
 		isLoading: metricsLoading,
 		error: metricsError,
 	} = useQuery({
-		queryKey: [QUERY_KEYS.METRICS_BY_YEAR, ...chaptersDois],
+		queryKey: [QUERY_KEYS.METRICS_BY_COUNTRY, ...chaptersDois],
 		queryFn: () =>
-			metricsService.getMetricsByYear({
+			metricsService.getMetricsByCountry({
 				workDoi: bookDoi,
 				chaptersDoi: chaptersDois,
 			}),
-		enabled: bookDoi.length > 0 && !isLoadingMetaData,
+		enabled: bookDoi.length > 0,
 	});
 
 	const isLoading = isLoadingMetaData || metricsLoading;

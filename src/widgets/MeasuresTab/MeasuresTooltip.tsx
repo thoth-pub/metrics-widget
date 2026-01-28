@@ -27,7 +27,7 @@ export const MeasuresTooltip = ({
 		>
 			<div className="flex gap-1 items-center justify-center">
 				<div
-					className="h-2 w-4"
+					className="colorPlaceholder"
 					style={{ backgroundColor: payload[0].payload.fill }}
 				/>
 				<span>{`${label}`}</span>

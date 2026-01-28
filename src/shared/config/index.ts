@@ -67,7 +67,7 @@ export const config = {
 			'world reader': '#5BCFBD',
 			crossref: '#52A46B',
 		},
-		mapChart: {
+		countriesChart: {
 			countriesListLimit: 10,
 		},
 		sourcesForUpdate: [
@@ -82,5 +82,6 @@ export const config = {
 	csv: {
 		filename: 'download.csv',
 		measuresHeader: ['Platform', 'Book', 'Chapter'],
+		countriesHeader: ['Country', 'Percentage'],
 	},
 };

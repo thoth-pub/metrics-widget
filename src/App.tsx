@@ -60,34 +60,14 @@ function App({ doi }: { doi: Doi }) {
 					toggleInfo={toggleInfo}
 				/>
 				<TimelineTab
-					metaData={{
-						chapters: [],
-						book: { doi, title: '', type: '', ordinal: 0 },
-					}}
+					doi={doi}
 					isInfoOpen={isInfoOpen}
 					toggleInfo={toggleInfo}
 				/>
-				<MapTab
-					metaData={{
-						chapters: [],
-						book: { doi, title: '', type: '', ordinal: 0 },
-					}}
-					isInfoOpen={isInfoOpen}
-					toggleInfo={toggleInfo}
-				/>
-				<RegionsTab
-					metaData={{
-						chapters: [],
-						book: { doi, title: '', type: '', ordinal: 0 },
-					}}
-					isInfoOpen={isInfoOpen}
-					toggleInfo={toggleInfo}
-				/>
+				<MapTab doi={doi} isInfoOpen={isInfoOpen} toggleInfo={toggleInfo} />
+				<RegionsTab doi={doi} isInfoOpen={isInfoOpen} toggleInfo={toggleInfo} />
 				<CountriesTab
-					metaData={{
-						chapters: [],
-						book: { doi, title: '', type: '', ordinal: 0 },
-					}}
+					doi={doi}
 					isInfoOpen={isInfoOpen}
 					toggleInfo={toggleInfo}
 				/>

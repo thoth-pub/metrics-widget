@@ -1,25 +1,17 @@
 import { ChaptersDropdown } from '@/features';
-import { ContentTab, type MetaData, type TabProps } from '@/shared';
+import { ContentTab, type TabProps } from '@/shared';
 
-type TimelineTabProps = TabProps & {
-	metaData: MetaData;
-};
-
-export const TimelineTab = ({
-	isInfoOpen,
-	toggleInfo,
-	metaData,
-}: TimelineTabProps) => {
+export const TimelineTab = ({ doi, isInfoOpen, toggleInfo }: TabProps) => {
 	return (
 		<ContentTab
-			filter={<ChaptersDropdown chapters={metaData.chapters} />}
+			filter={<ChaptersDropdown chapters={[]} />}
 			value="timeline"
 			className="bg-blue-500"
 			title="Usage by measure over time"
 			isInfoOpen={isInfoOpen}
 			onToggleInfo={toggleInfo}
 		>
-			Timeline
+			Timeline {doi}
 		</ContentTab>
 	);
 };

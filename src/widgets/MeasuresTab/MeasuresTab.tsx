@@ -1,12 +1,6 @@
 import { ChaptersDropdown, CSVDownloadButton } from '@/features';
-import {
-	ContentTab,
-	type Doi,
-	NoDataPlaceholder,
-	type TabProps,
-} from '@/shared';
+import { ContentTab, NoDataPlaceholder, type TabProps } from '@/shared';
 import { TABS } from '@/shared/constants';
-import { RechartsDevtools } from '@recharts/devtools';
 import {
 	Bar,
 	BarChart,
@@ -20,21 +14,13 @@ import {
 import { MeasuresTooltip } from './MeasuresTooltip';
 import { useMeasuresTab } from './useMeasuresTab';
 
-type MeasuresTabProps = TabProps & {
-	doi: Doi;
-};
-
 const margin = {
 	top: 20,
 };
 
 const title = 'Usage by measure';
 
-export const MeasuresTab = ({
-	doi,
-	isInfoOpen,
-	toggleInfo,
-}: MeasuresTabProps) => {
+export const MeasuresTab = ({ doi, isInfoOpen, toggleInfo }: TabProps) => {
 	const { metaData, measures, strokes, csvData, isLoading } =
 		useMeasuresTab(doi);
 
@@ -115,11 +101,11 @@ export const MeasuresTab = ({
 				{processedData.length && (
 					<div className="absolute right-0 top-0 text-xs flex gap-4">
 						<div className="flex items-center gap-1">
-							<div className="h-2 w-4 bg-chart-legend-background" />
+							<div className="colorPlaceholder bg-chart-legend-background" />
 							Book
 						</div>
 						<div className="flex items-center gap-1">
-							<div className="h-2 w-4 bg-chart-legend-background bg-[repeating-linear-gradient(135deg,white_0px,white_1px,transparent_4px,transparent_4px)]" />
+							<div className="colorPlaceholder bg-chart-legend-background bg-[repeating-linear-gradient(135deg,white_0px,white_1px,transparent_4px,transparent_4px)]" />
 							Chapters
 						</div>
 					</div>
@@ -167,7 +153,6 @@ export const MeasuresTab = ({
 						<Bar dataKey="Chapters" fillOpacity={1} shape={ChaptersBarShape}>
 							<Tooltip cursor={false} content={MeasuresTooltip} />
 						</Bar>
-						<RechartsDevtools />
 					</BarChart>
 				</ResponsiveContainer>
 			</div>

@@ -106,6 +106,7 @@
 	/* Tier 3 */
 	--color-nav-background: var(--color-background);
 	--color-nav-background-active: var(--color-active);
+	--color-nav-typography: var(--purple-alt);
 	--color-header-background: var(--color-background);
 
 	--color-button-background: var(--white);
@@ -166,6 +167,19 @@
 	--sidebar-accent-foreground: hsl(0, 0%, 9%);
 	--sidebar-border: hsl(0, 0%, 90%);
 	--sidebar-ring: hsl(0, 0%, 63%);
+
+	/* Countries chart */
+	--color-countries-1: hsl(284, 54%, 14%);
+	--color-countries-2: hsl(284, 36%, 28%);
+	--color-countries-3: hsl(284, 26%, 41%);
+	--color-countries-4: hsl(284, 27%, 49%);
+	--color-countries-5: hsl(284, 36%, 59%);
+	--color-countries-6: hsl(284, 47%, 67%);
+	--color-countries-7: hsl(284, 67%, 76%);
+	--color-countries-8: hsl(285, 100%, 85%);
+	--color-countries-9: hsl(285, 100%, 90%);
+	--color-countries-10: hsl(285, 62%, 94%);
+	--color-countries-11: hsl(285, 100%, 99%);
 }
 
 @theme {
@@ -175,6 +189,7 @@
 	--color-typography-alt: var(--color-typography-alt);
 	--color-nav-background: var(--color-nav-background);
 	--color-nav-background-active: var(--color-nav-background-active);
+	--color-nav-typography: var(--color-nav-typography);
 	--color-header-background: var(--color-header-background);
 
 	--color-button-background: var(--color-button-background);
@@ -257,5 +272,9 @@
 	.economica {
 		font-family: var(--font-economica);
 		@apply uppercase text-base font-bold;
+	}
+
+	.colorPlaceholder {
+		@apply h-2 w-4 shrink-0;
 	}
 }

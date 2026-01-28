@@ -1,5 +1,11 @@
 import { config } from '@/shared';
-import type { Doi, MetricsByYearResponse } from '@/shared/interfaces';
+import type {
+	Doi,
+	MetricsByCountryDto,
+	MetricsByCountryResponse,
+	MetricsByYearDto,
+	MetricsByYearResponse,
+} from '@/shared/interfaces';
 
 class MetricsService {
 	private apiLimit = config.metricsApi.itemsPerRequestLimit;
@@ -36,14 +42,15 @@ class MetricsService {
 
 		let offset = 0;
 		const promises = [];
+		const measuresType = 'year,measure_uri';
 
-		const bookUrl = this.generateUrl('year,measure_uri', [workDoi]);
+		const bookUrl = this.generateUrl(measuresType, [workDoi]);
 		promises.push(fetch(bookUrl));
 
 		do {
 			const worksDois = chaptersDoi.slice(offset, offset + this.apiLimit);
 
-			const url = this.generateUrl('year,measure_uri', worksDois);
+			const url = this.generateUrl(measuresType, worksDois);
 
 			promises.push(fetch(url));
 
@@ -64,7 +71,62 @@ class MetricsService {
 				continue;
 			}
 
-			const body = await response.value.json();
+			const body: { data: MetricsByYearDto[] } = await response.value.json();
+
+			if (index === 0) {
+				data.bookMetrics = body.data;
+				index++;
+				continue;
+			}
+
+			data.chaptersMetrics.push(...body.data);
+			index++;
+		}
+
+		return data;
+	}
+
+	public async getMetricsByCountry({
+		workDoi,
+		chaptersDoi,
+	}: {
+		workDoi: Doi;
+		chaptersDoi: Doi[];
+	}): Promise<MetricsByCountryResponse> {
+		if (workDoi.length === 0) return { bookMetrics: [], chaptersMetrics: [] };
+
+		let offset = 0;
+		const promises = [];
+		const measuresType = 'country_uri,measure_uri';
+
+		const bookUrl = this.generateUrl('country_uri,measure_uri', [workDoi]);
+		promises.push(fetch(bookUrl));
+
+		do {
+			const worksDois = chaptersDoi.slice(offset, offset + this.apiLimit);
+
+			const url = this.generateUrl(measuresType, worksDois);
+
+			promises.push(fetch(url));
+
+			offset += config.metricsApi.itemsPerRequestLimit;
+		} while (offset < chaptersDoi.length);
+
+		const responses = await Promise.allSettled(promises);
+
+		const data: MetricsByCountryResponse = {
+			bookMetrics: [],
+			chaptersMetrics: [],
+		};
+		let index = 0;
+
+		for (const response of responses) {
+			if (response.status === 'rejected') {
+				index++;
+				continue;
+			}
+
+			const body: { data: MetricsByCountryDto[] } = await response.value.json();
 
 			if (index === 0) {
 				data.bookMetrics = body.data;

@@ -1,21 +1,17 @@
 import { ChaptersDropdown } from '@/features';
-import { ContentTab, type MetaData, type TabProps } from '@/shared';
+import { ContentTab, type TabProps } from '@/shared';
 
-type MapTabProps = TabProps & {
-	metaData: MetaData;
-};
-
-export const MapTab = ({ isInfoOpen, toggleInfo, metaData }: MapTabProps) => {
+export const MapTab = ({ isInfoOpen, toggleInfo, doi }: TabProps) => {
 	return (
 		<ContentTab
-			filter={<ChaptersDropdown chapters={metaData.chapters} />}
+			filter={<ChaptersDropdown chapters={[]} />}
 			value="map"
 			className="bg-green-500"
 			title="Geographical Usage"
 			isInfoOpen={isInfoOpen}
 			onToggleInfo={toggleInfo}
 		>
-			Map
+			Map {doi}
 		</ContentTab>
 	);
 };

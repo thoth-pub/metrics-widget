@@ -8,5 +8,6 @@ export * from './core/InputGroup/InputGroup';
 export * from './core/Spinner/Spinner';
 export * from './core/Tabs/Tabs';
 export * from './core/Textarea/Textarea';
+export * from './core/Tooltip/Tooltip';
 export * from './layout/Wrapper/Wrapper';
 export * from './NoDataPlaceholder/NoDataPlaceholder';
