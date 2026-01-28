@@ -2,6 +2,7 @@ export * from './components/ContentTab/ContentTab';
 export * from './core/Accordion/Accordion';
 export * from './core/Button/Button';
 export * from './core/Combobox/Combobox';
+export * from './core/DataPlaceholder/DataPlaceholder';
 export * from './core/ErrorBoundary/ErrorBoundary';
 export * from './core/Input/Input';
 export * from './core/InputGroup/InputGroup';

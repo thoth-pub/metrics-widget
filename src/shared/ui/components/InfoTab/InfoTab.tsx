@@ -7,7 +7,7 @@ import {
 
 export const InfoTab = () => {
 	return (
-		<div className="flex flex-col gap-4">
+		<>
 			<h2 className="font-semibold text-sm">Measures</h2>
 			<Accordion type="single" collapsible defaultValue="item-1">
 				<AccordionItem value="item-1">
@@ -50,6 +50,6 @@ export const InfoTab = () => {
 					</AccordionContent>
 				</AccordionItem>
 			</Accordion>
-		</div>
+		</>
 	);
 };

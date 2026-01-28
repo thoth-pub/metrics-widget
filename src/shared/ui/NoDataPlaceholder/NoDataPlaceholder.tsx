@@ -1,3 +1,6 @@
+import { CircleAlert } from 'lucide-react';
+import { DataPlaceholder } from '../core/DataPlaceholder/DataPlaceholder';
+
 export const NoDataPlaceholder = () => {
-	return <div>NoDataPlaceholder</div>;
+	return <DataPlaceholder icon={<CircleAlert />} title="Data not available" />;
 };

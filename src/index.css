@@ -90,6 +90,12 @@
 	--gray: hsl(0, 0%, 91%);
 	--gray-alt: hsl(213, 9%, 62%);
 
+	--max-width: 40rem;
+	--max-height: 30.625rem;
+	--header-height: 3.125rem;
+	--footer-height: 2.5rem;
+	--content-height: calc(100% - var(--footer-height));
+
 	--font-economica: "Economica", sans-serif;
 	--font-open-sans: "Open Sans", sans-serif;
 
@@ -135,6 +141,9 @@
 	--color-spinner: var(--purple);
 
 	--chart-legend-background: var(--purple);
+
+	--color-placeholder-icon: var(--purple-alt);
+	--color-placeholder-icon-bg: var(--color-background);
 
 	/* Shadcn UI */
 	--radius: 0.625rem;
@@ -226,6 +235,9 @@
 
 	--color-spinner: var(--color-spinner);
 	--color-chart-legend-background: var(--chart-legend-background);
+
+	--color-placeholder-icon: var(--color-placeholder-icon);
+	--color-placeholder-icon-bg: var(--color-placeholder-icon-bg);
 }
 
 @theme inline {

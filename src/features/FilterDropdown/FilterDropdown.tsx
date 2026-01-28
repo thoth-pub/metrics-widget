@@ -19,6 +19,8 @@ type FilterDropdownProps = {
 	onValueChange: (value: FilterOption[]) => void;
 };
 
+const textStyles = 'max-w-30 truncate';
+
 export const FilterDropdown = ({
 	items,
 	placeholder,
@@ -29,6 +31,9 @@ export const FilterDropdown = ({
 	const itemsSelected =
 		value.length > 1 ? ` ${value.length} ${placeholder}s` : `1 ${placeholder}`;
 	const placeholderText = value.length > 0 ? itemsSelected : 'All items';
+
+	const disabledItems = items.filter((item) => item.disabled);
+	const availableItems = items.filter((item) => !item.disabled);
 
 	return (
 		<Combobox
@@ -42,40 +47,35 @@ export const FilterDropdown = ({
 		>
 			<ComboboxInput
 				placeholder={placeholderText}
-				className="max-w-46"
+				className="max-w-full sm:max-w-46"
 				showClear
 			>
 				{icon && <InputGroupAddon>{icon}</InputGroupAddon>}
 			</ComboboxInput>
 			<ComboboxContent className="w-46" alignOffset={icon ? -28 : 0}>
 				<ComboboxList>
-					{(item) => (
-						<>
-							{item.disabled ? (
-								<Tooltip>
-									<TooltipTrigger>
-										<ComboboxItem
-											key={item.value}
-											value={item}
-											disabled={item.disabled}
-										>
-											<span className="max-w-30 truncate">{item.label}</span>
-										</ComboboxItem>
-									</TooltipTrigger>
-									<TooltipContent side="right">
-										{item.disabledReason}
-									</TooltipContent>
-								</Tooltip>
-							) : (
-								<ComboboxItem
-									key={item.value}
-									value={item}
-									disabled={item.disabled}
-								>
-									<span className="max-w-30 truncate">{item.label}</span>
-								</ComboboxItem>
-							)}
-						</>
+					{availableItems.map((item) => (
+						<ComboboxItem
+							key={item.value}
+							value={item}
+							disabled={item.disabled}
+						>
+							<span className={textStyles}>{item.label}</span>
+						</ComboboxItem>
+					))}
+					{disabledItems.length > 0 && (
+						<Tooltip>
+							<TooltipTrigger>
+								{disabledItems.map((item) => (
+									<ComboboxItem key={item.value} value={item} disabled>
+										<span className={textStyles}>{item.label}</span>
+									</ComboboxItem>
+								))}
+							</TooltipTrigger>
+							<TooltipContent side="right">
+								{disabledItems[0].disabledReason}
+							</TooltipContent>
+						</Tooltip>
 					)}
 				</ComboboxList>
 			</ComboboxContent>

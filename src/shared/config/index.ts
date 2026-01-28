@@ -83,5 +83,6 @@ export const config = {
 		filename: 'download.csv',
 		measuresHeader: ['Platform', 'Book', 'Chapter'],
 		countriesHeader: ['Country', 'Percentage'],
+		regionsHeader: ['Region', 'Percentage'],
 	},
 };

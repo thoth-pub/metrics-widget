@@ -1,5 +1,6 @@
 import { type Doi, isValidDoi, useMetaData } from '@/shared';
 import {
+	DataPlaceholder,
 	ErrorBoundary,
 	Tabs,
 	TabsList,
@@ -9,6 +10,7 @@ import {
 import {
 	ChartBar,
 	ChartLine,
+	CircleX,
 	Earth,
 	Globe,
 	Map as MapIcon,
@@ -23,6 +25,8 @@ import {
 	TimelineTab,
 } from './widgets';
 
+const textStyles = 'hidden sm:block';
+
 function App({ doi }: { doi: Doi }) {
 	const isValid = isValidDoi(doi);
 	const { error, refetch } = useMetaData(doi);
@@ -32,9 +36,7 @@ function App({ doi }: { doi: Doi }) {
 	if (!isValid) {
 		return (
 			<Wrapper>
-				<div className="flex items-center justify-center h-full">
-					Invalid DOI
-				</div>
+				<DataPlaceholder icon={<CircleX />} title="Invalid DOI" />
 			</Wrapper>
 		);
 	}
@@ -71,22 +73,21 @@ function App({ doi }: { doi: Doi }) {
 					isInfoOpen={isInfoOpen}
 					toggleInfo={toggleInfo}
 				/>
-				<TabsList className="w-full">
+				<TabsList className="w-full shrink-0 h-(--footer-height)">
 					<TabsTrigger value={TABS.MEASURES}>
-						<ChartBar /> Measures
+						<ChartBar /> <span className={textStyles}>Measures</span>
 					</TabsTrigger>
 					<TabsTrigger value={TABS.TIMELINE}>
-						<ChartLine /> Timeline
+						<ChartLine /> <span className={textStyles}>Timeline</span>
 					</TabsTrigger>
 					<TabsTrigger value={TABS.MAP}>
-						<MapIcon /> Map
+						<MapIcon /> <span className={textStyles}>Map</span>
 					</TabsTrigger>
 					<TabsTrigger value={TABS.REGIONS}>
-						<Globe /> Regions
+						<Globe /> <span className={textStyles}>Regions</span>
 					</TabsTrigger>
 					<TabsTrigger value={TABS.COUNTRIES}>
-						<Earth />
-						Countries
+						<Earth /> <span className={textStyles}>Countries</span>
 					</TabsTrigger>
 				</TabsList>
 			</Tabs>

@@ -1,28 +1,50 @@
-import { ChaptersDropdown } from '@/features';
 import {
-	ContentTab,
-	type TabProps,
-	useMetricsByCountryOrRegion,
-} from '@/shared';
+	ChaptersDropdown,
+	CSVDownloadButton,
+	FilterDropdown,
+	PieChartWithList,
+} from '@/features';
+import { ContentTab, NoDataPlaceholder, type TabProps } from '@/shared';
+import { TABS } from '@/shared/constants';
+import { useRegionsTab } from './useRegionsTab';
+
+const title = 'Continent Usage';
 
 export const RegionsTab = ({ doi, isInfoOpen, toggleInfo }: TabProps) => {
-	const { metaData, preProcessedData } = useMetricsByCountryOrRegion({
-		doi,
-		type: 'continent_code',
-	});
+	const {
+		metaData,
+		metricsData,
+		csvData,
+		platformOptions,
+		selectedPlatforms,
+		selectPlatform,
+		isLoading,
+	} = useRegionsTab(doi);
 
-	console.log(preProcessedData);
+	if (metricsData.length === 0 && !isLoading) {
+		return (
+			<ContentTab value={TABS.REGIONS} title={title}>
+				<NoDataPlaceholder />
+			</ContentTab>
+		);
+	}
 
 	return (
 		<ContentTab
 			filter={<ChaptersDropdown chapters={metaData.chapters} />}
-			value="regions"
-			className="bg-yellow-500"
-			title="Continent Usage"
+			action={<CSVDownloadButton data={csvData} />}
+			value={TABS.REGIONS}
+			title={title}
 			isInfoOpen={isInfoOpen}
 			onToggleInfo={toggleInfo}
 		>
-			Regions {doi}
+			<FilterDropdown
+				items={platformOptions}
+				placeholder="platform"
+				value={selectedPlatforms}
+				onValueChange={selectPlatform}
+			/>
+			<PieChartWithList metricsData={metricsData} />
 		</ContentTab>
 	);
 };

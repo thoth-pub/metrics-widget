@@ -68,3 +68,26 @@ export const getPercentage = (totalMetrics: number, totalCount: number) => {
 
 	return (totalMetrics / totalCount) * 100;
 };
+
+export const getContinentNameByCode = (continentCode: string) => {
+	switch (continentCode.toLowerCase()) {
+		case 'af':
+			return 'Africa';
+		case 'as':
+			return 'Asia';
+		case 'eu':
+			return 'Europe';
+		case 'na':
+			return 'Northern America';
+		case 'an':
+			return 'Antarctica';
+		case 'sa':
+			return 'Latin America and the Caribbean';
+		case 'la':
+			return 'Latin America and the Caribbean';
+		case 'oc':
+			return 'Oceania';
+		default:
+			return continentCode;
+	}
+};

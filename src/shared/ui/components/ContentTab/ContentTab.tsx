@@ -25,10 +25,12 @@ export const ContentTab = ({
 	...props
 }: ContentTabProps) => {
 	return (
-		<TabsContent {...props} className="flex flex-col h-full">
-			<div className="h-12.5 px-4 py-2 bg-header-background flex items-center justify-between">
+		<TabsContent {...props} className="flex flex-col h-(--content-height)">
+			<div className="h-(--header-height) px-4 py-2 bg-header-background flex items-center justify-between">
 				{filter}
-				<h2 className="economica">{isInfoOpen ? 'Information' : title}</h2>
+				<h2 className="economica hidden sm:block">
+					{isInfoOpen ? 'Information' : title}
+				</h2>
 				<div className="flex gap-2.5">
 					{action}
 					<Button
@@ -41,12 +43,19 @@ export const ContentTab = ({
 					</Button>
 				</div>
 			</div>
-			<div className="p-4 flex-1">
-				{isInfoOpen && <InfoTab />}
-				{!isInfoOpen && !isLoading && children}
-				{!isInfoOpen && isLoading && (
-					<Spinner className="m-auto size-12 h-full text-spinner" />
-				)}
+			<div className="px-4 pt-4 flex-1 flex overflow-auto mb-4">
+				<div className="flex flex-col gap-4 grow">
+					{!isLoading && (
+						<h2 className="economica block sm:hidden text-center">
+							{isInfoOpen ? 'Information' : title}
+						</h2>
+					)}
+					{isInfoOpen && <InfoTab />}
+					{!isInfoOpen && !isLoading && children}
+					{!isInfoOpen && isLoading && (
+						<Spinner className="m-auto size-12 h-full text-spinner" />
+					)}
+				</div>
 			</div>
 		</TabsContent>
 	);
