@@ -1,3 +1,4 @@
+import { ChartTooltipWrapper } from '@/shared';
 import type { Measure } from './useMeasuresTab';
 
 type MeasuresTooltipProps = {
@@ -19,13 +20,7 @@ export const MeasuresTooltip = ({
 	if (!active || !payload || !payload.length) return null;
 
 	return (
-		<div
-			className="flex flex-col gap-1 bg-tooltip-background p-2.5 text-xs font-normal border border-transparent rounded-md"
-			style={{
-				borderRadius: '6px',
-				boxShadow: 'var(--tooltip-drop-shadow)',
-			}}
-		>
+		<ChartTooltipWrapper>
 			<div className="flex gap-1 items-center justify-center">
 				<div
 					className="colorPlaceholder"
@@ -41,6 +36,6 @@ export const MeasuresTooltip = ({
 					{pld.dataKey}: <strong>{pld.value}</strong>
 				</div>
 			))}
-		</div>
+		</ChartTooltipWrapper>
 	);
 };
