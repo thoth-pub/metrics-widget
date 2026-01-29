@@ -5,7 +5,14 @@ import { useDOIs } from './useDOIs';
 import { useMetaData } from './useMetaData';
 import { useServices } from './useServices';
 
-export const useMetricsByCountries = (doi: Doi) => {
+type UseMetricsByMonthProps = {
+	doi: Doi;
+	startDate: string;
+};
+
+export const useMetricsByMonth = (props: UseMetricsByMonthProps) => {
+	const { doi, startDate } = props;
+
 	const { metricsService } = useServices();
 	const {
 		data,
@@ -20,11 +27,12 @@ export const useMetricsByCountries = (doi: Doi) => {
 		isLoading: metricsLoading,
 		error: metricsError,
 	} = useQuery({
-		queryKey: [QUERY_KEYS.METRICS_BY_COUNTRY, ...chaptersDois],
+		queryKey: [QUERY_KEYS.LAST_YEAR_METRICS, ...chaptersDois, startDate],
 		queryFn: () =>
-			metricsService.getMetricsByCountry({
+			metricsService.getMetricsByMonth({
 				workDoi: bookDoi,
 				chaptersDoi: chaptersDois,
+				startDate,
 			}),
 		enabled: isQueryEnabled,
 	});

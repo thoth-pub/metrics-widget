@@ -12,7 +12,8 @@ export const useMetricsByYear = (doi: Doi) => {
 		isLoading: isLoadingMetaData,
 		error: errorMetaData,
 	} = useMetaData(doi);
-	const { bookDoi, chaptersDois } = useDOIs(doi);
+
+	const { bookDoi, chaptersDois, isQueryEnabled } = useDOIs(doi);
 
 	const {
 		data: metricsData = { bookMetrics: [], chaptersMetrics: [] },
@@ -25,7 +26,7 @@ export const useMetricsByYear = (doi: Doi) => {
 				workDoi: bookDoi,
 				chaptersDoi: chaptersDois,
 			}),
-		enabled: bookDoi.length > 0 && !isLoadingMetaData,
+		enabled: isQueryEnabled,
 	});
 
 	const isLoading = isLoadingMetaData || metricsLoading;

@@ -14,8 +14,11 @@ export const useDOIs = (doi: Doi) => {
 					selectedChaptersDois.includes(doi),
 				);
 
+	const isQueryEnabled = normalizedDois.bookDoi.length > 0;
+
 	return {
 		bookDoi: normalizedDois.bookDoi,
 		chaptersDois: filteredChaptersDois,
+		isQueryEnabled,
 	};
 };

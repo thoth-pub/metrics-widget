@@ -7,14 +7,31 @@ import type {
 	MetricsByYearResponse,
 } from '@/shared/interfaces';
 
+type RequestProps = {
+	workDoi: Doi;
+	chaptersDoi: Doi[];
+};
+
+type AggregationType =
+	| 'measure_uri,month'
+	| 'country_uri,measure_uri'
+	| 'year,measure_uri';
+
+type MetricsPromisesGenerator = RequestProps & {
+	aggregationType: AggregationType;
+	startDate?: string;
+	endDate?: string;
+};
+
+type MetricsByMonthRequestProps = RequestProps & {
+	startDate: string;
+};
+
 class MetricsService {
 	private apiLimit = config.metricsApi.itemsPerRequestLimit;
 
 	private generateUrl(
-		aggregationType:
-			| 'measure_uri,month'
-			| 'country_uri,measure_uri'
-			| 'year,measure_uri',
+		aggregationType: AggregationType,
 		dois: Doi[],
 		startDate?: string,
 		endDate?: string,
@@ -31,35 +48,36 @@ class MetricsService {
 		return `${baseQuery}${startDateFilter}${endDateFilter}&filter=work_uri:info:doi:${query},measure_uri:${trackedMetrics}`;
 	}
 
-	public async getMetricsByYear({
+	private async generateMetricsPromises({
 		workDoi,
 		chaptersDoi,
-	}: {
-		workDoi: Doi;
-		chaptersDoi: Doi[];
-	}): Promise<MetricsByYearResponse> {
-		if (workDoi.length === 0) return { bookMetrics: [], chaptersMetrics: [] };
+		aggregationType,
+	}: MetricsPromisesGenerator) {
+		if (workDoi.length === 0) return [];
+
+		const promises = [];
 
 		let offset = 0;
-		const promises = [];
-		const measuresType = 'year,measure_uri';
-
-		const bookUrl = this.generateUrl(measuresType, [workDoi]);
+		const bookUrl = this.generateUrl(aggregationType, [workDoi]);
 		promises.push(fetch(bookUrl));
 
 		do {
 			const worksDois = chaptersDoi.slice(offset, offset + this.apiLimit);
 
-			const url = this.generateUrl(measuresType, worksDois);
+			const url = this.generateUrl(aggregationType, worksDois);
 
 			promises.push(fetch(url));
 
 			offset += config.metricsApi.itemsPerRequestLimit;
 		} while (offset < chaptersDoi.length);
 
-		const responses = await Promise.allSettled(promises);
+		return promises;
+	}
 
-		const data: MetricsByYearResponse = {
+	private async parseMetricsResponse<T>(
+		responses: PromiseSettledResult<Response>[],
+	) {
+		const data: { bookMetrics: T[]; chaptersMetrics: T[] } = {
 			bookMetrics: [],
 			chaptersMetrics: [],
 		};
@@ -71,7 +89,7 @@ class MetricsService {
 				continue;
 			}
 
-			const body: { data: MetricsByYearDto[] } = await response.value.json();
+			const body: { data: T[] } = await response.value.json();
 
 			if (index === 0) {
 				data.bookMetrics = body.data;
@@ -86,57 +104,56 @@ class MetricsService {
 		return data;
 	}
 
-	public async getMetricsByCountry({
+	public async getMetricsByYear({
 		workDoi,
 		chaptersDoi,
-	}: {
-		workDoi: Doi;
-		chaptersDoi: Doi[];
-	}): Promise<MetricsByCountryResponse> {
-		if (workDoi.length === 0) return { bookMetrics: [], chaptersMetrics: [] };
-
-		let offset = 0;
-		const promises = [];
-		const measuresType = 'country_uri,measure_uri';
-
-		const bookUrl = this.generateUrl('country_uri,measure_uri', [workDoi]);
-		promises.push(fetch(bookUrl));
-
-		do {
-			const worksDois = chaptersDoi.slice(offset, offset + this.apiLimit);
-
-			const url = this.generateUrl(measuresType, worksDois);
-
-			promises.push(fetch(url));
-
-			offset += config.metricsApi.itemsPerRequestLimit;
-		} while (offset < chaptersDoi.length);
+	}: RequestProps): Promise<MetricsByYearResponse> {
+		const promises = await this.generateMetricsPromises({
+			workDoi,
+			chaptersDoi,
+			aggregationType: 'year,measure_uri',
+		});
 
 		const responses = await Promise.allSettled(promises);
 
-		const data: MetricsByCountryResponse = {
-			bookMetrics: [],
-			chaptersMetrics: [],
-		};
-		let index = 0;
+		const data = await this.parseMetricsResponse<MetricsByYearDto>(responses);
 
-		for (const response of responses) {
-			if (response.status === 'rejected') {
-				index++;
-				continue;
-			}
+		return data;
+	}
 
-			const body: { data: MetricsByCountryDto[] } = await response.value.json();
+	public async getMetricsByCountry({
+		workDoi,
+		chaptersDoi,
+	}: RequestProps): Promise<MetricsByCountryResponse> {
+		const promises = await this.generateMetricsPromises({
+			workDoi,
+			chaptersDoi,
+			aggregationType: 'country_uri,measure_uri',
+		});
 
-			if (index === 0) {
-				data.bookMetrics = body.data;
-				index++;
-				continue;
-			}
+		const responses = await Promise.allSettled(promises);
 
-			data.chaptersMetrics.push(...body.data);
-			index++;
-		}
+		const data =
+			await this.parseMetricsResponse<MetricsByCountryDto>(responses);
+
+		return data;
+	}
+
+	public async getMetricsByMonth({
+		workDoi,
+		chaptersDoi,
+		startDate,
+	}: MetricsByMonthRequestProps): Promise<unknown> {
+		const promises = await this.generateMetricsPromises({
+			workDoi,
+			chaptersDoi,
+			aggregationType: 'measure_uri,month',
+			startDate,
+		});
+
+		const responses = await Promise.allSettled(promises);
+
+		const data = await this.parseMetricsResponse<unknown>(responses);
 
 		return data;
 	}
