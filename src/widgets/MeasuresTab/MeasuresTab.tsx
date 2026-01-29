@@ -20,6 +20,60 @@ const margin = {
 
 const title = 'Usage by measure';
 
+const tickFormatter = (value: string, _index: number) => {
+	const limit = 20;
+
+	const formattedValue = value
+		.split(' ')
+		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+		.join(' ');
+
+	if (formattedValue.length < limit) return formattedValue;
+
+	return `${formattedValue.substring(0, limit)}...`.replace(/ /g, '\u00A0');
+};
+
+const ChaptersBarShape = (props: BarShapeProps) => {
+	let height = props.height;
+	let translateY = 0;
+
+	if (!props.payload.Chapters) {
+		return null;
+	}
+
+	if (!props.payload.Book) {
+		height = height * 2;
+		translateY = height / 2;
+	}
+
+	return (
+		<Rectangle
+			{...props}
+			stroke="none"
+			fillOpacity={1}
+			fill={`url(#${props.stroke})`}
+			height={height}
+			style={{
+				transform: `translateY(-${translateY}px)`,
+			}}
+		/>
+	);
+};
+
+const BookBarShape = (props: BarShapeProps) => {
+	let height = props.height;
+
+	if (!props.payload.Book) {
+		return null;
+	}
+
+	if (!props.payload.Chapters) {
+		height = height * 2;
+	}
+
+	return <Rectangle {...props} height={height} />;
+};
+
 export const MeasuresTab = ({ doi, isInfoOpen, toggleInfo }: TabProps) => {
 	const { metaData, measures, strokes, csvData, isLoading } =
 		useMeasuresTab(doi);
@@ -29,55 +83,6 @@ export const MeasuresTab = ({ doi, isInfoOpen, toggleInfo }: TabProps) => {
 		Book: item.Book === 0 ? null : item.Book,
 		Chapters: item.Chapters === 0 ? null : item.Chapters,
 	}));
-
-	const ChaptersBarShape = (props: BarShapeProps) => {
-		let height = props.height;
-
-		if (!props.payload.Chapters) {
-			return null;
-		}
-
-		if (!props.payload.Book) {
-			height = height * 1.5;
-		}
-
-		return (
-			<Rectangle
-				{...props}
-				stroke="none"
-				fillOpacity={1}
-				fill={`url(#${props.stroke})`}
-				height={height}
-			/>
-		);
-	};
-
-	const BookBarShape = (props: BarShapeProps) => {
-		let height = props.height;
-
-		if (!props.payload.Book) {
-			return null;
-		}
-
-		if (!props.payload.Chapters) {
-			height = height * 1.5;
-		}
-
-		return <Rectangle {...props} height={height} />;
-	};
-
-	const tickFormatter = (value: string, _index: number) => {
-		const limit = 20;
-
-		const formattedValue = value
-			.split(' ')
-			.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-			.join(' ');
-
-		if (formattedValue.length < limit) return formattedValue;
-
-		return `${formattedValue.substring(0, limit)}...`.replace(/ /g, '\u00A0');
-	};
 
 	if (processedData.length === 0 && !isLoading) {
 		return (
@@ -116,6 +121,8 @@ export const MeasuresTab = ({ doi, isInfoOpen, toggleInfo }: TabProps) => {
 						margin={margin}
 						layout="vertical"
 						barGap={0}
+						barCategoryGap={2}
+						height="100%"
 					>
 						<defs>
 							{Object.entries(strokes).map(([strokeId, color]) => (
@@ -145,8 +152,12 @@ export const MeasuresTab = ({ doi, isInfoOpen, toggleInfo }: TabProps) => {
 							fontSize={12}
 							fontWeight={400}
 							tickFormatter={tickFormatter}
+							scale="band"
 							axisLine={{ stroke: 'none' }}
 							tickLine={{ stroke: 'none' }}
+							tick={{
+								dy: 6,
+							}}
 						/>
 
 						<Bar dataKey="Book" shape={BookBarShape} />

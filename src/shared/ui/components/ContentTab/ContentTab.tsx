@@ -27,11 +27,11 @@ export const ContentTab = ({
 	return (
 		<TabsContent {...props} className="flex flex-col h-(--content-height)">
 			<div className="h-(--header-height) px-4 py-2 bg-header-background flex items-center justify-between">
-				{filter}
-				<h2 className="economica hidden sm:block">
+				<div className="relative z-10">{filter}</div>
+				<h2 className="economica hidden sm:block absolute left-0 w-full text-center">
 					{isInfoOpen ? 'Information' : title}
 				</h2>
-				<div className="flex gap-2.5">
+				<div className="ml-2.5 flex gap-2.5 relative z-10">
 					{action}
 					<Button
 						variant={isInfoOpen ? 'active' : 'outline'}
