@@ -78,6 +78,11 @@ export const config = {
 			},
 			{ platform: 'Open Book Publishers PDF Reader', label: 'OBP PDF Reader' },
 		],
+		mapChartColors: {
+			zeroValue: '#dadada',
+			lowestValue: '#FFF',
+			highestValue: '#8D5A9F',
+		},
 	},
 	csv: {
 		filename: 'download.csv',

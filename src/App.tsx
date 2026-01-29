@@ -15,15 +15,33 @@ import {
 	Globe,
 	Map as MapIcon,
 } from 'lucide-react';
-import { useState } from 'react';
+import { lazy, useState } from 'react';
 import { TABS } from './shared/constants';
-import {
-	CountriesTab,
-	MapTab,
-	MeasuresTab,
-	RegionsTab,
-	TimelineTab,
-} from './widgets';
+import { MeasuresTab } from './widgets';
+
+const CountriesTab = lazy(() =>
+	import('./widgets/CountriesTab/CountriesTab').then((module) => ({
+		default: module.CountriesTab,
+	})),
+);
+
+const MapTab = lazy(() =>
+	import('./widgets/MapTab/MapTab').then((module) => ({
+		default: module.MapTab,
+	})),
+);
+
+const RegionsTab = lazy(() =>
+	import('./widgets/RegionsTab/RegionsTab').then((module) => ({
+		default: module.RegionsTab,
+	})),
+);
+
+const TimelineTab = lazy(() =>
+	import('./widgets/TimelineTab/TimelineTab').then((module) => ({
+		default: module.TimelineTab,
+	})),
+);
 
 const textStyles = 'hidden sm:block';
 

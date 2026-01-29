@@ -1,7 +1,7 @@
-import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
@@ -24,6 +24,7 @@ export default defineConfig({
 			external: ['react', 'react-dom', 'react-dom/client', 'react/jsx-runtime'],
 		},
 		copyPublicDir: true,
+		assetsInlineLimit: 0,
 	},
 	publicDir: 'public',
 });

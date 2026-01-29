@@ -16,15 +16,11 @@ export const useCountriesTab = (doi: Doi) => {
 		platformOptions,
 		isLoading,
 		setSelectedPlatforms,
-	} = useMetricsByCountryOrRegion({ doi, type: 'country_name' });
+	} = useMetricsByCountryOrRegion({ doi, dataType: 'country' });
 
 	let topTenCount = 0;
 
-	const sortedData = Object.entries(preProcessedData).sort(
-		(a, b) => b[1] - a[1],
-	);
-
-	const processedData = sortedData
+	const processedData = preProcessedData
 		.slice(0, config.charts.countriesChart.countriesListLimit)
 		.map(([country, totalMetrics], index) => {
 			const percentage = getPercentage(totalMetrics, totalCount);

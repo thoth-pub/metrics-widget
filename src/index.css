@@ -136,6 +136,7 @@
 	--color-input-start-icon: var(--gray-alt);
 
 	--color-tooltip-background: var(--white);
+	--tooltip-drop-shadow: 0px 1px 9px 0px #1a2a5226;
 	--color-divider: var(--gray);
 
 	--color-spinner: var(--purple);

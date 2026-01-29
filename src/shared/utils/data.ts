@@ -1,8 +1,18 @@
+import { scaleLinear } from 'd3-scale';
 import iso from 'iso-3166-1';
 import { config } from '../config';
 
+const {
+	charts: {
+		sourcesForUpdate,
+		mapChartColors,
+		defaultMetricsChartColor,
+		metricsChartColors,
+	},
+} = config;
+
 export const updateSource = (source: string) => {
-	const shouldUpdate = config.charts.sourcesForUpdate.find((label) =>
+	const shouldUpdate = sourcesForUpdate.find((label) =>
 		source.startsWith(label.platform),
 	);
 
@@ -13,10 +23,10 @@ export const updateSource = (source: string) => {
 
 export const getColor = (source: string) => {
 	const sourceKey = source.toLowerCase();
-	const defaultColor = config.charts.defaultMetricsChartColor;
+	const defaultColor = defaultMetricsChartColor;
 	const color =
 		config.charts.metricsChartColors[
-			sourceKey as keyof typeof config.charts.metricsChartColors
+			sourceKey as keyof typeof metricsChartColors
 		];
 
 	return color ?? defaultColor;
@@ -89,5 +99,71 @@ export const getContinentNameByCode = (continentCode: string) => {
 			return 'Oceania';
 		default:
 			return continentCode;
+	}
+};
+
+export const getSaturationValue = ({
+	topValue,
+	itemValue,
+}: {
+	topValue: number;
+	itemValue: number;
+}) => {
+	const filterValue = (itemValue * 100) / topValue;
+
+	return filterValue;
+};
+
+export const getChartColorByPercentage = ({
+	highestValue,
+	lowestValue,
+}: {
+	highestValue: number;
+	lowestValue: number;
+}) => {
+	if (lowestValue === 0) return mapChartColors.zeroValue;
+
+	const percentage = getSaturationValue({
+		topValue: highestValue,
+		itemValue: lowestValue,
+	});
+	const colorScale = scaleLinear()
+		.domain([0, 100])
+		// @ts-expect-error d3-scale types issue
+		.range([mapChartColors.lowestValue, mapChartColors.highestValue]);
+
+	const color = colorScale(percentage);
+
+	return color.toString();
+};
+
+export const getApiCountryName = (name: string) => {
+	switch (name.toLowerCase()) {
+		case "côte d'ivoire ":
+			return "Cote d'ivoire Ivory Coast";
+		case 'czechia':
+			return 'Czech Republic';
+		case 'united kingdom of great britain and northern ireland':
+			return 'United Kingdom';
+		case 'republic of korea':
+			return 'South Korea';
+		case "democratic people's republic of korea":
+			return 'North Korea';
+		case 'moldova':
+			return 'Moldava';
+		case 'myanmar':
+			return 'Myanmar Burma';
+		case 'philippines':
+			return 'Phillipines';
+		case 'russian federation':
+			return 'Russia';
+		case 'syrian arab republic':
+			return 'Syria';
+		case 'türkiye':
+			return 'Turkey';
+		case 'viet nam':
+			return 'Vietnam';
+		default:
+			return name;
 	}
 };

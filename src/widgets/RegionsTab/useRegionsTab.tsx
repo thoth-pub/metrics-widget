@@ -18,14 +18,10 @@ export const useRegionsTab = (doi: Doi) => {
 		setSelectedPlatforms,
 	} = useMetricsByCountryOrRegion({
 		doi,
-		type: 'continent_code',
+		dataType: 'continent',
 	});
 
-	const sortedData = Object.entries(preProcessedData).sort(
-		(a, b) => b[1] - a[1],
-	);
-
-	const processedData = sortedData.map(([region, value], index) => {
+	const processedData = preProcessedData.map(([region, value], index) => {
 		const percentage = getPercentage(value, totalCount);
 
 		return {

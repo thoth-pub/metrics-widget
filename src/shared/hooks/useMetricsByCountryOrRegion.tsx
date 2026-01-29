@@ -5,13 +5,16 @@ import { useMetricsByCountries } from './useMetricsByCountries';
 
 type UseMetricsByCountryOrRegionProps = {
 	doi: Doi;
-	type: MetricByCountryKey;
+	dataType: 'country' | 'continent';
 };
 
 export const useMetricsByCountryOrRegion = (
 	props: UseMetricsByCountryOrRegionProps,
 ) => {
-	const { doi, type } = props;
+	const { doi, dataType } = props;
+
+	const dataKey: MetricByCountryKey =
+		dataType === 'country' ? 'country_name' : 'continent_code';
 
 	const { metaData, metricsData, isLoading } = useMetricsByCountries(doi);
 	const [selectedPlatforms, setSelectedPlatforms] = useState<
@@ -54,9 +57,13 @@ export const useMetricsByCountryOrRegion = (
 			return acc;
 		}, 0);
 
-		preProcessedData[metric[type]] =
-			(preProcessedData[metric[type]] || 0) + totalMetrics;
+		preProcessedData[metric[dataKey]] =
+			(preProcessedData[metric[dataKey]] || 0) + totalMetrics;
 	}
+
+	const sortedPreProcessedData = Object.entries(preProcessedData).sort(
+		(a, b) => b[1] - a[1],
+	);
 
 	const totalCount = Object.values(preProcessedData).reduce(
 		(acc, curr) => acc + curr,
@@ -87,7 +94,8 @@ export const useMetricsByCountryOrRegion = (
 		metaData,
 		isLoading,
 		totalCount,
-		preProcessedData,
+    rawData: preProcessedData,
+		preProcessedData: sortedPreProcessedData,
 		platformOptions,
 		selectedPlatforms,
 		setSelectedPlatforms,
