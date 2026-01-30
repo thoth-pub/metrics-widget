@@ -8,10 +8,11 @@ import { useServices } from './useServices';
 type UseMetricsByMonthProps = {
 	doi: Doi;
 	startDate: string;
+	endDate: string;
 };
 
 export const useMetricsByMonth = (props: UseMetricsByMonthProps) => {
-	const { doi, startDate } = props;
+	const { doi, startDate, endDate } = props;
 
 	const { metricsService } = useServices();
 	const {
@@ -27,12 +28,18 @@ export const useMetricsByMonth = (props: UseMetricsByMonthProps) => {
 		isLoading: metricsLoading,
 		error: metricsError,
 	} = useQuery({
-		queryKey: [QUERY_KEYS.LAST_YEAR_METRICS, ...chaptersDois, startDate],
+		queryKey: [
+			QUERY_KEYS.LAST_YEAR_METRICS,
+			...chaptersDois,
+			startDate,
+			endDate,
+		],
 		queryFn: () =>
 			metricsService.getMetricsByMonth({
 				workDoi: bookDoi,
 				chaptersDoi: chaptersDois,
 				startDate,
+				endDate,
 			}),
 		enabled: isQueryEnabled,
 	});

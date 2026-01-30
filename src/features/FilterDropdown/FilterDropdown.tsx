@@ -10,12 +10,14 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from '@/shared';
+import { cn } from '@/shared/lib/utils';
 
 type FilterDropdownProps = {
 	items: FilterOption[];
 	placeholder: string;
 	icon?: React.ReactNode;
 	value: FilterOption[];
+	inputClassName?: string;
 	onValueChange: (value: FilterOption[]) => void;
 };
 
@@ -26,14 +28,17 @@ export const FilterDropdown = ({
 	placeholder,
 	value,
 	icon,
+	inputClassName,
 	onValueChange,
 }: FilterDropdownProps) => {
 	const itemsSelected =
 		value.length > 1 ? ` ${value.length} ${placeholder}s` : `1 ${placeholder}`;
 	const placeholderText = value.length > 0 ? itemsSelected : 'All items';
+	const emptyPlaceholderText = `No ${placeholder}s available`;
 
 	const disabledItems = items.filter((item) => item.disabled);
 	const availableItems = items.filter((item) => !item.disabled);
+	const isEmpty = items.length === 0;
 
 	return (
 		<Combobox
@@ -43,11 +48,11 @@ export const FilterDropdown = ({
 			itemToStringValue={(item) => item.label}
 			isItemEqualToValue={(item, value) => item.value === value.value}
 			onValueChange={onValueChange}
-			disabled={items.length === 0}
+			disabled={isEmpty}
 		>
 			<ComboboxInput
-				placeholder={placeholderText}
-				className="max-w-full sm:max-w-46"
+				placeholder={isEmpty ? emptyPlaceholderText : placeholderText}
+				className={cn('max-w-full sm:max-w-46', inputClassName)}
 				showClear
 			>
 				{icon && <InputGroupAddon>{icon}</InputGroupAddon>}

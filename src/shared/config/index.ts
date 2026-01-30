@@ -46,6 +46,7 @@ export const config = {
 		],
 	},
 	charts: {
+		tickMargin: 8,
 		timeMetricsChart: {
 			maxYearsPerPage: 15,
 		},
@@ -82,6 +83,19 @@ export const config = {
 			zeroValue: '#dadada',
 			lowestValue: '#FFF',
 			highestValue: '#8D5A9F',
+		},
+		timelineChart: {
+			defaultChartOpacity: 1,
+			inactiveChartOpacity: 0.5,
+			activeChartOpacity: 1,
+			defaultDotOpacity: 1,
+			inactiveDotOpacity: 0,
+			activeDotOpacity: 1,
+			strokeDasharray: '10 10',
+			lineStrokeWidth: 2,
+			lineDotStrokeWidth: 1,
+			lineDotRadius: 3,
+			maxYearsPerPage: 12,
 		},
 	},
 	csv: {

@@ -3,6 +3,8 @@ import type {
 	Doi,
 	MetricsByCountryDto,
 	MetricsByCountryResponse,
+	MetricsByMonthResponse,
+	MetricsByMonthsSourceDto,
 	MetricsByYearDto,
 	MetricsByYearResponse,
 } from '@/shared/interfaces';
@@ -25,6 +27,7 @@ type MetricsPromisesGenerator = RequestProps & {
 
 type MetricsByMonthRequestProps = RequestProps & {
 	startDate: string;
+	endDate: string;
 };
 
 class MetricsService {
@@ -52,19 +55,31 @@ class MetricsService {
 		workDoi,
 		chaptersDoi,
 		aggregationType,
+		startDate,
+		endDate,
 	}: MetricsPromisesGenerator) {
 		if (workDoi.length === 0) return [];
 
 		const promises = [];
 
 		let offset = 0;
-		const bookUrl = this.generateUrl(aggregationType, [workDoi]);
+		const bookUrl = this.generateUrl(
+			aggregationType,
+			[workDoi],
+			startDate,
+			endDate,
+		);
 		promises.push(fetch(bookUrl));
 
 		do {
 			const worksDois = chaptersDoi.slice(offset, offset + this.apiLimit);
 
-			const url = this.generateUrl(aggregationType, worksDois);
+			const url = this.generateUrl(
+				aggregationType,
+				worksDois,
+				startDate,
+				endDate,
+			);
 
 			promises.push(fetch(url));
 
@@ -143,17 +158,20 @@ class MetricsService {
 		workDoi,
 		chaptersDoi,
 		startDate,
-	}: MetricsByMonthRequestProps): Promise<unknown> {
+		endDate,
+	}: MetricsByMonthRequestProps): Promise<MetricsByMonthResponse> {
 		const promises = await this.generateMetricsPromises({
 			workDoi,
 			chaptersDoi,
 			aggregationType: 'measure_uri,month',
 			startDate,
+			endDate,
 		});
 
 		const responses = await Promise.allSettled(promises);
 
-		const data = await this.parseMetricsResponse<unknown>(responses);
+		const data =
+			await this.parseMetricsResponse<MetricsByMonthsSourceDto>(responses);
 
 		return data;
 	}

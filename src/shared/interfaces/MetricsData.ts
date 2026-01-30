@@ -12,6 +12,11 @@ export type MetricsByYearDto = {
 	data: MeasureDto[];
 };
 
+export type MetricsByMonthDto = {
+	month: string;
+	value: number;
+};
+
 export type MetricsResponse<T> = {
 	bookMetrics: T[];
 	chaptersMetrics: T[];
@@ -33,3 +38,14 @@ export type MetricByCountryKey = keyof Pick<
 >;
 
 export type MetricsByCountryResponse = MetricsResponse<MetricsByCountryDto>;
+
+export type MetricsByMonthsSourceDto = {
+	measure_uri: string;
+	namespace: string;
+	source: string;
+	type: string;
+	version: string;
+	data: MetricsByMonthDto[];
+};
+
+export type MetricsByMonthResponse = MetricsResponse<MetricsByMonthsSourceDto>;

@@ -1,11 +1,8 @@
-import {
-	type Doi,
-	formatDateToApiFormat,
-	getDateYearAgo,
-	useMetricsByYear,
-} from '@/shared';
-import { useMetricsByMonth } from '@/shared/hooks/useMetricsByMonth';
+import { type Doi, type FilterOption, useMetricsByYear } from '@/shared';
 import { useState } from 'react';
+import { useYearsPaginationAndFilter } from './useYearsPaginationAndFilter';
+import { useYearsTimelineMetrics } from './useYearsTimelineMetrics';
+import { useYearTimelineMetrics } from './useYearTimelineMetrics';
 
 const TABS = {
 	YEARS: 'years',
@@ -13,28 +10,83 @@ const TABS = {
 } as const;
 
 export const useTimelineTab = (doi: Doi) => {
-	const startDate = getDateYearAgo();
-	const formattedStartDate = formatDateToApiFormat(startDate);
-	const { isLoading: isLoadingMetrics, error: errorMetrics } =
-		useMetricsByYear(doi);
 	const {
 		metaData,
-		metricsData,
+		metricsData: metricsDataByYear,
+		isLoading: isLoadingMetricsByYear,
+		error: errorMetricsByYear,
+	} = useMetricsByYear(doi);
+
+	const {
+		activeYears,
+		yearsOptions,
+		selectedYears,
+		isNextPageAvailable,
+		isPreviousPageAvailable,
+		isPaginationAvailable,
+		setSelectedYears,
+		nextPage,
+		previousPage,
+	} = useYearsPaginationAndFilter(doi);
+
+	const [selectedPlatforms, setSelectedPlatforms] = useState<FilterOption[]>(
+		[],
+	);
+
+	const {
+		processedYearsData,
+		platformOptions,
+		csvData: csvDataByYears,
+	} = useYearsTimelineMetrics({
+		selectedPlatforms,
+		selectedYears: activeYears,
+		metricsDataByYear,
+	});
+
+	const {
+		processedMonthsData,
 		isLoading: isLoadingLastYearMetrics,
 		error: errorLastYearMetrics,
-	} = useMetricsByMonth({ doi, startDate: formattedStartDate });
-	const [activeTab, _setActiveTab] = useState(TABS.YEARS);
+		csvData: csvDataByMonths,
+	} = useYearTimelineMetrics({
+		doi,
+		selectedYears,
+		selectedPlatforms,
+	});
 
-	const isLoading = isLoadingMetrics || isLoadingLastYearMetrics;
-	const error = errorMetrics || errorLastYearMetrics;
+	const activeTab = selectedYears.length === 1 ? TABS.YEAR : TABS.YEARS;
+	const isActiveYearTab = activeTab === TABS.YEAR;
 
-	console.log(metricsData);
+	const isLoading = isActiveYearTab
+		? isLoadingLastYearMetrics
+		: isLoadingMetricsByYear;
+	const error = isActiveYearTab ? errorLastYearMetrics : errorMetricsByYear;
+
+	const csvData = isActiveYearTab ? csvDataByMonths : csvDataByYears;
+
+	const processedData = isActiveYearTab
+		? processedMonthsData
+		: processedYearsData;
+
+	const xKey = isActiveYearTab ? 'month' : 'year';
 
 	return {
-		activeTab,
 		metaData,
-		processedData: [],
+		processedData,
+		xKey,
 		isLoading: isLoading,
 		error: error,
+		platformOptions,
+		selectedPlatforms,
+		csvData,
+		selectedYears,
+		yearsOptions,
+		isNextPageAvailable,
+		isPreviousPageAvailable,
+		isPaginationAvailable,
+		selectPlatform: setSelectedPlatforms,
+		setSelectedYears,
+		nextPage,
+		previousPage,
 	};
 };

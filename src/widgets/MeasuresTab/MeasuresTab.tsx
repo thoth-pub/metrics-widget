@@ -144,6 +144,7 @@ export const MeasuresTab = ({ doi, isInfoOpen, toggleInfo }: TabProps) => {
 							fontWeight={400}
 							axisLine={{ stroke: 'none' }}
 							tickLine={{ stroke: 'none' }}
+							tickMargin={8}
 						/>
 						<YAxis
 							dataKey="name"
