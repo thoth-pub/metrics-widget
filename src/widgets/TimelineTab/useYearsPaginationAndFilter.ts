@@ -4,7 +4,7 @@ import {
 	type FilterOption,
 	useMetricsByYear,
 } from '@/shared';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const paginationStep = config.charts.timelineChart.maxYearsPerPage;
 
@@ -14,6 +14,22 @@ export const useYearsPaginationAndFilter = (doi: Doi) => {
 	const [activePage, setActivePage] = useState(1);
 
 	const years = new Set<string>();
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: we want to run this effect only when metricsDataByYear changes
+	useEffect(() => {
+		if (years.size !== 1) return;
+
+		const firstYear = years.values().next().value;
+
+		if (!firstYear) return;
+
+		setSelectedYears([
+			{
+				label: firstYear,
+				value: firstYear,
+			},
+		]);
+	}, [metricsDataByYear]);
 
 	for (const metric of metricsDataByYear.bookMetrics) {
 		years.add(metric.year);
@@ -67,7 +83,7 @@ export const useYearsPaginationAndFilter = (doi: Doi) => {
 			? isNextPageAvailableWithFilter
 			: isNextPageAvailableWithoutFilter;
 
-  const isPaginationAvailable = maxPages > 1;
+	const isPaginationAvailable = maxPages > 1;
 
 	return {
 		yearsOptions,
@@ -75,7 +91,7 @@ export const useYearsPaginationAndFilter = (doi: Doi) => {
 		activeYears: currentYears,
 		isNextPageAvailable: isNextPageAvailable,
 		isPreviousPageAvailable: activePage > 1,
-    isPaginationAvailable,
+		isPaginationAvailable,
 		setSelectedYears,
 		nextPage,
 		previousPage,
