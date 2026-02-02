@@ -22,6 +22,7 @@ type ProcessedMonthData = {
 		month: string;
 		book: number;
 		chapters: number;
+		source: string;
 	}[];
 };
 
@@ -116,6 +117,7 @@ export const useYearTimelineMetrics = (props: UseYearTimelineMetricsProps) => {
 					month: month,
 					book: data.book ?? 0,
 					chapters: data.chapters ?? 0,
+					source: source,
 				};
 			}),
 		};

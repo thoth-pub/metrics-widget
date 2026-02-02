@@ -13,6 +13,7 @@ type ProcessedYearData = {
 		year: string;
 		book: number;
 		chapters: number;
+    source: string;
 	}[];
 };
 
@@ -110,6 +111,7 @@ export const useYearsTimelineMetrics = (
 					year: year,
 					book: data.book ?? 0,
 					chapters: data.chapters ?? 0,
+					source: source,
 				};
 			}),
 		};

@@ -70,7 +70,10 @@ export const useTimelineTab = (doi: Doi) => {
 
 	const xKey = isActiveYearTab ? 'month' : 'year';
 
+	const activeYear = isActiveYearTab ? selectedYears[0].value : '';
+
 	return {
+		activeYear,
 		metaData,
 		processedData,
 		xKey,

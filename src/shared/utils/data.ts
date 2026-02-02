@@ -198,3 +198,34 @@ export const convertMonthToKey = (month: string) => {
 			return month;
 	}
 };
+
+export const convertShortMonthToLongMonth = (month: string) => {
+	switch (month.toLowerCase()) {
+		case 'jan':
+			return 'January';
+		case 'feb':
+			return 'February';
+		case 'mar':
+			return 'March';
+		case 'apr':
+			return 'April';
+		case 'may':
+			return 'May';
+		case 'jun':
+			return 'June';
+		case 'jul':
+			return 'July';
+		case 'aug':
+			return 'August';
+		case 'sep':
+			return 'September';
+		case 'oct':
+			return 'October';
+		case 'nov':
+			return 'November';
+		case 'dec':
+			return 'December';
+		default:
+			return month;
+	}
+};

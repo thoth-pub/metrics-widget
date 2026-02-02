@@ -14,13 +14,16 @@ import { TABS } from '@/shared/constants';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 import {
+	type ActiveDotProps,
 	CartesianGrid,
 	Line,
 	LineChart,
 	ResponsiveContainer,
+	Tooltip,
 	XAxis,
 	YAxis,
 } from 'recharts';
+import { TimelineTooltip } from './TimelineTooltip';
 import { useTimelineTab } from './useTimelineTab';
 
 const title = 'Usage by measure over time';
@@ -65,6 +68,7 @@ export const TimelineTab = ({ doi, isInfoOpen, toggleInfo }: TabProps) => {
 	const {
 		metaData,
 		processedData,
+		activeYear,
 		xKey,
 		isLoading,
 		csvData,
@@ -90,6 +94,29 @@ export const TimelineTab = ({ doi, isInfoOpen, toggleInfo }: TabProps) => {
 			</ContentTab>
 		);
 	}
+
+	const CustomizedActiveDot = (
+		props: ActiveDotProps & { seriesName: string },
+	) => {
+		const { seriesName, ...rest } = props;
+
+		const { onPointerEnter, onPointerLeave, style, ...svgCircleProps } =
+			rest as React.SVGProps<SVGCircleElement>;
+
+		return (
+			<circle
+				{...svgCircleProps}
+				onPointerEnter={() => setActiveSeries(seriesName)}
+				onPointerLeave={() => setActiveSeries(null)}
+				stroke={props.color}
+				strokeWidth={lineDotStrokeWidth}
+				style={{
+					r: lineDotRadius,
+					opacity: calculateDotOpacity(activeSeries, seriesName),
+				}}
+			/>
+		);
+	};
 
 	return (
 		<ContentTab
@@ -158,7 +185,16 @@ export const TimelineTab = ({ doi, isInfoOpen, toggleInfo }: TabProps) => {
 						allowDuplicatedCategory={false}
 					/>
 					<YAxis axisLine={{ stroke: 'none' }} />
-					{/* <Tooltip cursor={{ strokeDasharray }} /> */}
+					<Tooltip
+						cursor={{ strokeDasharray }}
+						content={(props) => (
+							<TimelineTooltip
+								activeSeries={activeSeries}
+								activeYear={activeYear}
+								{...props}
+							/>
+						)}
+					/>
 					{processedData.map((s) => (
 						<>
 							<Line
@@ -167,14 +203,9 @@ export const TimelineTab = ({ doi, isInfoOpen, toggleInfo }: TabProps) => {
 								data={s.data}
 								dot={false}
 								stroke={s.color}
-								activeDot={{
-									stroke: s.color,
-									strokeWidth: lineDotStrokeWidth,
-									r: lineDotRadius,
-									opacity: calculateDotOpacity(activeSeries, s.name),
-								}}
-								onPointerEnter={() => setActiveSeries(s.name)}
-								onPointerLeave={() => setActiveSeries(null)}
+								activeDot={(props) => (
+									<CustomizedActiveDot {...props} seriesName={s.name} />
+								)}
 								strokeOpacity={calculateLineOpacity(activeSeries, s.name)}
 								strokeWidth={lineStrokeWidth}
 							/>
@@ -186,14 +217,9 @@ export const TimelineTab = ({ doi, isInfoOpen, toggleInfo }: TabProps) => {
 								stroke={s.color}
 								strokeWidth={lineStrokeWidth}
 								dot={false}
-								activeDot={{
-									stroke: s.color,
-									strokeWidth: lineDotStrokeWidth,
-									r: lineDotRadius,
-									opacity: calculateDotOpacity(activeSeries, s.name),
-								}}
-								onPointerEnter={() => setActiveSeries(s.name)}
-								onPointerLeave={() => setActiveSeries(null)}
+								activeDot={(props) => (
+									<CustomizedActiveDot {...props} seriesName={s.name} />
+								)}
 								strokeOpacity={calculateLineOpacity(activeSeries, s.name)}
 							/>
 						</>

@@ -88,7 +88,7 @@ export const config = {
 			defaultChartOpacity: 1,
 			inactiveChartOpacity: 0.5,
 			activeChartOpacity: 1,
-			defaultDotOpacity: 1,
+			defaultDotOpacity: 0,
 			inactiveDotOpacity: 0,
 			activeDotOpacity: 1,
 			strokeDasharray: '10 10',
