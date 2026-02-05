@@ -2,6 +2,7 @@ import {
 	config,
 	type Doi,
 	getContinentNameByCode,
+	getIncludedSources,
 	getPercentage,
 	roundPercentage,
 	useMetricsByCountryOrRegion,
@@ -39,6 +40,11 @@ export const useRegionsTab = (doi: Doi) => {
 
 	const csvData: string[][] = [config.csv.regionsHeader, ...processedCsvData];
 
+	const includedSources = getIncludedSources(
+		selectedPlatforms,
+		platformOptions,
+	);
+
 	return {
 		metaData,
 		metricsData: processedData,
@@ -47,5 +53,6 @@ export const useRegionsTab = (doi: Doi) => {
 		selectedPlatforms,
 		platformOptions,
 		isLoading,
+		includedSources,
 	};
 };

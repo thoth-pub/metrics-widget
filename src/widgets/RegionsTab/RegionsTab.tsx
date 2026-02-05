@@ -17,13 +17,14 @@ export const RegionsTab = ({ doi, isInfoOpen, toggleInfo }: TabProps) => {
 		csvData,
 		platformOptions,
 		selectedPlatforms,
-		selectPlatform,
 		isLoading,
+		includedSources,
+		selectPlatform,
 	} = useRegionsTab(doi);
 
 	if (metricsData.length === 0 && !isLoading) {
 		return (
-			<ContentTab value={TABS.REGIONS} title={title}>
+			<ContentTab value={TABS.REGIONS} title={title} includedSources={[]}>
 				<NoDataPlaceholder />
 			</ContentTab>
 		);
@@ -31,6 +32,7 @@ export const RegionsTab = ({ doi, isInfoOpen, toggleInfo }: TabProps) => {
 
 	return (
 		<ContentTab
+			includedSources={includedSources}
 			filter={<ChaptersDropdown chapters={metaData.chapters} />}
 			action={<CSVDownloadButton data={csvData} />}
 			value={TABS.REGIONS}

@@ -13,7 +13,7 @@ type ProcessedYearData = {
 		year: string;
 		book: number;
 		chapters: number;
-    source: string;
+		source: string;
 	}[];
 };
 
@@ -83,10 +83,12 @@ export const useYearsTimelineMetrics = (
 	processMetricsData(metricsDataByYear.bookMetrics, 'book');
 	processMetricsData(metricsDataByYear.chaptersMetrics, 'chapters');
 
-	const platformOptions = Array.from(platforms).map((platform) => ({
-		label: updateSource(platform),
-		value: updateSource(platform),
-	}));
+	const platformOptions: FilterOption[] = Array.from(platforms).map(
+		(platform) => ({
+			label: updateSource(platform),
+			value: updateSource(platform),
+		}),
+	);
 
 	const processedYearsData: ProcessedYearsData = Object.entries(
 		preProcessedYearsData,

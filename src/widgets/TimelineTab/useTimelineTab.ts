@@ -1,4 +1,9 @@
-import { type Doi, type FilterOption, useMetricsByYear } from '@/shared';
+import {
+	type Doi,
+	type FilterOption,
+	getIncludedSources,
+	useMetricsByYear,
+} from '@/shared';
 import { useState } from 'react';
 import { useYearsPaginationAndFilter } from './useYearsPaginationAndFilter';
 import { useYearsTimelineMetrics } from './useYearsTimelineMetrics';
@@ -72,6 +77,11 @@ export const useTimelineTab = (doi: Doi) => {
 
 	const activeYear = isActiveYearTab ? selectedYears[0].value : '';
 
+	const includedSources = getIncludedSources(
+		selectedPlatforms,
+		platformOptions,
+	);
+
 	return {
 		activeYear,
 		metaData,
@@ -87,6 +97,7 @@ export const useTimelineTab = (doi: Doi) => {
 		isNextPageAvailable,
 		isPreviousPageAvailable,
 		isPaginationAvailable,
+		includedSources,
 		selectPlatform: setSelectedPlatforms,
 		setSelectedYears,
 		nextPage,

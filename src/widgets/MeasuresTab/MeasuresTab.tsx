@@ -75,7 +75,7 @@ const BookBarShape = (props: BarShapeProps) => {
 };
 
 export const MeasuresTab = ({ doi, isInfoOpen, toggleInfo }: TabProps) => {
-	const { metaData, measures, strokes, csvData, isLoading } =
+	const { metaData, measures, strokes, csvData, isLoading, includedSources } =
 		useMeasuresTab(doi);
 
 	const processedData = Object.values(measures).map((item) => ({
@@ -86,7 +86,7 @@ export const MeasuresTab = ({ doi, isInfoOpen, toggleInfo }: TabProps) => {
 
 	if (processedData.length === 0 && !isLoading) {
 		return (
-			<ContentTab value={TABS.MEASURES} title={title}>
+			<ContentTab value={TABS.MEASURES} title={title} includedSources={[]}>
 				<NoDataPlaceholder />
 			</ContentTab>
 		);
@@ -94,6 +94,7 @@ export const MeasuresTab = ({ doi, isInfoOpen, toggleInfo }: TabProps) => {
 
 	return (
 		<ContentTab
+			includedSources={includedSources}
 			filter={<ChaptersDropdown chapters={metaData.chapters} />}
 			action={<CSVDownloadButton data={csvData} />}
 			value={TABS.MEASURES}

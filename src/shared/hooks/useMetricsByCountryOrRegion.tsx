@@ -17,9 +17,9 @@ export const useMetricsByCountryOrRegion = (
 		dataType === 'country' ? 'country_name' : 'continent_code';
 
 	const { metaData, metricsData, isLoading } = useMetricsByCountries(doi);
-	const [selectedPlatforms, setSelectedPlatforms] = useState<
-		{ label: string; value: string }[]
-	>([]);
+	const [selectedPlatforms, setSelectedPlatforms] = useState<FilterOption[]>(
+		[],
+	);
 
 	const data = [...metricsData.bookMetrics, ...metricsData.chaptersMetrics];
 
@@ -94,7 +94,7 @@ export const useMetricsByCountryOrRegion = (
 		metaData,
 		isLoading,
 		totalCount,
-    rawData: preProcessedData,
+		rawData: preProcessedData,
 		preProcessedData: sortedPreProcessedData,
 		platformOptions,
 		selectedPlatforms,

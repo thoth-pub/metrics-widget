@@ -3,6 +3,7 @@ import {
 	type Doi,
 	getApiCountryName,
 	getChartColorByPercentage,
+	getIncludedSources,
 	getPercentage,
 	roundPercentage,
 	useMetricsByCountryOrRegion,
@@ -44,6 +45,11 @@ export const useMapTab = (doi: Doi) => {
 
 	const csvData: string[][] = [config.csv.countriesHeader, ...processedCsvData];
 
+	const includedSources = getIncludedSources(
+		selectedPlatforms,
+		platformOptions,
+	);
+
 	const tooltipContent = selectedCountry
 		? `${selectedCountry.name} ${selectedCountry.percentage}%`
 		: '';
@@ -84,6 +90,7 @@ export const useMapTab = (doi: Doi) => {
 		tooltipContent,
 		isLoading,
 		platformOptions,
+		includedSources,
 		selectPlatform: setSelectedPlatforms,
 		updateContent,
 		resetContent,

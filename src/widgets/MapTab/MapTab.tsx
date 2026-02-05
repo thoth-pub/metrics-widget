@@ -22,6 +22,7 @@ export const MapTab = ({ isInfoOpen, toggleInfo, doi }: TabProps) => {
 		isLoading,
 		platformOptions,
 		selectedPlatforms,
+		includedSources,
 		updateContent,
 		resetContent,
 		getCountryColor,
@@ -30,7 +31,7 @@ export const MapTab = ({ isInfoOpen, toggleInfo, doi }: TabProps) => {
 
 	if (metricsData.length === 0 && !isLoading) {
 		return (
-			<ContentTab value={TABS.MAP} title={title}>
+			<ContentTab value={TABS.MAP} title={title} includedSources={[]}>
 				<NoDataPlaceholder />
 			</ContentTab>
 		);
@@ -38,6 +39,7 @@ export const MapTab = ({ isInfoOpen, toggleInfo, doi }: TabProps) => {
 
 	return (
 		<ContentTab
+			includedSources={includedSources}
 			filter={<ChaptersDropdown chapters={metaData.chapters} />}
 			action={<CSVDownloadButton data={csvData} />}
 			value={TABS.MAP}

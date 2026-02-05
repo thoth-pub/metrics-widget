@@ -1,8 +1,8 @@
 import {
-	config,
-	type Doi,
-	type MetricsByYearDto,
-	useMetricsByYear,
+  config,
+  type Doi,
+  type MetricsByYearDto,
+  useMetricsByYear,
 } from '@/shared';
 import { getColor, isChapter, updateSource } from '@/shared/utils';
 
@@ -69,6 +69,8 @@ export const useMeasuresTab = (doi: Doi) => {
 
 	const csvData: string[][] = [config.csv.measuresHeader];
 
+  const includedSources = Object.keys(measures);
+
 	for (const measure of Object.values(measures)) {
 		const { Book, Chapters } = measure;
 
@@ -85,5 +87,6 @@ export const useMeasuresTab = (doi: Doi) => {
 		strokes,
 		csvData,
 		isLoading,
+		includedSources,
 	};
 };

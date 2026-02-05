@@ -7,6 +7,7 @@ import { InfoTab } from '../InfoTab/InfoTab';
 
 type ContentTabProps = {
 	title: string;
+	includedSources: string[];
 	isInfoOpen?: boolean;
 	isLoading?: boolean;
 	filter?: React.ReactNode;
@@ -16,6 +17,7 @@ type ContentTabProps = {
 
 export const ContentTab = ({
 	title,
+	includedSources,
 	isInfoOpen = false,
 	isLoading = false,
 	filter,
@@ -50,7 +52,7 @@ export const ContentTab = ({
 							{isInfoOpen ? 'Information' : title}
 						</h2>
 					)}
-					{isInfoOpen && <InfoTab />}
+					{isInfoOpen && <InfoTab includedSources={includedSources} />}
 					{!isInfoOpen && !isLoading && children}
 					{!isInfoOpen && isLoading && (
 						<Spinner className="m-auto size-12 h-full text-spinner" />

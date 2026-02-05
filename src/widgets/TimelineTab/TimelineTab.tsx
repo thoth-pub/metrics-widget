@@ -83,13 +83,14 @@ export const TimelineTab = ({ doi, isInfoOpen, toggleInfo }: TabProps) => {
 		isNextPageAvailable,
 		isPreviousPageAvailable,
 		isPaginationAvailable,
+		includedSources,
 	} = useTimelineTab(doi);
 
 	const [activeSeries, setActiveSeries] = useState<string | null>(null);
 
 	if (processedData.length === 0 && !isLoading) {
 		return (
-			<ContentTab value={TABS.TIMELINE} title={title}>
+			<ContentTab value={TABS.TIMELINE} title={title} includedSources={[]}>
 				<NoDataPlaceholder />
 			</ContentTab>
 		);
@@ -120,6 +121,7 @@ export const TimelineTab = ({ doi, isInfoOpen, toggleInfo }: TabProps) => {
 
 	return (
 		<ContentTab
+			includedSources={includedSources}
 			filter={<ChaptersDropdown chapters={metaData.chapters} />}
 			action={<CSVDownloadButton data={csvData} />}
 			value={TABS.TIMELINE}

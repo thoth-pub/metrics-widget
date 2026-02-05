@@ -2,6 +2,7 @@ import {
 	config,
 	type Doi,
 	getAlignedCountryName,
+	getIncludedSources,
 	getPercentage,
 	roundPercentage,
 } from '@/shared';
@@ -53,10 +54,16 @@ export const useCountriesTab = (doi: Doi) => {
 
 	const csvData: string[][] = [config.csv.countriesHeader, ...processedCsvData];
 
+	const includedSources = getIncludedSources(
+		selectedPlatforms,
+		platformOptions,
+	);
+
 	return {
 		metaData,
 		metricsData: processedData,
 		csvData,
+		includedSources,
 		selectPlatform: setSelectedPlatforms,
 		selectedPlatforms,
 		platformOptions,

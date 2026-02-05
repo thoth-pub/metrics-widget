@@ -1,6 +1,7 @@
 import { scaleLinear } from 'd3-scale';
 import iso from 'iso-3166-1';
 import { config } from '../config';
+import type { FilterOption } from '../interfaces';
 
 const {
 	charts: {
@@ -228,4 +229,15 @@ export const convertShortMonthToLongMonth = (month: string) => {
 		default:
 			return month;
 	}
+};
+
+export const getIncludedSources = (
+	selectedPlatforms: FilterOption[],
+	platformOptions: FilterOption[],
+) => {
+	return selectedPlatforms.length > 0
+		? selectedPlatforms.map((option) => option.value)
+		: platformOptions
+				.filter((option) => !option.disabled)
+				.map((option) => option.value);
 };

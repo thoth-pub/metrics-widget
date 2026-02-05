@@ -16,6 +16,7 @@ export const CountriesTab = ({ doi, isInfoOpen, toggleInfo }: TabProps) => {
 		metaData,
 		metricsData,
 		csvData,
+		includedSources,
 		isLoading,
 		platformOptions,
 		selectedPlatforms,
@@ -24,7 +25,7 @@ export const CountriesTab = ({ doi, isInfoOpen, toggleInfo }: TabProps) => {
 
 	if (metricsData.length === 0 && !isLoading) {
 		return (
-			<ContentTab value={TABS.COUNTRIES} title={title}>
+			<ContentTab value={TABS.COUNTRIES} title={title} includedSources={[]}>
 				<NoDataPlaceholder />
 			</ContentTab>
 		);
@@ -32,6 +33,7 @@ export const CountriesTab = ({ doi, isInfoOpen, toggleInfo }: TabProps) => {
 
 	return (
 		<ContentTab
+			includedSources={includedSources}
 			filter={<ChaptersDropdown chapters={metaData.chapters} />}
 			action={<CSVDownloadButton data={csvData} />}
 			value={TABS.COUNTRIES}
