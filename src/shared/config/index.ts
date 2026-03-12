@@ -3,7 +3,6 @@ import { DAY } from '../constants';
 export const config = {
 	query: {
 		staleTime: DAY,
-		cacheTime: DAY,
 	},
 	metaApi: {
 		url: import.meta.env.VITE_THOTH_API_URL ?? 'https://api.thoth.pub/graphql',
@@ -35,7 +34,7 @@ export const config = {
 			'https://metrics.operas-eu.org/ekt/sessions/v1',
 			'https://metrics.operas-eu.org/ekt/landingsessions/v1',
 			'https://metrics.operas-eu.org/wikipedia/references/v1',
-			'https://metrics.operas-eu.org/wordpress/references/v1	',
+			'https://metrics.operas-eu.org/wordpress/references/v1',
 			'https://metrics.operas-eu.org/figshare/views/v1',
 			'https://metrics.operas-eu.org/figshare/downloads/v1',
 			'https://metrics.operas-eu.org/figshare/shares/v1',
@@ -52,7 +51,7 @@ export const config = {
 		},
 		labelSeparator: ' - ',
 		timeMetricsChartLabelSeparator: ' · ',
-		defaultMetricsChartColor: '#5B65vCF',
+		defaultMetricsChartColor: '#5B65CF',
 		metricsChartColors: {
 			'the classics library': '#5B65CF',
 			'google books': '#EFDAAE',

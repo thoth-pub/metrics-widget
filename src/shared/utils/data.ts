@@ -110,6 +110,8 @@ export const getSaturationValue = ({
 	topValue: number;
 	itemValue: number;
 }) => {
+	if (topValue === 0) return 0;
+
 	const filterValue = (itemValue * 100) / topValue;
 
 	return filterValue;
@@ -140,7 +142,7 @@ export const getChartColorByPercentage = ({
 
 export const getApiCountryName = (name: string) => {
 	switch (name.toLowerCase()) {
-		case "côte d'ivoire ":
+		case "côte d'ivoire":
 			return "Cote d'ivoire Ivory Coast";
 		case 'czechia':
 			return 'Czech Republic';
