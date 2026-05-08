@@ -30,9 +30,9 @@ export const ContentTab = ({
 		<TabsContent {...props} className="flex flex-col h-(--mw-content-height)">
 			<div className="relative h-(--mw-header-height) px-4 py-2 bg-header-background flex items-center justify-between">
 				<div className="relative z-10">{filter}</div>
-				<h2 className="economica hidden sm:block absolute left-0 w-full text-center pointer-events-none">
+				<p className="economica hidden sm:block absolute left-0 w-full text-center pointer-events-none">
 					{isInfoOpen ? 'Information' : title}
-				</h2>
+				</p>
 				<div className="ml-2.5 flex gap-2.5 relative z-10">
 					{action}
 					<Button
@@ -48,9 +48,9 @@ export const ContentTab = ({
 			<div className="px-4 pt-4 flex-1 flex overflow-auto mb-4">
 				<div className="flex flex-col gap-4 grow">
 					{!isLoading && (
-						<h2 className="economica block sm:hidden text-center">
+						<p className="economica block sm:hidden text-center">
 							{isInfoOpen ? 'Information' : title}
-						</h2>
+						</p>
 					)}
 					{isInfoOpen && <InfoTab includedSources={includedSources} />}
 					{!isInfoOpen && !isLoading && children}

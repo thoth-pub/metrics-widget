@@ -1,8 +1,8 @@
 import {
-	Accordion,
-	AccordionContent,
-	AccordionItem,
-	AccordionTrigger,
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
 } from '../../core/Accordion/Accordion';
 
 type InfoTabProps = {
@@ -159,7 +159,7 @@ export const InfoTab = ({ includedSources }: InfoTabProps) => {
 
 	return (
 		<>
-			<h2 className="font-semibold text-sm">Measures</h2>
+			<p className="font-semibold text-sm">Measures</p>
 			<Accordion type="single" collapsible>
 				{filteredInfoData.map((item, index) => (
 					// biome-ignore lint/suspicious/noArrayIndexKey: index is unique
