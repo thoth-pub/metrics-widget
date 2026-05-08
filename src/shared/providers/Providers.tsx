@@ -1,16 +1,21 @@
+import type { MetricsWidgetTheme } from '../interfaces';
 import { ChaptersProvider } from './ChaptersProvider';
 import { QueryClientProvider } from './QueryClient';
 import { ServicesProvider } from './ServicesProvider';
+import { ThemeProvider } from './ThemeProvider';
 
 type ProvidersProps = {
 	children: Readonly<React.ReactNode>;
+	theme?: MetricsWidgetTheme | null;
 };
 
-const Providers = ({ children }: ProvidersProps) => {
+const Providers = ({ children, theme }: ProvidersProps) => {
 	return (
 		<QueryClientProvider>
 			<ServicesProvider>
-				<ChaptersProvider>{children}</ChaptersProvider>
+				<ChaptersProvider>
+					<ThemeProvider theme={theme}>{children}</ThemeProvider>
+				</ChaptersProvider>
 			</ServicesProvider>
 		</QueryClientProvider>
 	);

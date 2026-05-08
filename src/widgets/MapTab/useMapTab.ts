@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
 	config,
 	type Doi,
@@ -7,8 +8,8 @@ import {
 	getPercentage,
 	roundPercentage,
 	useMetricsByCountryOrRegion,
+	useTheme,
 } from '@/shared';
-import { useState } from 'react';
 
 export const useMapTab = (doi: Doi) => {
 	const {
@@ -24,6 +25,7 @@ export const useMapTab = (doi: Doi) => {
 		doi,
 		dataType: 'country',
 	});
+	const theme = useTheme();
 
 	const [selectedCountry, setSelectedCountry] = useState<{
 		name: string;
@@ -65,6 +67,7 @@ export const useMapTab = (doi: Doi) => {
 		return getChartColorByPercentage({
 			highestValue: topCountryValue,
 			lowestValue: countryValue,
+			theme,
 		});
 	};
 

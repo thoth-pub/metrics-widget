@@ -27,10 +27,10 @@ export const ContentTab = ({
 	...props
 }: ContentTabProps) => {
 	return (
-		<TabsContent {...props} className="flex flex-col h-(--content-height)">
-			<div className="h-(--header-height) px-4 py-2 bg-header-background flex items-center justify-between">
+		<TabsContent {...props} className="flex flex-col h-(--mw-content-height)">
+			<div className="relative h-(--mw-header-height) px-4 py-2 bg-header-background flex items-center justify-between">
 				<div className="relative z-10">{filter}</div>
-				<h2 className="economica hidden sm:block absolute left-0 w-full text-center">
+				<h2 className="economica hidden sm:block absolute left-0 w-full text-center pointer-events-none">
 					{isInfoOpen ? 'Information' : title}
 				</h2>
 				<div className="ml-2.5 flex gap-2.5 relative z-10">

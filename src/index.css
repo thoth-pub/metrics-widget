@@ -1,293 +1,280 @@
-@layer reset, theme, base, mui, components, utilities;
+@layer metrics-widget, reset, theme, base, mui, components, utilities;
 
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@layer reset {
-	*,
-	*::before,
-	*::after {
-		box-sizing: border-box;
-	}
-	body {
-		margin: unset;
-	}
-	button,
-	input,
-	textarea,
-	select {
-		font: inherit;
-	}
-	img,
-	picture,
-	svg,
-	canvas {
-		display: block;
-		max-inline-size: 100%;
-		height: auto;
-	}
-	* {
-		transition-duration: 300ms;
-	}
-
-	@media (prefers-reduced-motion: reduce) {
+@layer metrics-widget {
+	@layer reset {
 		*,
 		*::before,
 		*::after {
-			animation-duration: 0.01ms;
-			animation-iteration-count: 1;
-			transition-duration: 0.01ms;
-			scroll-behavior: auto;
+			box-sizing: border-box;
+		}
+		body {
+			margin: unset;
+		}
+		button,
+		input,
+		textarea,
+		select {
+			font: inherit;
+		}
+		img,
+		picture,
+		svg,
+		canvas {
+			display: block;
+			max-inline-size: 100%;
+			height: auto;
+		}
+		* {
+			transition-duration: 300ms;
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+			*,
+			*::before,
+			*::after {
+				animation-duration: 0.01ms;
+				animation-iteration-count: 1;
+				transition-duration: 0.01ms;
+				scroll-behavior: auto;
+			}
 		}
 	}
-}
 
-@layer base {
-	body {
-		margin: unset;
-		color: var(--color-typography);
-		font-family: var(--font-open-sans);
-		font-display: swap;
+	@layer base {
+		body {
+			margin: unset;
+			color: var(--mw-color-typography);
+			font-family: var(--mw-font-open-sans);
+			font-display: swap;
+		}
+
+		@font-face {
+			font-family: "Economica";
+			src: url("./economica.woff2") format("woff2");
+			font-weight: 700;
+			font-display: swap;
+		}
+
+		@font-face {
+			font-family: "Open Sans";
+			src: url("./open_sans.woff2") format("woff2");
+			font-weight: 400;
+			font-display: swap;
+		}
+
+		@font-face {
+			font-family: "Open Sans";
+			src: url("./open_sans_semibold.woff2") format("woff2");
+			font-weight: 600;
+			font-display: swap;
+		}
+
+		* {
+			@apply border-border outline-ring/50;
+		}
 	}
 
-	@font-face {
-		font-family: "Economica";
-		src: url("./economica.woff2") format("woff2");
-		font-weight: 700;
-		font-display: swap;
+	:root {
+		/* Tier 1 — raw colors */
+		--mw-yellow: hsl(39, 100%, 93%);
+		--mw-yellow-alt: hsl(40, 100%, 98%);
+		--mw-purple-lightest: hsl(285, 62%, 94%);
+		--mw-purple-light: hsl(284, 36%, 59%);
+		--mw-purple-dark: hsl(284, 36%, 28%);
+		--mw-purple: hsl(276, 26%, 50%);
+		--mw-purple-alt: hsl(284, 26%, 41%);
+		--mw-black: hsl(0, 0%, 0%);
+		--mw-white: hsl(0, 0%, 100%);
+		--mw-gray: hsl(0, 0%, 91%);
+		--mw-gray-alt: hsl(213, 9%, 62%);
+
+		/* Layout */
+		--mw-max-width: 40rem;
+		--mw-max-height: 30.625rem;
+		--mw-header-height: 3.125rem;
+		--mw-footer-height: 2.5rem;
+		--mw-content-height: calc(100% - var(--mw-footer-height));
+
+		/* Fonts */
+		--mw-font-economica: "Economica", sans-serif;
+		--mw-font-open-sans: "Open Sans", sans-serif;
+
+		/* Tier 2 — semantic */
+		--mw-color-background: var(--mw-yellow);
+		--mw-color-background-active: var(--mw-purple);
+		--mw-color-background-alt: var(--mw-yellow-alt);
+		--mw-color-typography: var(--mw-black);
+		--mw-color-typography-alt: var(--mw-white);
+		--mw-color-border: var(--mw-purple-alt);
+		--mw-color-active: var(--mw-purple-light);
+		--mw-ring: var(--mw-purple);
+
+		/* Tier 3 — components */
+		--mw-color-nav-background: var(--mw-color-background);
+		--mw-color-nav-background-active: var(--mw-color-active);
+		--mw-color-nav-typography: var(--mw-purple-alt);
+		--mw-color-header-background: var(--mw-color-background);
+
+		--mw-color-button-background: var(--mw-white);
+		--mw-color-button-typography: var(--mw-purple-alt);
+		--mw-color-button-border: var(--mw-color-border);
+
+		--mw-color-button-typography-hover: var(--mw-purple);
+		--mw-color-button-border-hover: var(--mw-purple);
+
+		--mw-color-button-typography-active: var(--mw-purple-dark);
+		--mw-color-button-border-active: var(--mw-purple-dark);
+
+		--mw-color-button-active-background: var(--mw-color-active);
+		--mw-color-button-active-typography: var(--mw-color-typography-alt);
+		--mw-color-button-active-border: var(--mw-color-active);
+
+		--mw-color-input-background: var(--mw-white);
+		--mw-color-input-border: var(--mw-gray);
+		--mw-color-input-typography: var(--mw-color-typography);
+		--mw-color-select-background-selected: var(--mw-purple-lightest);
+		--mw-color-input-start-icon: var(--mw-gray-alt);
+
+		--mw-color-tooltip-background: var(--mw-white);
+		--mw-tooltip-drop-shadow: 0px 1px 9px 0px #1a2a5226;
+		--mw-color-divider: var(--mw-gray);
+
+		--mw-color-spinner: var(--mw-purple);
+
+		--mw-chart-legend-background: var(--mw-purple);
+
+		--mw-color-placeholder-icon: var(--mw-purple-alt);
+		--mw-color-placeholder-icon-bg: var(--mw-color-background);
+
+		/* shadcn primitive defaults (consumed by ui/core utility classes) */
+		--mw-radius: 0.625rem;
+		--mw-background: hsl(0, 0%, 100%);
+		--mw-foreground: hsl(0, 0%, 4%);
+		--mw-popover: hsl(0, 0%, 100%);
+		--mw-popover-foreground: hsl(0, 0%, 4%);
+		--mw-primary: hsl(0, 0%, 9%);
+		--mw-primary-foreground: hsl(0, 0%, 98%);
+		--mw-secondary: hsl(0, 0%, 96%);
+		--mw-secondary-foreground: hsl(0, 0%, 9%);
+		--mw-muted: hsl(0, 0%, 96%);
+		--mw-muted-foreground: hsl(217, 27%, 30%);
+		--mw-destructive: hsl(357, 100%, 45%);
+		--mw-border: hsl(0, 0%, 90%);
+
+		/* Countries chart palette */
+		--mw-color-countries-1: hsl(284, 54%, 14%);
+		--mw-color-countries-2: hsl(284, 36%, 28%);
+		--mw-color-countries-3: hsl(284, 26%, 41%);
+		--mw-color-countries-4: hsl(284, 27%, 49%);
+		--mw-color-countries-5: hsl(284, 36%, 59%);
+		--mw-color-countries-6: hsl(284, 47%, 67%);
+		--mw-color-countries-7: hsl(284, 67%, 76%);
+		--mw-color-countries-8: hsl(285, 100%, 85%);
+		--mw-color-countries-9: hsl(285, 100%, 90%);
+		--mw-color-countries-10: hsl(285, 62%, 94%);
+		--mw-color-countries-11: hsl(285, 100%, 99%);
+
+		/* Metrics chart palette (per-platform / source) */
+		--mw-chart-metric-default: #5b65cf;
+		--mw-chart-metric-the-classics-library: #5b65cf;
+		--mw-chart-metric-google-books: #efdaae;
+		--mw-chart-metric-open-book-publishers: #8da0f1;
+		--mw-chart-metric-open-book-publishers-html-reader: #8da0f1;
+		--mw-chart-metric-open-book-publishers-pdf-reader: #8da0f1;
+		--mw-chart-metric-open-edition: #fede75;
+		--mw-chart-metric-oapen: #5fb0d3;
+		--mw-chart-metric-twitter: #88f286;
+		--mw-chart-metric-wikimedia: #db6a6a;
+		--mw-chart-metric-wikipedia: #db6a6a;
+		--mw-chart-metric-wordpress-com: #5bcfbd;
+		--mw-chart-metric-world-reader: #5bcfbd;
+		--mw-chart-metric-crossref: #52a46b;
+
+		/* Map chart palette (countries map gradient + zero state) */
+		--mw-chart-map-zero: #dadada;
+		--mw-chart-map-lowest: #fff;
+		--mw-chart-map-highest: #8d5a9f;
 	}
 
-	@font-face {
-		font-family: "Open Sans";
-		src: url("./open_sans.woff2") format("woff2");
-		font-weight: 400;
-		font-display: swap;
+	@theme {
+		/* Bridge widget tokens to Tailwind utility class names */
+		--color-background: var(--mw-color-background);
+		--color-background-alt: var(--mw-color-background-alt);
+		--color-typography: var(--mw-color-typography);
+		--color-typography-alt: var(--mw-color-typography-alt);
+		--color-nav-background: var(--mw-color-nav-background);
+		--color-nav-background-active: var(--mw-color-nav-background-active);
+		--color-nav-typography: var(--mw-color-nav-typography);
+		--color-header-background: var(--mw-color-header-background);
+
+		--color-button-background: var(--mw-color-button-background);
+		--color-button-background-active: var(--mw-color-button-active-background);
+		--color-button-border: var(--mw-color-button-border);
+		--color-button-typography: var(--mw-color-button-typography);
+		--color-button-typography-hover: var(--mw-color-button-typography-hover);
+		--color-button-border-hover: var(--mw-color-button-border-hover);
+		--color-button-typography-active: var(--mw-color-button-typography-active);
+		--color-button-border-active: var(--mw-color-button-border-active);
+		--color-button-active-background: var(--mw-color-button-active-background);
+		--color-button-active-typography: var(--mw-color-button-active-typography);
+		--color-button-active-border: var(--mw-color-button-active-border);
+
+		--color-input-background: var(--mw-color-input-background);
+		--color-input-border: var(--mw-color-input-border);
+		--color-input-typography: var(--mw-color-input-typography);
+		--color-select-background-selected: var(
+			--mw-color-select-background-selected
+		);
+		--color-input-start-icon: var(--mw-color-input-start-icon);
+
+		--color-tooltip-background: var(--mw-color-tooltip-background);
+		--color-divider: var(--mw-color-divider);
+
+		--color-spinner: var(--mw-color-spinner);
+		--color-chart-legend-background: var(--mw-chart-legend-background);
+
+		--color-placeholder-icon: var(--mw-color-placeholder-icon);
+		--color-placeholder-icon-bg: var(--mw-color-placeholder-icon-bg);
+
+		/* Font */
+		--font-economica: var(--mw-font-economica);
+		--font-open-sans: var(--mw-font-open-sans);
 	}
 
-	@font-face {
-		font-family: "Open Sans";
-		src: url("./open_sans_semibold.woff2") format("woff2");
-		font-weight: 600;
-		font-display: swap;
+	@theme inline {
+		--radius-sm: calc(var(--mw-radius) - 4px);
+		--radius-md: calc(var(--mw-radius) - 2px);
+		--radius-lg: var(--mw-radius);
+		--radius-xl: calc(var(--mw-radius) + 4px);
+		--radius-2xl: calc(var(--mw-radius) + 8px);
+		--radius-3xl: calc(var(--mw-radius) + 12px);
+		--radius-4xl: calc(var(--mw-radius) + 16px);
+		--color-background: var(--mw-background);
+		--color-foreground: var(--mw-foreground);
+		--color-popover: var(--mw-popover);
+		--color-popover-foreground: var(--mw-popover-foreground);
+		--color-primary: var(--mw-primary);
+		--color-primary-foreground: var(--mw-primary-foreground);
+		--color-secondary: var(--mw-secondary);
+		--color-secondary-foreground: var(--mw-secondary-foreground);
+		--color-muted: var(--mw-muted);
+		--color-muted-foreground: var(--mw-muted-foreground);
+		--color-destructive: var(--mw-destructive);
+		--color-border: var(--mw-border);
+		--color-ring: hsl(0, 0%, 91%);
 	}
 
-	* {
-		@apply border-border outline-ring/50;
-	}
-}
+	@layer components {
+		.economica {
+			font-family: var(--mw-font-economica);
+			@apply uppercase text-base font-bold;
+		}
 
-:root {
-	/* Tier 1 */
-	--yellow: hsl(39, 100%, 93%);
-	--yellow-alt: hsl(40, 100%, 98%);
-	--purple-lightest: hsl(285, 62%, 94%);
-	--purple-light: hsl(284, 36%, 59%);
-	--purple-dark: hsl(284, 36%, 28%);
-	--purple: hsl(276, 26%, 50%);
-	--purple-alt: hsl(284, 26%, 41%);
-	--black: hsl(0, 0%, 0%);
-	--white: hsl(0, 0%, 100%);
-	--gray: hsl(0, 0%, 91%);
-	--gray-alt: hsl(213, 9%, 62%);
-
-	--max-width: 40rem;
-	--max-height: 30.625rem;
-	--header-height: 3.125rem;
-	--footer-height: 2.5rem;
-	--content-height: calc(100% - var(--footer-height));
-
-	--font-economica: "Economica", sans-serif;
-	--font-open-sans: "Open Sans", sans-serif;
-
-	/* Tier 2 */
-	--color-background: var(--yellow);
-	--color-background-active: var(--purple);
-	--color-background-alt: var(--yellow-alt);
-	--color-typography: var(--black);
-	--color-typography-alt: var(--white);
-	--color-border: var(--purple-alt);
-	--color-active: var(--purple-light);
-	--ring: var(--purple);
-
-	/* Tier 3 */
-	--color-nav-background: var(--color-background);
-	--color-nav-background-active: var(--color-active);
-	--color-nav-typography: var(--purple-alt);
-	--color-header-background: var(--color-background);
-
-	--color-button-background: var(--white);
-	--color-button-typography: var(--purple-alt);
-	--color-button-border: var(--color-border);
-
-	--color-button-typography-hover: var(--purple);
-	--color-button-border-hover: var(--purple);
-
-	--color-button-typography-active: var(--purple-dark);
-	--color-button-border-active: var(--purple-dark);
-
-	--color-button-active-background: var(--color-active);
-	--color-button-active-typography: var(--color-typography-alt);
-	--color-button-active-border: var(--color-active);
-
-	--color-input-background: var(--white);
-	--color-input-border: var(--gray);
-	--color-input-typography: var(--color-typography);
-	--color-select-background-selected: var(--purple-lightest);
-	--color-input-start-icon: var(--gray-alt);
-
-	--color-tooltip-background: var(--white);
-	--tooltip-drop-shadow: 0px 1px 9px 0px #1a2a5226;
-	--color-divider: var(--gray);
-
-	--color-spinner: var(--purple);
-
-	--chart-legend-background: var(--purple);
-
-	--color-placeholder-icon: var(--purple-alt);
-	--color-placeholder-icon-bg: var(--color-background);
-
-	/* Shadcn UI */
-	--radius: 0.625rem;
-	--background: hsl(0, 0%, 100%);
-	--foreground: hsl(0, 0%, 4%);
-	--card: hsl(0, 0%, 100%);
-	--card-foreground: hsl(0, 0%, 4%);
-	--popover: hsl(0, 0%, 100%);
-	--popover-foreground: hsl(0, 0%, 4%);
-	--primary: hsl(0, 0%, 9%);
-	--primary-foreground: hsl(0, 0%, 98%);
-	--secondary: hsl(0, 0%, 96%);
-	--secondary-foreground: hsl(0, 0%, 9%);
-	--muted: hsl(0, 0%, 96%);
-	--muted-foreground: hsl(217, 27%, 30%);
-	--accent: hsl(0, 0%, 96%);
-	--accent-foreground: hsl(0, 0%, 9%);
-	--destructive: hsl(357, 100%, 45%);
-	--border: hsl(0, 0%, 90%);
-	--chart-1: hsl(18, 100%, 48%);
-	--chart-2: hsl(175, 100%, 29%);
-	--chart-3: hsl(196, 72%, 23%);
-	--chart-4: hsl(44, 100%, 50%);
-	--chart-5: hsl(36, 100%, 50%);
-	--sidebar: hsl(0, 0%, 98%);
-	--sidebar-foreground: hsl(0, 0%, 4%);
-	--sidebar-primary: hsl(0, 0%, 9%);
-	--sidebar-primary-foreground: hsl(0, 0%, 98%);
-	--sidebar-accent: hsl(0, 0%, 96%);
-	--sidebar-accent-foreground: hsl(0, 0%, 9%);
-	--sidebar-border: hsl(0, 0%, 90%);
-	--sidebar-ring: hsl(0, 0%, 63%);
-
-	/* Countries chart */
-	--color-countries-1: hsl(284, 54%, 14%);
-	--color-countries-2: hsl(284, 36%, 28%);
-	--color-countries-3: hsl(284, 26%, 41%);
-	--color-countries-4: hsl(284, 27%, 49%);
-	--color-countries-5: hsl(284, 36%, 59%);
-	--color-countries-6: hsl(284, 47%, 67%);
-	--color-countries-7: hsl(284, 67%, 76%);
-	--color-countries-8: hsl(285, 100%, 85%);
-	--color-countries-9: hsl(285, 100%, 90%);
-	--color-countries-10: hsl(285, 62%, 94%);
-	--color-countries-11: hsl(285, 100%, 99%);
-}
-
-@theme {
-	--color-background: var(--color-background);
-	--color-background-alt: var(--color-background-alt);
-	--color-typography: var(--color-typography);
-	--color-typography-alt: var(--color-typography-alt);
-	--color-nav-background: var(--color-nav-background);
-	--color-nav-background-active: var(--color-nav-background-active);
-	--color-nav-typography: var(--color-nav-typography);
-	--color-header-background: var(--color-header-background);
-
-	--color-button-background: var(--color-button-background);
-	--color-button-background-active: var(--color-button-background-active);
-	--color-button-border: var(--color-button-border);
-	--color-ring: var(--color-ring);
-
-	/* Font */
-	--font-economica: var(--font-economica);
-	--font-open-sans: var(--font-open-sans);
-
-	/* Button */
-	--color-button-background: var(--color-button-background);
-	--color-button-typography: var(--color-button-typography);
-	--color-button-border: var(--color-button-border);
-	--color-button-typography-hover: var(--color-button-typography-hover);
-	--color-button-border-hover: var(--color-button-border-hover);
-	--color-button-typography-active: var(--color-button-typography-active);
-	--color-button-border-active: var(--color-button-border-active);
-
-	--color-button-active-background: var(--color-button-active-background);
-	--color-button-active-typography: var(--color-button-active-typography);
-	--color-button-active-border: var(--color-button-active-border);
-
-	/* Input Group */
-	--color-input-background: var(--color-input-background);
-	--color-input-border: var(--color-input-border);
-	--color-input-typography: var(--color-input-typography);
-	--color-select-background-selected: var(--color-select-background-selected);
-	--color-input-start-icon: var(--color-input-start-icon);
-
-	--color-tooltip-background: var(--color-tooltip-background);
-	--color-divider: var(--color-divider);
-
-	--color-spinner: var(--color-spinner);
-	--color-chart-legend-background: var(--chart-legend-background);
-
-	--color-placeholder-icon: var(--color-placeholder-icon);
-	--color-placeholder-icon-bg: var(--color-placeholder-icon-bg);
-}
-
-@theme inline {
-	--radius-sm: calc(var(--radius) - 4px);
-	--radius-md: calc(var(--radius) - 2px);
-	--radius-lg: var(--radius);
-	--radius-xl: calc(var(--radius) + 4px);
-	--radius-2xl: calc(var(--radius) + 8px);
-	--radius-3xl: calc(var(--radius) + 12px);
-	--radius-4xl: calc(var(--radius) + 16px);
-	--color-background: var(--background);
-	--color-foreground: var(--foreground);
-	--color-card: var(--card);
-	--color-card-foreground: var(--card-foreground);
-	--color-popover: var(--popover);
-	--color-popover-foreground: var(--popover-foreground);
-	--color-primary: var(--primary);
-	--color-primary-foreground: var(--primary-foreground);
-	--color-secondary: var(--secondary);
-	--color-secondary-foreground: var(--secondary-foreground);
-	--color-muted: var(--muted);
-	--color-muted-foreground: var(--muted-foreground);
-	--color-accent: var(--accent);
-	--color-accent-foreground: var(--accent-foreground);
-	--color-destructive: var(--destructive);
-	--color-border: var(--border);
-	--color-ring: var(--gray);
-	--color-chart-1: var(--chart-1);
-	--color-chart-2: var(--chart-2);
-	--color-chart-3: var(--chart-3);
-	--color-chart-4: var(--chart-4);
-	--color-chart-5: var(--chart-5);
-	--color-sidebar: var(--sidebar);
-	--color-sidebar-foreground: var(--sidebar-foreground);
-	--color-sidebar-primary: var(--sidebar-primary);
-	--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-	--color-sidebar-accent: var(--sidebar-accent);
-	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-	--color-sidebar-border: var(--sidebar-border);
-	--color-sidebar-ring: var(--sidebar-ring);
-}
-
-@layer components {
-	.economica {
-		font-family: var(--font-economica);
-		@apply uppercase text-base font-bold;
-	}
-
-	.colorPlaceholder {
-		@apply h-2 w-4 shrink-0;
+		.colorPlaceholder {
+			@apply h-2 w-4 shrink-0;
+		}
 	}
 }

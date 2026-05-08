@@ -6,6 +6,7 @@ import {
 	getYearDateRange,
 	type MetricsByMonthsSourceDto,
 	updateSource,
+	useTheme,
 } from '@/shared';
 import { useMetricsByMonth } from '@/shared/hooks/useMetricsByMonth';
 
@@ -42,6 +43,7 @@ type PreProcessedMonthsData = {
 
 export const useYearTimelineMetrics = (props: UseYearTimelineMetricsProps) => {
 	const { doi, selectedYears, selectedPlatforms } = props;
+	const theme = useTheme();
 
 	const startEndDateRange =
 		selectedYears.length > 0
@@ -69,7 +71,7 @@ export const useYearTimelineMetrics = (props: UseYearTimelineMetricsProps) => {
 				const monthKey = convertMonthToKey(month);
 
 				const existingData = preProcessedMonthsData[key] ?? {
-					color: getColor(source),
+					color: getColor(source, theme),
 					months: {
 						[monthKey]: {
 							book: 0,

@@ -4,6 +4,7 @@ import {
 	type MetricsByYearDto,
 	type MetricsByYearResponse,
 	updateSource,
+	useTheme,
 } from '@/shared';
 
 type ProcessedYearData = {
@@ -41,6 +42,7 @@ export const useYearsTimelineMetrics = (
 	props: UseYearsTimelineMetricsProps,
 ) => {
 	const { selectedPlatforms, selectedYears, metricsDataByYear } = props;
+	const theme = useTheme();
 
 	const platforms = new Set<string>();
 	const preProcessedYearsData: PreProcessedYearsData = {};
@@ -63,7 +65,7 @@ export const useYearsTimelineMetrics = (
 				platforms.add(source);
 
 				const existingData = preProcessedYearsData[key] ?? {
-					color: getColor(source),
+					color: getColor(source, theme),
 					years: {},
 				};
 

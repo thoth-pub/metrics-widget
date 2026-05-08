@@ -56,9 +56,9 @@ export const MapTab = ({ isInfoOpen, toggleInfo, doi }: TabProps) => {
 			<Tooltip
 				id="my-tooltip"
 				style={{
-					color: 'var(--color-typography)',
-					backgroundColor: 'var(--color-tooltip-background)',
-					boxShadow: 'var(--tooltip-drop-shadow)',
+					color: 'var(--mw-color-typography)',
+					backgroundColor: 'var(--mw-color-tooltip-background)',
+					boxShadow: 'var(--mw-tooltip-drop-shadow)',
 					fontSize: '0.75rem',
 					padding: '0.625rem',
 					borderRadius: '0.375rem',

@@ -3,6 +3,7 @@ import {
   type Doi,
   type MetricsByYearDto,
   useMetricsByYear,
+  useTheme,
 } from '@/shared';
 import { getColor, isChapter, updateSource } from '@/shared/utils';
 
@@ -21,6 +22,7 @@ type Measures = {
 
 export const useMeasuresTab = (doi: Doi) => {
 	const { metaData, metricsData, isLoading } = useMetricsByYear(doi);
+	const theme = useTheme();
 
 	const measures: Measures = {};
 	const strokes: Record<string, string> = {};
@@ -32,7 +34,7 @@ export const useMeasuresTab = (doi: Doi) => {
 		for (const metric of metrics) {
 			const { source, type, value } = metric;
 			const key = `${updateSource(source)} ${type}`;
-			const color = getColor(source);
+			const color = getColor(source, theme);
 			const strokeId = `stripe-${color}`;
 
 			strokes[strokeId] = color;

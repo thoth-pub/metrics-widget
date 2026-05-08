@@ -91,7 +91,7 @@ function App({ doi }: { doi: Doi }) {
 					isInfoOpen={isInfoOpen}
 					toggleInfo={toggleInfo}
 				/>
-				<TabsList className="w-full shrink-0 h-(--footer-height)">
+				<TabsList className="w-full shrink-0 h-(--mw-footer-height)">
 					<TabsTrigger value={TABS.MEASURES}>
 						<ChartBar /> <span className={textStyles}>Measures</span>
 					</TabsTrigger>

@@ -29,7 +29,7 @@ export const useRegionsTab = (doi: Doi) => {
 			name: getContinentNameByCode(region),
 			metrics: value,
 			percentage,
-			fill: `var(--color-countries-${index + 1})`,
+			fill: `var(--mw-color-countries-${index + 1})`,
 		};
 	});
 

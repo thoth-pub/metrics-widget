@@ -32,7 +32,7 @@ export const useCountriesTab = (doi: Doi) => {
 				name: getAlignedCountryName(country),
 				metrics: totalMetrics,
 				percentage: percentage,
-				fill: `var(--color-countries-${index + 1})`,
+				fill: `var(--mw-color-countries-${index + 1})`,
 			};
 		});
 
@@ -43,7 +43,7 @@ export const useCountriesTab = (doi: Doi) => {
 			name: 'Others',
 			metrics: restCount,
 			percentage: getPercentage(restCount, totalCount),
-			fill: 'var(--color-countries-11)',
+			fill: 'var(--mw-color-countries-11)',
 		});
 	}
 

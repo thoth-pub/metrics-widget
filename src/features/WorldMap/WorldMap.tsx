@@ -1,8 +1,8 @@
 'use client';
 
-import { config } from '@/shared';
 import iso from 'iso-3166-1';
 import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
+import { resolveCssVar, useTheme } from '@/shared';
 import geoData from './geoData.json';
 
 type WorldMapProps = {
@@ -13,15 +13,12 @@ type WorldMapProps = {
 	updateCountryColor: (countryName: string) => string;
 };
 
-const {
-	charts: {
-		mapChartColors: { zeroValue },
-	},
-} = config;
-
 export const WorldMap = (props: WorldMapProps) => {
 	const { tooltipContent, onMouseEnter, onMouseLeave, updateCountryColor } =
 		props;
+	const theme = useTheme();
+	const zeroStroke =
+		theme?.['mw-chart-map-zero'] ?? resolveCssVar('--mw-chart-map-zero');
 
 	return (
 		<ComposableMap
@@ -54,11 +51,11 @@ export const WorldMap = (props: WorldMapProps) => {
 							style={{
 								default: {
 									fill: updateCountryColor(geo.properties.name),
-									stroke: zeroValue,
+									stroke: zeroStroke,
 								},
 								hover: {
 									fill: updateCountryColor(geo.properties.name),
-									stroke: zeroValue,
+									stroke: zeroStroke,
 								},
 							}}
 						/>

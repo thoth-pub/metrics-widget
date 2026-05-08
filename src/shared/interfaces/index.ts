@@ -4,4 +4,5 @@ export * from './Filter';
 export * from './MetaData';
 export * from './MetricsData';
 export * from './Tabs';
+export * from './Theme';
 export * from './Works';

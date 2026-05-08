@@ -1,16 +1,23 @@
 import { scaleLinear } from 'd3-scale';
 import iso from 'iso-3166-1';
 import { config } from '../config';
-import type { FilterOption } from '../interfaces';
+import type { FilterOption, MetricsWidgetTheme } from '../interfaces';
 
 const {
-	charts: {
-		sourcesForUpdate,
-		mapChartColors,
-		defaultMetricsChartColor,
-		metricsChartColors,
-	},
+	charts: { sourcesForUpdate },
 } = config;
+
+const METRIC_COLOR_VAR_PREFIX = '--mw-chart-metric-';
+const METRIC_DEFAULT_COLOR_VAR = '--mw-chart-metric-default';
+const MAP_ZERO_COLOR_VAR = '--mw-chart-map-zero';
+const MAP_LOWEST_COLOR_VAR = '--mw-chart-map-lowest';
+const MAP_HIGHEST_COLOR_VAR = '--mw-chart-map-highest';
+
+const slugifySource = (source: string) =>
+	source
+		.toLowerCase()
+		.replace(/[^a-z0-9]+/g, '-')
+		.replace(/^-+|-+$/g, '');
 
 export const updateSource = (source: string) => {
 	const shouldUpdate = sourcesForUpdate.find((label) =>
@@ -22,15 +29,37 @@ export const updateSource = (source: string) => {
 		: source;
 };
 
-export const getColor = (source: string) => {
-	const sourceKey = source.toLowerCase();
-	const defaultColor = defaultMetricsChartColor;
-	const color =
-		config.charts.metricsChartColors[
-			sourceKey as keyof typeof metricsChartColors
-		];
+export const resolveCssVar = (varName: string): string => {
+	if (typeof window === 'undefined') return '';
 
-	return color ?? defaultColor;
+	return getComputedStyle(document.documentElement)
+		.getPropertyValue(varName)
+		.trim();
+};
+
+const stripVarPrefix = (cssVarName: string) =>
+	cssVarName.startsWith('--') ? cssVarName.slice(2) : cssVarName;
+
+const themeOverride = (cssVarName: string, theme?: MetricsWidgetTheme | null) =>
+	theme?.[stripVarPrefix(cssVarName) as keyof MetricsWidgetTheme];
+
+export const getColor = (source: string, theme?: MetricsWidgetTheme | null) => {
+	const slug = slugifySource(source);
+	const platformVar = `${METRIC_COLOR_VAR_PREFIX}${slug}`;
+
+	const platformOverride = themeOverride(platformVar, theme);
+
+	if (platformOverride) return platformOverride;
+
+	const resolved = resolveCssVar(platformVar);
+
+	if (resolved) return resolved;
+
+	const defaultOverride = themeOverride(METRIC_DEFAULT_COLOR_VAR, theme);
+	
+  if (defaultOverride) return defaultOverride;
+
+	return resolveCssVar(METRIC_DEFAULT_COLOR_VAR);
 };
 
 export const isChapter = (workType: string) => {
@@ -117,14 +146,19 @@ export const getSaturationValue = ({
 	return filterValue;
 };
 
+const resolveMapColor = (cssVarName: string, theme?: MetricsWidgetTheme | null) =>
+	themeOverride(cssVarName, theme) ?? resolveCssVar(cssVarName);
+
 export const getChartColorByPercentage = ({
 	highestValue,
 	lowestValue,
+	theme,
 }: {
 	highestValue: number;
 	lowestValue: number;
+	theme?: MetricsWidgetTheme | null;
 }) => {
-	if (lowestValue === 0) return mapChartColors.zeroValue;
+	if (lowestValue === 0) return resolveMapColor(MAP_ZERO_COLOR_VAR, theme);
 
 	const percentage = getSaturationValue({
 		topValue: highestValue,
@@ -133,7 +167,10 @@ export const getChartColorByPercentage = ({
 	const colorScale = scaleLinear()
 		.domain([0, 100])
 		// @ts-expect-error d3-scale types issue
-		.range([mapChartColors.lowestValue, mapChartColors.highestValue]);
+		.range([
+			resolveMapColor(MAP_LOWEST_COLOR_VAR, theme),
+			resolveMapColor(MAP_HIGHEST_COLOR_VAR, theme),
+		]);
 
 	const color = colorScale(percentage);
 
