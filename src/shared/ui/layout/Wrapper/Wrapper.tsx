@@ -16,7 +16,7 @@ export const Wrapper = ({
 			<PortalContainerContext.Provider value={portalContainer}>
 				<div
 					style={{ visibility: themeApplied ? undefined : 'hidden' }}
-					className="max-w-(--mw-max-width) flex flex-col w-full h-(--mw-max-height) overflow-clip mx-auto bg-background-alt text-typography font-open-sans text-sm"
+					className="@container max-w-(--mw-max-width) flex flex-col w-full h-(--mw-max-height) overflow-clip mx-auto bg-background-alt text-typography font-open-sans text-sm"
 				>
 					{children}
 				</div>

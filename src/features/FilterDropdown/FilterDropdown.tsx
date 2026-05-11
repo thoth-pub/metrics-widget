@@ -52,7 +52,7 @@ export const FilterDropdown = ({
 		>
 			<ComboboxInput
 				placeholder={isEmpty ? emptyPlaceholderText : placeholderText}
-				className={cn('max-w-full sm:max-w-46', inputClassName)}
+				className={cn('max-w-full @md:max-w-46', inputClassName)}
 				showClear
 			>
 				{icon && <InputGroupAddon>{icon}</InputGroupAddon>}
