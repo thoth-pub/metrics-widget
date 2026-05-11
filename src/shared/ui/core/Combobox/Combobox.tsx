@@ -1,9 +1,10 @@
 'use client';
 
-import { cn } from '@/shared/lib/utils';
 import { Combobox as ComboboxPrimitive } from '@base-ui/react';
 import { CheckIcon, ChevronDownIcon, XIcon } from 'lucide-react';
 import { useRef } from 'react';
+import { usePortalContainer } from '@/shared/hooks';
+import { cn } from '@/shared/lib/utils';
 import { Button } from '../Button/Button';
 import {
 	InputGroup,
@@ -101,8 +102,9 @@ function ComboboxContent({
 		ComboboxPrimitive.Positioner.Props,
 		'side' | 'align' | 'sideOffset' | 'alignOffset' | 'anchor'
 	>) {
+	const portalContainer = usePortalContainer();
 	return (
-		<ComboboxPrimitive.Portal>
+		<ComboboxPrimitive.Portal container={portalContainer}>
 			<ComboboxPrimitive.Positioner
 				side={side}
 				sideOffset={sideOffset}
