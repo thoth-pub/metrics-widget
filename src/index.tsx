@@ -1,20 +1,33 @@
 import './index.css';
-import { createElement } from 'react';
 import type { Root } from 'react-dom/client';
 import { createRoot } from 'react-dom/client';
+import type { Doi, MetricsWidgetTheme } from '@/shared';
+import { Providers } from '@/shared';
 import App from './App';
-import type { Doi } from './shared';
 
-// Export the component for React projects
-export { default as MetricsWidget } from './App';
+export type {
+	MetricsWidgetTheme,
+	MetricsWidgetTokenName,
+} from '@/shared';
 
-// Types for vanilla JS initialization
-export interface MetricsWidgetOptions {
+type MetricsWidgetProps = {
 	doi: Doi;
+	theme?: MetricsWidgetTheme | null;
+};
+
+export const MetricsWidget = ({ doi, theme }: MetricsWidgetProps) => (
+	<Providers theme={theme}>
+		<App doi={doi} />
+	</Providers>
+);
+
+export interface MetricsWidgetInitOptions {
+	theme?: MetricsWidgetTheme;
 }
 
 export interface MetricsWidgetInstance {
 	unmount: () => void;
+	setTheme: (theme: MetricsWidgetTheme | undefined) => void;
 }
 
 /**
@@ -24,11 +37,18 @@ export interface MetricsWidgetInstance {
  * ```js
  * import { initMetricsWidget } from 'metrics-widget';
  *
- * const widget = initMetricsWidget('app', '10.1038/s41598-025-00000-0');
+ * const widget = initMetricsWidget('app', '10.36615/9781776402304', {
+ *   theme: { 'mw-color-background': '#1a1a1a' },
+ * });
+ *
+ * widget.setTheme({ 'mw-color-background': '#fff' });
+ * widget.unmount();
+ * ```
  */
 const initMetricsWidget = (
 	containerId: string,
 	doi: Doi,
+	options: MetricsWidgetInitOptions = {},
 ): MetricsWidgetInstance => {
 	const container = document.getElementById(containerId);
 
@@ -37,19 +57,27 @@ const initMetricsWidget = (
 	}
 
 	const root: Root = createRoot(container);
+	let currentTheme = options.theme;
 
 	const render = () => {
-		root.render(createElement(App, { doi }));
+		root.render(
+			<Providers theme={currentTheme}>
+				<App doi={doi} />
+			</Providers>,
+		);
 	};
 
 	render();
 
 	return {
 		unmount: () => root.unmount(),
+		setTheme: (theme) => {
+			currentTheme = theme;
+			render();
+		},
 	};
 };
 
-// Named export for ES modules
 export { initMetricsWidget };
 
 // Default export for convenience

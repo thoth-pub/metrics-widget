@@ -1,10 +1,13 @@
+import { Providers } from '@/shared';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import './index.css';
 import App from './App.tsx';
+import './index.css';
 
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
-		<App doi="10.1038/s41598-025-00000-0" />
+		<Providers>
+			<App doi="https://doi.org/10.11647/OBP.0159" />
+		</Providers>
 	</StrictMode>,
 );

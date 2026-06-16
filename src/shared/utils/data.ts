@@ -1,0 +1,282 @@
+import { scaleLinear } from 'd3-scale';
+import iso from 'iso-3166-1';
+import { config } from '../config';
+import type { FilterOption, MetricsWidgetTheme } from '../interfaces';
+
+const {
+	charts: { sourcesForUpdate },
+} = config;
+
+const METRIC_COLOR_VAR_PREFIX = '--mw-chart-metric-';
+const METRIC_DEFAULT_COLOR_VAR = '--mw-chart-metric-default';
+const MAP_ZERO_COLOR_VAR = '--mw-chart-map-zero';
+const MAP_LOWEST_COLOR_VAR = '--mw-chart-map-lowest';
+const MAP_HIGHEST_COLOR_VAR = '--mw-chart-map-highest';
+
+const slugifySource = (source: string) =>
+	source
+		.toLowerCase()
+		.replace(/[^a-z0-9]+/g, '-')
+		.replace(/^-+|-+$/g, '');
+
+export const updateSource = (source: string) => {
+	const shouldUpdate = sourcesForUpdate.find((label) =>
+		source.startsWith(label.platform),
+	);
+
+	return shouldUpdate
+		? source.replace(shouldUpdate.platform, shouldUpdate.label)
+		: source;
+};
+
+export const resolveCssVar = (varName: string): string => {
+	if (typeof window === 'undefined') return '';
+
+	return getComputedStyle(document.documentElement)
+		.getPropertyValue(varName)
+		.trim();
+};
+
+const stripVarPrefix = (cssVarName: string) =>
+	cssVarName.startsWith('--') ? cssVarName.slice(2) : cssVarName;
+
+const themeOverride = (cssVarName: string, theme?: MetricsWidgetTheme | null) =>
+	theme?.[stripVarPrefix(cssVarName) as keyof MetricsWidgetTheme];
+
+export const getColor = (source: string, theme?: MetricsWidgetTheme | null) => {
+	const slug = slugifySource(source);
+	const platformVar = `${METRIC_COLOR_VAR_PREFIX}${slug}`;
+
+	const platformOverride = themeOverride(platformVar, theme);
+
+	if (platformOverride) return platformOverride;
+
+	const resolved = resolveCssVar(platformVar);
+
+	if (resolved) return resolved;
+
+	const defaultOverride = themeOverride(METRIC_DEFAULT_COLOR_VAR, theme);
+	
+  if (defaultOverride) return defaultOverride;
+
+	return resolveCssVar(METRIC_DEFAULT_COLOR_VAR);
+};
+
+export const isChapter = (workType: string) => {
+	return workType === 'BOOK_CHAPTER';
+};
+
+export const roundPercentage = (percentage: number) => {
+	return percentage.toFixed(2).replace('.00', '');
+};
+
+export const getAlignedCountryName = (name: string) => {
+	const updatedName = iso.whereCountry(name)?.country ?? name;
+
+	switch (name.toLowerCase()) {
+		case "cote d'ivoire ivory coast":
+			return "Côte d'Ivoire";
+		case 'czech republic':
+			return 'Czechia';
+		case 'united kingdom':
+			return 'United Kingdom of Great Britain and Northern Ireland';
+		case 'south korea':
+			return 'Republic of Korea';
+		case 'north korea':
+			return "Democratic People's Republic of Korea";
+		case 'moldava':
+			return 'Moldova';
+		case 'myanmar burma':
+			return 'Myanmar';
+		case 'phillipines':
+			return 'Philippines';
+		case 'russia':
+			return 'Russian Federation';
+		case 'syria':
+			return 'Syrian Arab Republic';
+		case 'turkey':
+			return 'Türkiye';
+		case 'vietnam':
+			return 'Viet Nam';
+		default:
+			return updatedName;
+	}
+};
+
+export const getPercentage = (totalMetrics: number, totalCount: number) => {
+	if (totalCount === 0) return 0;
+
+	return (totalMetrics / totalCount) * 100;
+};
+
+export const getContinentNameByCode = (continentCode: string) => {
+	switch (continentCode.toLowerCase()) {
+		case 'af':
+			return 'Africa';
+		case 'as':
+			return 'Asia';
+		case 'eu':
+			return 'Europe';
+		case 'na':
+			return 'Northern America';
+		case 'an':
+			return 'Antarctica';
+		case 'sa':
+			return 'Latin America and the Caribbean';
+		case 'la':
+			return 'Latin America and the Caribbean';
+		case 'oc':
+			return 'Oceania';
+		default:
+			return continentCode;
+	}
+};
+
+export const getSaturationValue = ({
+	topValue,
+	itemValue,
+}: {
+	topValue: number;
+	itemValue: number;
+}) => {
+	if (topValue === 0) return 0;
+
+	const filterValue = (itemValue * 100) / topValue;
+
+	return filterValue;
+};
+
+const resolveMapColor = (cssVarName: string, theme?: MetricsWidgetTheme | null) =>
+	themeOverride(cssVarName, theme) ?? resolveCssVar(cssVarName);
+
+export const getChartColorByPercentage = ({
+	highestValue,
+	lowestValue,
+	theme,
+}: {
+	highestValue: number;
+	lowestValue: number;
+	theme?: MetricsWidgetTheme | null;
+}) => {
+	if (lowestValue === 0) return resolveMapColor(MAP_ZERO_COLOR_VAR, theme);
+
+	const percentage = getSaturationValue({
+		topValue: highestValue,
+		itemValue: lowestValue,
+	});
+	const colorScale = scaleLinear()
+		.domain([0, 100])
+		// @ts-expect-error d3-scale types issue
+		.range([
+			resolveMapColor(MAP_LOWEST_COLOR_VAR, theme),
+			resolveMapColor(MAP_HIGHEST_COLOR_VAR, theme),
+		]);
+
+	const color = colorScale(percentage);
+
+	return color.toString();
+};
+
+export const getApiCountryName = (name: string) => {
+	switch (name.toLowerCase()) {
+		case "côte d'ivoire":
+			return "Cote d'ivoire Ivory Coast";
+		case 'czechia':
+			return 'Czech Republic';
+		case 'united kingdom of great britain and northern ireland':
+			return 'United Kingdom';
+		case 'republic of korea':
+			return 'South Korea';
+		case "democratic people's republic of korea":
+			return 'North Korea';
+		case 'moldova':
+			return 'Moldava';
+		case 'myanmar':
+			return 'Myanmar Burma';
+		case 'philippines':
+			return 'Phillipines';
+		case 'russian federation':
+			return 'Russia';
+		case 'syrian arab republic':
+			return 'Syria';
+		case 'türkiye':
+			return 'Turkey';
+		case 'viet nam':
+			return 'Vietnam';
+		default:
+			return name;
+	}
+};
+
+export const convertMonthToKey = (month: string) => {
+	switch (month.toLowerCase()) {
+		case '01':
+			return 'Jan';
+		case '02':
+			return 'Feb';
+		case '03':
+			return 'Mar';
+		case '04':
+			return 'Apr';
+		case '05':
+			return 'May';
+		case '06':
+			return 'Jun';
+		case '07':
+			return 'Jul';
+		case '08':
+			return 'Aug';
+		case '09':
+			return 'Sep';
+		case '10':
+			return 'Oct';
+		case '11':
+			return 'Nov';
+		case '12':
+			return 'Dec';
+		default:
+			return month;
+	}
+};
+
+export const convertShortMonthToLongMonth = (month: string) => {
+	switch (month.toLowerCase()) {
+		case 'jan':
+			return 'January';
+		case 'feb':
+			return 'February';
+		case 'mar':
+			return 'March';
+		case 'apr':
+			return 'April';
+		case 'may':
+			return 'May';
+		case 'jun':
+			return 'June';
+		case 'jul':
+			return 'July';
+		case 'aug':
+			return 'August';
+		case 'sep':
+			return 'September';
+		case 'oct':
+			return 'October';
+		case 'nov':
+			return 'November';
+		case 'dec':
+			return 'December';
+		default:
+			return month;
+	}
+};
+
+export const getIncludedSources = (
+	selectedPlatforms: FilterOption[],
+	platformOptions: FilterOption[],
+) => {
+	return selectedPlatforms.length > 0
+		? selectedPlatforms.map((option) => option.value)
+		: platformOptions
+				.filter((option) => !option.disabled)
+				.map((option) => option.value);
+};

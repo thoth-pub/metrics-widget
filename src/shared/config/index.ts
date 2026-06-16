@@ -1,0 +1,85 @@
+import { DAY } from '../constants';
+
+export const config = {
+	query: {
+		staleTime: DAY,
+	},
+	metaApi: {
+		url: import.meta.env.VITE_THOTH_API_URL ?? 'https://api.thoth.pub/graphql',
+		itemsPerRequestLimit: 100,
+	},
+	metricsApi: {
+		url:
+			import.meta.env.VITE_METRICS_API_URL ??
+			'https://metrics-api.operas-eu.org',
+		dateFormat: 'YYYY-MM-DD',
+		itemsPerRequestLimit: 30,
+		trackedMetrics: [
+			'https://metrics.operas-eu.org/google-books/views/v1',
+			'https://metrics.operas-eu.org/obp-html/sessions/v1',
+			'https://metrics.operas-eu.org/obp-pdf/sessions/v1',
+			'https://metrics.operas-eu.org/obp/downloads/v1',
+			'https://metrics.operas-eu.org/world-reader/users/v1',
+			'https://metrics.operas-eu.org/open-edition/views/v1',
+			'https://metrics.operas-eu.org/open-edition/downloads/v1',
+			'https://metrics.operas-eu.org/oapen/downloads/v1',
+			'https://metrics.operas-eu.org/jstor/views/v1',
+			'https://metrics.operas-eu.org/jstor/downloads/v1',
+			'https://metrics.operas-eu.org/classics-library/sessions/v1',
+			'https://metrics.operas-eu.org/unglueit/downloads/v1',
+			'https://metrics.operas-eu.org/openaire/downloads/v1',
+			'https://metrics.operas-eu.org/wikimedia/views/v1',
+			'https://metrics.operas-eu.org/sub-gottingen/downloads/v1',
+			'https://metrics.operas-eu.org/ekt/downloads/v1',
+			'https://metrics.operas-eu.org/ekt/sessions/v1',
+			'https://metrics.operas-eu.org/ekt/landingsessions/v1',
+			'https://metrics.operas-eu.org/wikipedia/references/v1',
+			'https://metrics.operas-eu.org/wordpress/references/v1',
+			'https://metrics.operas-eu.org/figshare/views/v1',
+			'https://metrics.operas-eu.org/figshare/downloads/v1',
+			'https://metrics.operas-eu.org/figshare/shares/v1',
+			'https://metrics.operas-eu.org/uplo/sessions/v1',
+			'https://metrics.operas-eu.org/uplo/reads/v1',
+			'https://metrics.operas-eu.org/uplo/downloads/v1',
+			'https://metrics.operas-eu.org/historical/downloads/v1',
+		],
+	},
+	charts: {
+		tickMargin: 8,
+		timeMetricsChart: {
+			maxYearsPerPage: 15,
+		},
+		labelSeparator: ' - ',
+		timeMetricsChartLabelSeparator: ' · ',
+		countriesChart: {
+			countriesListLimit: 10,
+		},
+		sourcesForUpdate: [
+			{ platform: 'Open Book Publishers', label: 'OBP' },
+			{
+				platform: 'Open Book Publishers HTML Reader',
+				label: 'OBP HTML Reader',
+			},
+			{ platform: 'Open Book Publishers PDF Reader', label: 'OBP PDF Reader' },
+		],
+		timelineChart: {
+			defaultChartOpacity: 1,
+			inactiveChartOpacity: 0.5,
+			activeChartOpacity: 1,
+			defaultDotOpacity: 0,
+			inactiveDotOpacity: 0,
+			activeDotOpacity: 1,
+			strokeDasharray: '10 10',
+			lineStrokeWidth: 2,
+			lineDotStrokeWidth: 1,
+			lineDotRadius: 3,
+			maxYearsPerPage: 12,
+		},
+	},
+	csv: {
+		filename: 'download.csv',
+		measuresHeader: ['Platform', 'Book', 'Chapter'],
+		countriesHeader: ['Country', 'Percentage'],
+		regionsHeader: ['Region', 'Percentage'],
+	},
+};

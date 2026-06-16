@@ -1,12 +1,46 @@
 {
   "name": "metrics-widget",
-  "private": true,
-  "version": "0.0.0",
+  "version": "2.0.0",
+  "description": "A React-based widget for displaying publication metrics from multiple platforms.",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thoth-pub/metrics-widget.git"
+  },
+  "bugs": {
+    "url": "https://github.com/thoth-pub/metrics-widget/issues"
+  },
+  "homepage": "https://github.com/thoth-pub/metrics-widget#readme",
+  "keywords": [
+    "metrics",
+    "widget",
+    "react",
+    "doi",
+    "publications"
+  ],
+  "license": "Apache-2.0",
+  "files": [
+    "dist"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "main": "./dist/metrics-widget.js",
+  "module": "./dist/metrics-widget.js",
+  "types": "./dist/metrics-widget.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/metrics-widget.d.ts",
+      "import": {
+        "default": "./dist/metrics-widget.js"
+      }
+    },
+    "./styles.css": "./dist/metrics-widget.css"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "eslint .",
+    "lint": "biome lint .",
     "preview": "vite preview"
   },
   "peerDependencies": {
@@ -15,14 +49,50 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.3.11",
+    "@microsoft/api-extractor": "^7.58.7",
+    "@tailwindcss/vite": "^4.1.18",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
+    "@types/react-simple-maps": "^3.0.6",
     "@vitejs/plugin-react": "^5.1.1",
     "globals": "^16.5.0",
+    "postcss-prefixwrap": "^1.58.0",
+    "tailwindcss": "^4.1.18",
+    "tw-animate-css": "^1.4.0",
     "typescript": "~5.9.3",
     "vite": "^7.2.4",
-    "@tailwindcss/vite": "^4.1.18",
-    "tailwindcss": "^4.1.18"
+    "vite-plugin-dts": "^5.0.0",
+    "vite-tsconfig-paths": "^6.0.4"
+  },
+  "dependencies": {
+    "@base-ui/react": "^1.1.0",
+    "@radix-ui/react-accordion": "^1.2.12",
+    "@radix-ui/react-slot": "^1.2.4",
+    "@radix-ui/react-tabs": "^1.1.13",
+    "@radix-ui/react-tooltip": "^1.2.8",
+    "@tanstack/react-query": "^5.90.17",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "doi-utils": "^2.0.6",
+    "graphql-request": "^7.4.0",
+    "is-valid-css-color": "^2.0.4",
+    "iso-3166-1": "^2.1.1",
+    "lucide-react": "^0.563.0",
+    "react-simple-maps": "^3.0.0",
+    "react-tooltip": "^5.30.0",
+    "recharts": "^3.7.0",
+    "tailwind-merge": "^3.4.0"
+  },
+  "overrides": {
+    "react-simple-maps": {
+      "d3-zoom": "^3.0.0",
+      "d3-interpolate": "^3.0.1",
+      "d3-color": "^3.1.0",
+      "d3-geo": "^3.1.0",
+      "d3-selection": "^3.0.0",
+      "react": "^16.8.0 || 17.x || 18.x || 19.x",
+      "react-dom": "^16.8.0 || 17.x || 18.x || 19.x"
+    }
   }
 }
