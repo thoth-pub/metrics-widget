@@ -1,8 +1,24 @@
 {
   "name": "metrics-widget",
-  "private": true,
-  "version": "0.0.0",
+  "version": "2.0.0",
+  "description": "A React-based widget for displaying publication metrics from multiple platforms.",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thoth-pub/metrics-widget.git"
+  },
+  "bugs": {
+    "url": "https://github.com/thoth-pub/metrics-widget/issues"
+  },
+  "homepage": "https://github.com/thoth-pub/metrics-widget#readme",
+  "keywords": [
+    "metrics",
+    "widget",
+    "react",
+    "doi",
+    "publications"
+  ],
+  "license": "Apache-2.0",
   "files": [
     "dist"
   ],
