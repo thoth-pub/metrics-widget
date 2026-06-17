@@ -43,7 +43,7 @@ const TimelineTab = lazy(() =>
 	})),
 );
 
-const textStyles = 'hidden @md:block';
+const textStyles = 'hidden @xs:block';
 
 function App({ doi }: { doi: Doi }) {
 	const isValid = isValidDoi(doi);
