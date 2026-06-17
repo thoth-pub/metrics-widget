@@ -1,6 +1,6 @@
 {
   "name": "metrics-widget",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "A React-based widget for displaying publication metrics from multiple platforms.",
   "type": "module",
   "repository": {
@@ -35,6 +35,8 @@
         "default": "./dist/metrics-widget.js"
       }
     },
+    "./dist/metrics-widget.css": "./dist/metrics-widget.css",
+    "./dist/metrics-widget.js": "./dist/metrics-widget.js",
     "./styles.css": "./dist/metrics-widget.css"
   },
   "scripts": {
