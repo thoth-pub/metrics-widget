@@ -19,6 +19,8 @@ A React-based widget for displaying publication metrics from multiple platforms.
 npm install metrics-widget
 ```
 
+React 19 users may see a peer dependency warning from `react-simple-maps`, whose published peer range has not yet been updated for React 19. The widget is intended for React 19 and installs/builds with React 19 despite that upstream warning.
+
 ### For Vanilla JavaScript Projects
 
 #### Option 1: NPM Install (with bundler)
@@ -31,7 +33,7 @@ npm install metrics-widget
 
 ```html
 <!-- CSS -->
-<link rel="stylesheet" href="https://unpkg.com/metrics-widget@latest/dist/metrics-widget.css">
+<link rel="stylesheet" href="https://unpkg.com/metrics-widget@2/dist/metrics-widget.css">
 
 <!-- Import map for React dependencies -->
 <script type="importmap">
@@ -47,7 +49,7 @@ npm install metrics-widget
 
 <!-- Widget script -->
 <script type="module">
-  import { initMetricsWidget } from 'https://unpkg.com/metrics-widget@latest/dist/metrics-widget.js';
+  import { initMetricsWidget } from 'https://unpkg.com/metrics-widget@2/dist/metrics-widget.js';
   // Use widget here
 </script>
 ```
@@ -58,7 +60,7 @@ npm install metrics-widget
 
 ```tsx
 import { MetricsWidget } from 'metrics-widget';
-import 'metrics-widget/dist/metrics-widget.css';
+import 'metrics-widget/styles.css';
 
 function App() {
   return (
@@ -83,13 +85,13 @@ export default App;
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Metrics Widget Demo</title>
-  <link rel="stylesheet" href="node_modules/metrics-widget/dist/metrics-widget.css">
 </head>
 <body>
   <div id="metrics-container"></div>
   
   <script type="module">
-    import { initMetricsWidget } from './node_modules/metrics-widget/dist/metrics-widget.js';
+    import 'metrics-widget/styles.css';
+    import { initMetricsWidget } from 'metrics-widget';
     
     // Initialize the widget
     const widget = initMetricsWidget('metrics-container', '10.11647/OBP.0159');
@@ -114,7 +116,7 @@ For environments without a build tool, use import maps to load React from CDN:
   <title>Metrics Widget Demo</title>
   
   <!-- Load the widget CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/metrics-widget@latest/dist/metrics-widget.css">
+  <link rel="stylesheet" href="https://unpkg.com/metrics-widget@2/dist/metrics-widget.css">
   
   <!-- Import map for React dependencies from CDN -->
   <script type="importmap">
@@ -134,7 +136,7 @@ For environments without a build tool, use import maps to load React from CDN:
   
   <!-- Initialize widget using ES modules -->
   <script type="module">
-    import { initMetricsWidget } from 'https://unpkg.com/metrics-widget@latest/dist/metrics-widget.js';
+    import { initMetricsWidget } from 'https://unpkg.com/metrics-widget@2/dist/metrics-widget.js';
     
     // Initialize the widget
     const widget = initMetricsWidget('app', 'https://doi.org/10.11647/OBP.0159');
@@ -208,55 +210,14 @@ widget.setTheme({ 'mw-color-background': '#fff' });
 widget.unmount();
 ```
 
-## Environment Configuration
+## API Endpoints
 
-The widget connects to two APIs for fetching data. You can configure these endpoints using environment variables:
+The published widget connects to these default APIs:
 
-### Environment Variables
-
-Create a `.env` file in your project root:
-
-```env
-VITE_THOTH_API_URL=https://api.thoth.pub/graphql
-VITE_METRICS_API_URL=https://metrics-api.operas-eu.org
-```
-
-**Default values:**
 - `VITE_THOTH_API_URL`: `https://api.thoth.pub/graphql` (publication metadata)
 - `VITE_METRICS_API_URL`: `https://metrics-api.operas-eu.org` (usage metrics)
 
-### Using with Different Build Tools
-
-#### Vite
-
-Create `.env` file in your project root (shown above). Vite automatically loads it.
-
-#### Create React App
-
-```env
-REACT_APP_THOTH_API_URL=https://api.thoth.pub/graphql
-REACT_APP_METRICS_API_URL=https://metrics-api.operas-eu.org
-```
-
-Note: You'll need to update the widget's config to read from `REACT_APP_*` instead of `VITE_*` variables.
-
-#### Webpack
-
-Use `webpack.DefinePlugin` or `dotenv-webpack`:
-
-```javascript
-// webpack.config.js
-const webpack = require('webpack');
-
-module.exports = {
-  plugins: [
-    new webpack.DefinePlugin({
-      'import.meta.env.VITE_THOTH_API_URL': JSON.stringify(process.env.THOTH_API_URL),
-      'import.meta.env.VITE_METRICS_API_URL': JSON.stringify(process.env.METRICS_API_URL)
-    })
-  ]
-};
-```
+Endpoint overrides are not currently exposed as part of the public package API. The `VITE_*` names are used only when building this repository from source.
 
 ## Customization
 
@@ -306,12 +267,12 @@ import {
   MetricsWidget,
   type MetricsWidgetTheme,
 } from 'metrics-widget';
-import 'metrics-widget/dist/metrics-widget.css';
+import 'metrics-widget/styles.css';
 
 const brandTheme: MetricsWidgetTheme = {
   'mw-color-background': '#1a1a1a',
   'mw-color-typography': '#f5f5f5',
-  'mw-purple': 'hsl(280, 50%, 60%)',
+  'mw-color-active': 'hsl(280, 50%, 60%)',
   'mw-chart-metric-google-books': '#ff8800',
 };
 

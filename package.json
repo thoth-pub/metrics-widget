@@ -1,6 +1,6 @@
 {
   "name": "metrics-widget",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "A React-based widget for displaying publication metrics from multiple platforms.",
   "type": "module",
   "repository": {
@@ -31,17 +31,19 @@
   "exports": {
     ".": {
       "types": "./dist/metrics-widget.d.ts",
-      "import": {
-        "default": "./dist/metrics-widget.js"
-      }
+      "import": "./dist/metrics-widget.js",
+      "default": "./dist/metrics-widget.js"
     },
+    "./dist/metrics-widget.css": "./dist/metrics-widget.css",
+    "./dist/metrics-widget.js": "./dist/metrics-widget.js",
     "./styles.css": "./dist/metrics-widget.css"
   },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "biome lint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:consumer": "node scripts/consumer-smoke-test.mjs"
   },
   "peerDependencies": {
     "react": "^19.2.0",
