@@ -58,8 +58,9 @@ export const useMapTab = (doi: Doi) => {
 
 	const getCountryColor = (countryName: string) => {
 		const topCountry = processedData[0];
+		const apiCountryName = getApiCountryName(countryName);
 		const country = processedData.find(
-			(country) => country.name === countryName,
+			(country) => country.name === apiCountryName,
 		);
 		const countryValue = country?.percentage ?? 0;
 		const topCountryValue = topCountry?.percentage ?? 0;
