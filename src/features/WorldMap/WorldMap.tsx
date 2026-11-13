@@ -22,9 +22,11 @@ export const WorldMap = (props: WorldMapProps) => {
 
 	return (
 		<ComposableMap
+			// Fits the land from northern Greenland (83.6° N) to Tierra del Fuego (56° S) in the 800 × 316 view, so
+			// neither edge is clipped (scale 160 on the equator cut the north at any widget size).
 			projectionConfig={{
-				scale: 160,
-				center: [5, 0],
+				scale: 135,
+				center: [5, 6],
 			}}
 			height={316}
 			style={{ width: '100%', height: '100%' }}

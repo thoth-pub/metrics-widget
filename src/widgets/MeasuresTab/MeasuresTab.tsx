@@ -18,6 +18,8 @@ import { type Measure, useMeasuresTab } from './useMeasuresTab';
 
 const margin = {
 	top: 20,
+	// Room for the last x tick label, which is centred on the right edge of the plot.
+	right: 24,
 };
 
 const title = 'Usage by measure';
@@ -79,8 +81,14 @@ const BookBarShape = (props: BarShapeProps) => {
 };
 
 export const MeasuresTab = ({ doi, isInfoOpen, toggleInfo }: TabProps) => {
-	const { year, measures, hasChaptersSection, isChapterEmbed, csvData, captions } =
-		useMeasuresTab(doi);
+	const {
+		year,
+		measures,
+		hasChaptersSection,
+		isChapterEmbed,
+		csvData,
+		captions,
+	} = useMeasuresTab(doi);
 	const prefix = `mw${useId().replace(/[^A-Za-z0-9_-]/g, '')}`;
 
 	return (

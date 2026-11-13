@@ -1,8 +1,4 @@
-import {
-	DataPlaceholder,
-	MetricCaptions,
-	type SharesProblem,
-} from '@/shared';
+import { DataPlaceholder, MetricCaptions, type SharesProblem } from '@/shared';
 import { CircleAlert } from 'lucide-react';
 
 type GeographyContentProps = {
@@ -37,10 +33,12 @@ export const GeographyContent = ({
 		);
 	}
 
+	// The chart takes the height left between the captions and the notes, so the notes stay in view and the chart
+	// shrinks instead of being clipped.
 	return (
 		<>
 			<MetricCaptions captions={captions} />
-			{content}
+			<div className="flex min-h-0 flex-1 flex-col">{content}</div>
 			<MetricCaptions captions={notes} />
 		</>
 	);

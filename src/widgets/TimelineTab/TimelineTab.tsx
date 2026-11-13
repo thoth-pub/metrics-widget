@@ -23,6 +23,7 @@ import {
 	YAxis,
 } from 'recharts';
 import { MetricTab } from '../MetricTab/MetricTab';
+import { BucketTick } from './BucketTick';
 import { TimelineTooltip } from './TimelineTooltip';
 import { useTimelineTab } from './useTimelineTab';
 
@@ -190,6 +191,8 @@ export const TimelineTab = ({
 							}}
 							margin={{
 								top: 20,
+								// Room for the last tick label, which is centred on the last point.
+								right: 24,
 								bottom: 10,
 							}}
 						>
@@ -200,6 +203,8 @@ export const TimelineTab = ({
 								tickLine={{ stroke: 'none' }}
 								tickMargin={tickMargin}
 								type="category"
+								tick={<BucketTick />}
+								height={40}
 							/>
 							<YAxis axisLine={{ stroke: 'none' }} />
 							<Tooltip
