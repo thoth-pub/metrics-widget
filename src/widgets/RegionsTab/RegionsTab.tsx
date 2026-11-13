@@ -1,52 +1,33 @@
-import {
-	ChaptersDropdown,
-	CSVDownloadButton,
-	FilterDropdown,
-	PieChartWithList,
-} from '@/features';
-import { ContentTab, NoDataPlaceholder, type TabProps } from '@/shared';
+import { PieChartWithList } from '@/features';
+import type { TabProps } from '@/shared';
 import { TABS } from '@/shared/constants';
+import { GeographyContent } from '../MetricTab/GeographyContent';
+import { MetricTab } from '../MetricTab/MetricTab';
 import { useRegionsTab } from './useRegionsTab';
 
 const title = 'Continent Usage';
 
 export const RegionsTab = ({ doi, isInfoOpen, toggleInfo }: TabProps) => {
-	const {
-		metaData,
-		metricsData,
-		csvData,
-		platformOptions,
-		selectedPlatforms,
-		isLoading,
-		includedSources,
-		selectPlatform,
-	} = useRegionsTab(doi);
-
-	if (metricsData.length === 0 && !isLoading) {
-		return (
-			<ContentTab value={TABS.REGIONS} title={title} includedSources={[]}>
-				<NoDataPlaceholder />
-			</ContentTab>
-		);
-	}
+	const { year, metricsData, csvData, captions, notes, problem, emptyText } =
+		useRegionsTab(doi);
 
 	return (
-		<ContentTab
-			includedSources={includedSources}
-			filter={<ChaptersDropdown chapters={metaData.chapters} />}
-			action={<CSVDownloadButton data={csvData} />}
+		<MetricTab
 			value={TABS.REGIONS}
 			title={title}
+			year={year}
 			isInfoOpen={isInfoOpen}
-			onToggleInfo={toggleInfo}
+			toggleInfo={toggleInfo}
+			csvData={csvData}
 		>
-			<FilterDropdown
-				items={platformOptions}
-				placeholder="platform"
-				value={selectedPlatforms}
-				onValueChange={selectPlatform}
-			/>
-			<PieChartWithList metricsData={metricsData} />
-		</ContentTab>
+			<GeographyContent
+				captions={captions}
+				notes={notes}
+				problem={problem}
+				emptyText={emptyText}
+			>
+				<PieChartWithList metricsData={metricsData} />
+			</GeographyContent>
+		</MetricTab>
 	);
 };

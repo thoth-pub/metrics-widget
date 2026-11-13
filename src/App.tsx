@@ -1,4 +1,4 @@
-import { type Doi, isValidDoi, useMetaData } from '@/shared';
+import { type Doi, isValidDoi, type Tab, useMetaData } from '@/shared';
 import {
 	DataPlaceholder,
 	ErrorBoundary,
@@ -50,6 +50,7 @@ function App({ doi }: { doi: Doi }) {
 	const { error, refetch } = useMetaData(doi);
 
 	const [isInfoOpen, setIsInfoOpen] = useState(false);
+	const [activeTab, setActiveTab] = useState<Tab>(TABS.MEASURES);
 
 	if (!isValid) {
 		return (
@@ -65,15 +66,14 @@ function App({ doi }: { doi: Doi }) {
 
 	const toggleInfo = () => setIsInfoOpen((prev) => !prev);
 
-	const closeInfo = () => setIsInfoOpen(false);
+	const changeTab = (tab: string) => {
+		setActiveTab(tab as Tab);
+		setIsInfoOpen(false);
+	};
 
 	return (
 		<Wrapper>
-			<Tabs
-				defaultValue={TABS.MEASURES}
-				className="h-full"
-				onValueChange={closeInfo}
-			>
+			<Tabs value={activeTab} className="h-full" onValueChange={changeTab}>
 				<MeasuresTab
 					doi={doi}
 					isInfoOpen={isInfoOpen}
@@ -83,6 +83,7 @@ function App({ doi }: { doi: Doi }) {
 					doi={doi}
 					isInfoOpen={isInfoOpen}
 					toggleInfo={toggleInfo}
+					isActive={activeTab === TABS.TIMELINE}
 				/>
 				<MapTab doi={doi} isInfoOpen={isInfoOpen} toggleInfo={toggleInfo} />
 				<RegionsTab doi={doi} isInfoOpen={isInfoOpen} toggleInfo={toggleInfo} />

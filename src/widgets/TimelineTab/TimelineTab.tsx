@@ -1,13 +1,12 @@
-import {
-	ChaptersDropdown,
-	CSVDownloadButton,
-	FilterDropdown,
-} from '@/features';
+import { FilterDropdown } from '@/features';
 import {
 	Button,
 	config,
-	ContentTab,
+	MetricCaptions,
+	MetricErrorState,
+	MetricWidgetUnavailableError,
 	NoDataPlaceholder,
+	Spinner,
 	type TabProps,
 } from '@/shared';
 import { TABS } from '@/shared/constants';
@@ -23,6 +22,7 @@ import {
 	XAxis,
 	YAxis,
 } from 'recharts';
+import { MetricTab } from '../MetricTab/MetricTab';
 import { TimelineTooltip } from './TimelineTooltip';
 import { useTimelineTab } from './useTimelineTab';
 
@@ -44,62 +44,57 @@ const {
 	tickMargin,
 } = config.charts;
 
-const calculateLineOpacity = (
-	activeSeries: string | null,
-	seriesName: string,
-) => {
-	if (!activeSeries) return defaultChartOpacity;
+const calculateLineOpacity = (activePair: string | null, pairKey: string) => {
+	if (!activePair) return defaultChartOpacity;
 
-	return activeSeries === seriesName
-		? activeChartOpacity
-		: inactiveChartOpacity;
+	return activePair === pairKey ? activeChartOpacity : inactiveChartOpacity;
 };
 
-const calculateDotOpacity = (
-	activeSeries: string | null,
-	seriesName: string,
-) => {
-	if (!activeSeries) return defaultDotOpacity;
+const calculateDotOpacity = (activePair: string | null, pairKey: string) => {
+	if (!activePair) return defaultDotOpacity;
 
-	return activeSeries === seriesName ? activeDotOpacity : inactiveDotOpacity;
+	return activePair === pairKey ? activeDotOpacity : inactiveDotOpacity;
 };
 
-export const TimelineTab = ({ doi, isInfoOpen, toggleInfo }: TabProps) => {
+type TimelineTabProps = TabProps & {
+	/** True while the Timeline tab is the active tab: only then is a month read sent. */
+	isActive?: boolean;
+};
+
+export const TimelineTab = ({
+	doi,
+	isInfoOpen,
+	toggleInfo,
+	isActive = false,
+}: TimelineTabProps) => {
 	const {
-		metaData,
-		processedData,
+		year,
+		month,
+		isMonthView,
 		activeYear,
-		xKey,
-		isLoading,
+		series,
+		rows,
+		colorOf,
 		csvData,
-		platformOptions,
-		selectedYears,
-		selectedPlatforms,
-		selectPlatform,
+		captions,
+		info,
+		seriesOptions,
+		selectedSeries,
+		selectSeries,
 		yearsOptions,
+		selectedYears,
 		setSelectedYears,
 		nextPage,
 		previousPage,
 		isNextPageAvailable,
 		isPreviousPageAvailable,
 		isPaginationAvailable,
-		includedSources,
-	} = useTimelineTab(doi);
+	} = useTimelineTab(doi, isActive);
 
-	const [activeSeries, setActiveSeries] = useState<string | null>(null);
+	const [activePair, setActivePair] = useState<string | null>(null);
 
-	if (processedData.length === 0 && !isLoading) {
-		return (
-			<ContentTab value={TABS.TIMELINE} title={title} includedSources={[]}>
-				<NoDataPlaceholder />
-			</ContentTab>
-		);
-	}
-
-	const CustomizedActiveDot = (
-		props: ActiveDotProps & { seriesName: string },
-	) => {
-		const { seriesName, ...rest } = props;
+	const CustomizedActiveDot = (props: ActiveDotProps & { pairKey: string }) => {
+		const { pairKey, ...rest } = props;
 
 		const { onPointerEnter, onPointerLeave, style, ...svgCircleProps } =
 			rest as React.SVGProps<SVGCircleElement>;
@@ -107,35 +102,52 @@ export const TimelineTab = ({ doi, isInfoOpen, toggleInfo }: TabProps) => {
 		return (
 			<circle
 				{...svgCircleProps}
-				onPointerEnter={() => setActiveSeries(seriesName)}
-				onPointerLeave={() => setActiveSeries(null)}
+				onPointerEnter={() => setActivePair(pairKey)}
+				onPointerLeave={() => setActivePair(null)}
 				stroke={props.color}
 				strokeWidth={lineDotStrokeWidth}
 				style={{
 					r: lineDotRadius,
-					opacity: calculateDotOpacity(activeSeries, seriesName),
+					opacity: calculateDotOpacity(activePair, pairKey),
 				}}
 			/>
 		);
 	};
 
+	let monthState: React.ReactNode = null;
+
+	if (isMonthView) {
+		if (month.isLoading) {
+			monthState = <Spinner className="m-auto size-12 h-full text-spinner" />;
+		} else if (month.error) {
+			monthState = (
+				<MetricErrorState
+					isUnavailable={month.error instanceof MetricWidgetUnavailableError}
+					onRetry={month.retry}
+				/>
+			);
+		} else if (!month.view || month.view.isEmpty) {
+			monthState = <NoDataPlaceholder />;
+		}
+	}
+
 	return (
-		<ContentTab
-			includedSources={includedSources}
-			filter={<ChaptersDropdown chapters={metaData.chapters} />}
-			action={<CSVDownloadButton data={csvData} />}
+		<MetricTab
 			value={TABS.TIMELINE}
 			title={title}
+			year={year}
 			isInfoOpen={isInfoOpen}
-			onToggleInfo={toggleInfo}
+			toggleInfo={toggleInfo}
+			info={info}
+			csvData={monthState ? undefined : csvData}
 		>
 			<div className="flex items-center gap-1 justify-between">
 				<div className="flex gap-2">
 					<FilterDropdown
-						items={platformOptions}
-						placeholder="platform"
-						value={selectedPlatforms}
-						onValueChange={selectPlatform}
+						items={seriesOptions}
+						placeholder="measure"
+						value={selectedSeries}
+						onValueChange={selectSeries}
 					/>
 					<FilterDropdown
 						items={yearsOptions}
@@ -166,68 +178,68 @@ export const TimelineTab = ({ doi, isInfoOpen, toggleInfo }: TabProps) => {
 					</div>
 				)}
 			</div>
-			<ResponsiveContainer className="overflow-clip">
-				<LineChart
-					style={{
-						fontSize: 12,
-						fontWeight: 400,
-					}}
-					margin={{
-						top: 20,
-						bottom: 10,
-					}}
-				>
-					<CartesianGrid vertical={false} />
-					<XAxis
-						dataKey={xKey}
-						axisLine={{ stroke: 'none' }}
-						tickLine={{ stroke: 'none' }}
-						tickMargin={tickMargin}
-						type="category"
-						allowDuplicatedCategory={false}
-					/>
-					<YAxis axisLine={{ stroke: 'none' }} />
-					<Tooltip
-						cursor={{ strokeDasharray }}
-						content={(props) => (
-							<TimelineTooltip
-								activeSeries={activeSeries}
-								activeYear={activeYear}
-								{...props}
+			{monthState ?? (
+				<>
+					<MetricCaptions captions={captions} />
+					<ResponsiveContainer className="overflow-clip">
+						<LineChart
+							data={rows}
+							style={{
+								fontSize: 12,
+								fontWeight: 400,
+							}}
+							margin={{
+								top: 20,
+								bottom: 10,
+							}}
+						>
+							<CartesianGrid vertical={false} />
+							<XAxis
+								dataKey="label"
+								axisLine={{ stroke: 'none' }}
+								tickLine={{ stroke: 'none' }}
+								tickMargin={tickMargin}
+								type="category"
 							/>
-						)}
-					/>
-					{processedData.map((s) => (
-						<>
-							<Line
-								type="monotone"
-								dataKey="book"
-								data={s.data}
-								dot={false}
-								stroke={s.color}
-								activeDot={(props) => (
-									<CustomizedActiveDot {...props} seriesName={s.name} />
+							<YAxis axisLine={{ stroke: 'none' }} />
+							<Tooltip
+								cursor={{ strokeDasharray }}
+								content={(props) => (
+									<TimelineTooltip
+										series={series}
+										rows={rows}
+										activePair={activePair}
+										isMonthView={isMonthView}
+										activeYear={activeYear}
+										colorOf={colorOf}
+										active={props.active}
+										label={props.label}
+									/>
 								)}
-								strokeOpacity={calculateLineOpacity(activeSeries, s.name)}
-								strokeWidth={lineStrokeWidth}
 							/>
-							<Line
-								type="monotone"
-								dataKey="chapters"
-								data={s.data}
-								strokeDasharray={strokeDasharray}
-								stroke={s.color}
-								strokeWidth={lineStrokeWidth}
-								dot={false}
-								activeDot={(props) => (
-									<CustomizedActiveDot {...props} seriesName={s.name} />
-								)}
-								strokeOpacity={calculateLineOpacity(activeSeries, s.name)}
-							/>
-						</>
-					))}
-				</LineChart>
-			</ResponsiveContainer>
-		</ContentTab>
+							{series.map((item) => (
+								<Line
+									key={item.id}
+									type="monotone"
+									dataKey={item.dataKey}
+									name={item.name}
+									dot={false}
+									connectNulls={false}
+									stroke={colorOf(item.platformId)}
+									strokeDasharray={
+										item.sectionId === 'chapters' ? strokeDasharray : undefined
+									}
+									strokeWidth={lineStrokeWidth}
+									strokeOpacity={calculateLineOpacity(activePair, item.pairKey)}
+									activeDot={(props) => (
+										<CustomizedActiveDot {...props} pairKey={item.pairKey} />
+									)}
+								/>
+							))}
+						</LineChart>
+					</ResponsiveContainer>
+				</>
+			)}
+		</MetricTab>
 	);
 };

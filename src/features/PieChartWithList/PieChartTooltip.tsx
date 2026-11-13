@@ -9,6 +9,7 @@ type PieChartTooltip = {
 		fill?: string;
 		payload: {
 			fill: string;
+			value: string;
 		};
 	}>;
 	label?: string | number;
@@ -25,7 +26,7 @@ export const PieChartTooltip = ({ active, payload }: PieChartTooltip) => {
 						className="colorPlaceholder"
 						style={{ backgroundColor: `${pld.payload.fill}` }}
 					/>
-					{pld.name}: <strong>{pld.value}</strong>
+					{pld.name}: <strong>{pld.payload.value}</strong>
 				</div>
 			))}
 		</ChartTooltipWrapper>

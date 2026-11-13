@@ -1,6 +1,5 @@
 'use client';
 
-import iso from 'iso-3166-1';
 import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
 import { resolveCssVar, useTheme } from '@/shared';
 import geoData from './geoData.json';
@@ -8,9 +7,10 @@ import geoData from './geoData.json';
 type WorldMapProps = {
 	tooltipContent?: string;
 	isTooltipVisible?: boolean;
-	onMouseEnter?: (countryName: string) => void;
+	/** Receives the map feature's own name; the caller matches it to a country code. */
+	onMouseEnter?: (featureName: string) => void;
 	onMouseLeave?: () => void;
-	updateCountryColor: (countryName: string) => string;
+	updateCountryColor: (featureName: string) => string;
 };
 
 export const WorldMap = (props: WorldMapProps) => {
@@ -39,13 +39,7 @@ export const WorldMap = (props: WorldMapProps) => {
 							key={geo.rsmKey}
 							geography={geo}
 							onMouseEnter={() => {
-								if (!onMouseEnter) return;
-
-								const countryName =
-									iso.whereCountry(geo.properties.name)?.country ??
-									geo.properties.name;
-
-								onMouseEnter(countryName);
+								onMouseEnter?.(geo.properties.name);
 							}}
 							onMouseLeave={onMouseLeave}
 							style={{

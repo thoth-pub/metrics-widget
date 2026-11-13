@@ -3,6 +3,7 @@ export * from './config';
 export * from './context';
 export * from './hooks';
 export * from './interfaces';
+export * from './metricWidget';
 export * from './providers';
 export * from './services';
 export * from './ui';

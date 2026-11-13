@@ -13,6 +13,7 @@ export const useMetaData = (doi: Doi) => {
 	const {
 		data = { book: { doi, title: '', type: '', ordinal: 0 }, chapters: [] },
 		isLoading,
+		isSuccess,
 		error,
 		refetch,
 	} = useQuery({
@@ -31,6 +32,7 @@ export const useMetaData = (doi: Doi) => {
 			chaptersDois: normalizedChaptersDois,
 		},
 		isLoading,
+		isSuccess,
 		error,
 		refetch,
 	};

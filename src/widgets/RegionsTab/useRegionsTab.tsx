@@ -1,58 +1,31 @@
 import {
-	config,
+	continentValues,
+	countriesTotal,
 	type Doi,
-	getContinentNameByCode,
-	getIncludedSources,
-	getPercentage,
-	roundPercentage,
-	useMetricsByCountryOrRegion,
+	regionsCsv,
+	sharePercentage,
 } from '@/shared';
+import { useGeography } from '../MetricTab/useGeography';
 
+/** The combined distribution by UN M49 region. */
 export const useRegionsTab = (doi: Doi) => {
-	const {
-		metaData,
-		preProcessedData,
-		totalCount,
-		selectedPlatforms,
-		platformOptions,
-		isLoading,
-		setSelectedPlatforms,
-	} = useMetricsByCountryOrRegion({
-		doi,
-		dataType: 'continent',
-	});
+	const geography = useGeography(doi);
+	const { countries } = geography;
+	const total = countriesTotal(countries);
 
-	const processedData = preProcessedData.map(([region, value], index) => {
-		const percentage = getPercentage(value, totalCount);
-
-		return {
-			name: getContinentNameByCode(region),
-			metrics: value,
-			percentage,
+	const metricsData = continentValues(countries).map(
+		({ continent, value }, index) => ({
+			name: continent,
+			value,
+			metrics: Number(value),
+			percentage: sharePercentage(value, total),
 			fill: `var(--mw-color-countries-${index + 1})`,
-		};
-	});
-
-	const processedCsvData = processedData.map(({ name, percentage }) => [
-		name,
-		roundPercentage(percentage),
-	]);
-
-	const csvData: string[][] = [config.csv.regionsHeader, ...processedCsvData];
-
-	const includedSources = getIncludedSources(
-		selectedPlatforms,
-		platformOptions,
+		}),
 	);
 
 	return {
-		metaData,
-		metricsData: processedData,
-		csvData,
-		selectPlatform: setSelectedPlatforms,
-		selectedPlatforms,
-		platformOptions,
-		isLoading,
-		includedSources,
+		...geography,
+		metricsData,
+		csvData: regionsCsv(countries),
 	};
 };

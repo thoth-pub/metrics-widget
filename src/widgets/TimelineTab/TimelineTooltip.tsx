@@ -1,73 +1,68 @@
-import { convertShortMonthToLongMonth, updateSource } from '@/shared';
-import { ChartTooltipWrapper } from '@/shared/ui/core/ChartTooltipWrapper/ChartTooltipWrapper';
+import {
+	ChartTooltipWrapper,
+	convertShortMonthToLongMonth,
+	NO_DATA_LABEL,
+	type TimelineRow,
+	type TimelineSeries,
+} from '@/shared';
 
 type TimelineTooltipProps = {
-	activeSeries: string | null;
+	series: TimelineSeries[];
+	rows: TimelineRow[];
+	/** The hovered pair: only its series are listed. All drawn series otherwise. */
+	activePair: string | null;
+	isMonthView: boolean;
 	activeYear: string;
+	colorOf: (platformId: string) => string;
 	active?: boolean;
-	payload?: ReadonlyArray<{
-		dataKey?: string;
-		value?: number;
-		color?: string;
-		payload: {
-			source: string;
-		};
-	}>;
 	label?: string | number;
 };
 
+/** The exact value of each series at the hovered bucket, or `no data` for an unknown value. */
 export const TimelineTooltip = ({
-	activeSeries,
+	series,
+	rows,
+	activePair,
+	isMonthView,
 	activeYear,
+	colorOf,
 	active,
-	payload,
 	label,
 }: TimelineTooltipProps) => {
-	if (!activeSeries || !active || !payload || !payload.length) return null;
+	if (!active || label === undefined) return null;
 
-	const filteredPayload = payload?.filter(
-		(pld) => updateSource(pld.payload.source) === activeSeries,
-	);
+	const row = rows.find((item) => item.label === String(label));
 
-	if (filteredPayload.length === 0) return null;
+	if (!row) return null;
 
-	const bookCount =
-		filteredPayload.find((pld) => pld.dataKey === 'book')?.value ?? 0;
-	const chaptersCount =
-		filteredPayload.find((pld) => pld.dataKey === 'chapters')?.value ?? 0;
+	const shown = activePair
+		? series.filter(({ pairKey }) => pairKey === activePair)
+		: series;
 
-	if (bookCount === 0 && chaptersCount === 0) return null;
+	if (shown.length === 0) return null;
 
-	const appliedLabel = label
-		? convertShortMonthToLongMonth(label.toString())
-		: '';
+	const heading = isMonthView
+		? `${convertShortMonthToLongMonth(String(label))} ${activeYear}`
+		: String(label);
 
 	return (
 		<ChartTooltipWrapper>
-			<span>
-				{appliedLabel} {activeYear}
-			</span>
-
-			<div className="flex gap-1 self-start items-center justify-center">
-				<div
-					className="colorPlaceholder"
-					style={{ backgroundColor: filteredPayload[0].color }}
-				/>
-				<span>{activeSeries}</span>
-			</div>
+			<span>{heading}</span>
 
 			<div className="h-px bg-divider w-full" />
 
-			{bookCount > 0 && (
-				<span>
-					Book: <strong>{bookCount}</strong>
-				</span>
-			)}
-			{chaptersCount > 0 && (
-				<span>
-					Chapters: <strong>{chaptersCount}</strong>
-				</span>
-			)}
+			{shown.map((item) => (
+				<div key={item.id} className="flex gap-1 self-start items-center">
+					<div
+						className="colorPlaceholder"
+						style={{ backgroundColor: colorOf(item.platformId) }}
+					/>
+					<span>
+						{item.name}:{' '}
+						<strong>{item.values[row.index] ?? NO_DATA_LABEL}</strong>
+					</span>
+				</div>
+			))}
 		</ChartTooltipWrapper>
 	);
 };

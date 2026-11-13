@@ -1,106 +1,72 @@
 import {
 	type Doi,
 	type FilterOption,
-	getIncludedSources,
-	useMetricsByYear,
+	infoEntries,
+	timelineCsv,
+	timelineRows,
+	timelineSeries,
+	useMetricWidgetMonth,
+	useMetricWidgetYear,
+	viewCaptions,
 } from '@/shared';
 import { useState } from 'react';
 import { useYearsPaginationAndFilter } from './useYearsPaginationAndFilter';
-import { useYearsTimelineMetrics } from './useYearsTimelineMetrics';
-import { useYearTimelineMetrics } from './useYearTimelineMetrics';
 
-const TABS = {
-	YEARS: 'years',
-	YEAR: 'year',
-} as const;
+/**
+ * The Timeline tab: the year view from R-YEAR's `YEAR` buckets, or, when exactly one year is open, the month view
+ * of that year from its own month read (R-MONTH). R-MONTH is requested only while the Timeline tab is the active
+ * tab (`isActive`) and one bucket is open.
+ */
+export const useTimelineTab = (doi: Doi, isActive: boolean) => {
+	const year = useMetricWidgetYear(doi);
+	const yearView = year.view && !year.view.isEmpty ? year.view : null;
 
-export const useTimelineTab = (doi: Doi) => {
-	const {
-		metaData,
-		metricsData: metricsDataByYear,
-		isLoading: isLoadingMetricsByYear,
-		error: errorMetricsByYear,
-	} = useMetricsByYear(doi);
+	const pagination = useYearsPaginationAndFilter(year.view);
+	const { openBucket } = pagination;
 
-	const {
-		activeYears,
-		yearsOptions,
-		selectedYears,
-		isNextPageAvailable,
-		isPreviousPageAvailable,
-		isPaginationAvailable,
-		setSelectedYears,
-		nextPage,
-		previousPage,
-	} = useYearsPaginationAndFilter(doi);
-
-	const [selectedPlatforms, setSelectedPlatforms] = useState<FilterOption[]>(
-		[],
+	const month = useMetricWidgetMonth(
+		year,
+		isActive && yearView !== null ? openBucket : null,
 	);
 
-	const {
-		processedYearsData,
-		platformOptions,
-		csvData: csvDataByYears,
-	} = useYearsTimelineMetrics({
-		selectedPlatforms,
-		selectedYears: activeYears,
-		metricsDataByYear,
-	});
+	const [selectedSeries, setSelectedSeries] = useState<FilterOption[]>([]);
+	const selectedPairKeys = new Set(selectedSeries.map(({ value }) => value));
 
-	const {
-		processedMonthsData,
-		isLoading: isLoadingLastYearMetrics,
-		error: errorLastYearMetrics,
-		csvData: csvDataByMonths,
-	} = useYearTimelineMetrics({
-		doi,
-		selectedYears,
-		selectedPlatforms,
-	});
+	const seriesOptions: FilterOption[] = (yearView?.pairs ?? []).map((pair) => ({
+		label: pair.label,
+		value: pair.key,
+	}));
 
-	const activeTab = selectedYears.length === 1 ? TABS.YEAR : TABS.YEARS;
-	const isActiveYearTab = activeTab === TABS.YEAR;
+	const isMonthView = openBucket !== null;
+	const monthView = month.view && !month.view.isEmpty ? month.view : null;
+	const shownView = isMonthView ? monthView : yearView;
 
-	const isLoading = isActiveYearTab
-		? isLoadingLastYearMetrics
-		: isLoadingMetricsByYear;
-	const error = isActiveYearTab ? errorLastYearMetrics : errorMetricsByYear;
-
-	const csvData = isActiveYearTab ? csvDataByMonths : csvDataByYears;
-
-	const processedData = isActiveYearTab
-		? processedMonthsData
-		: processedYearsData;
-
-	const xKey = isActiveYearTab ? 'month' : 'year';
-
-	const activeYear = isActiveYearTab ? selectedYears[0].value : '';
-
-	const includedSources = getIncludedSources(
-		selectedPlatforms,
-		platformOptions,
-	);
+	const series = shownView ? timelineSeries(shownView, selectedPairKeys) : [];
+	const allRows = shownView ? timelineRows(shownView, series) : [];
+	const rows =
+		isMonthView || !shownView
+			? allRows
+			: allRows.filter(({ index }) =>
+					pagination.pageStartDates.has(shownView.buckets[index].startDate),
+				);
 
 	return {
-		activeYear,
-		metaData,
-		processedData,
-		xKey,
-		isLoading: isLoading,
-		error: error,
-		platformOptions,
-		selectedPlatforms,
-		csvData,
-		selectedYears,
-		yearsOptions,
-		isNextPageAvailable,
-		isPreviousPageAvailable,
-		isPaginationAvailable,
-		includedSources,
-		selectPlatform: setSelectedPlatforms,
-		setSelectedYears,
-		nextPage,
-		previousPage,
+		year,
+		month,
+		isMonthView,
+		/** The open bucket's year, for the month view's tooltip. */
+		activeYear: openBucket ? openBucket.startDate.slice(0, 4) : '',
+		series,
+		rows,
+		colorOf: year.colorOf,
+		csvData: shownView ? timelineCsv(shownView, series) : undefined,
+		captions: shownView
+			? viewCaptions(shownView, openBucket ?? undefined)
+			: [],
+		info: infoEntries(shownView),
+		seriesOptions,
+		selectedSeries,
+		selectSeries: setSelectedSeries,
+		...pagination,
 	};
 };

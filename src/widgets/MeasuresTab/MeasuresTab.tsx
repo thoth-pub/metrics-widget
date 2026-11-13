@@ -1,6 +1,6 @@
-import { ChaptersDropdown, CSVDownloadButton } from '@/features';
-import { ContentTab, NoDataPlaceholder, type TabProps } from '@/shared';
+import { MetricCaptions, type TabProps } from '@/shared';
 import { TABS } from '@/shared/constants';
+import { useId } from 'react';
 import {
 	Bar,
 	BarChart,
@@ -11,8 +11,9 @@ import {
 	XAxis,
 	YAxis,
 } from 'recharts';
+import { MetricTab } from '../MetricTab/MetricTab';
 import { MeasuresTooltip } from './MeasuresTooltip';
-import { useMeasuresTab } from './useMeasuresTab';
+import { type Measure, useMeasuresTab } from './useMeasuresTab';
 
 const margin = {
 	top: 20,
@@ -20,105 +21,95 @@ const margin = {
 
 const title = 'Usage by measure';
 
+/** Shortens long labels on the axis; the tooltip shows the full label. */
 const tickFormatter = (value: string, _index: number) => {
 	const limit = 20;
 
-	const formattedValue = value
-		.split(' ')
-		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-		.join(' ');
+	if (value.length < limit) return value;
 
-	if (formattedValue.length < limit) return formattedValue;
-
-	return `${formattedValue.substring(0, limit)}...`.replace(/ /g, '\u00A0');
+	return `${value.substring(0, limit)}...`.replace(/ /g, ' ');
 };
 
-const ChaptersBarShape = (props: BarShapeProps) => {
-	let height = props.height;
-	let translateY = 0;
+const patternId = (prefix: string, measure: Measure) =>
+	`${prefix}-stripe-${measure.patternKey}`;
 
-	if (!props.payload.Chapters) {
-		return null;
-	}
+/** Chapters bar: striped in the platform's colour; nothing when the total is unknown or not served. */
+const chaptersBarShape = (prefix: string) =>
+	function ChaptersBarShape(props: BarShapeProps) {
+		const measure = props.payload as Measure;
+		let height = props.height;
+		let translateY = 0;
 
-	if (!props.payload.Book) {
-		height = height * 2;
-		translateY = height / 2;
-	}
+		if (measure.chapters === null) {
+			return null;
+		}
 
-	return (
-		<Rectangle
-			{...props}
-			stroke="none"
-			fillOpacity={1}
-			fill={`url(#${props.stroke})`}
-			height={height}
-			style={{
-				transform: `translateY(-${translateY}px)`,
-			}}
-		/>
-	);
-};
+		if (measure.book === null) {
+			height = height * 2;
+			translateY = height / 2;
+		}
 
+		return (
+			<Rectangle
+				{...props}
+				stroke="none"
+				fillOpacity={1}
+				fill={`url(#${patternId(prefix, measure)})`}
+				height={height}
+				style={{
+					transform: `translateY(-${translateY}px)`,
+				}}
+			/>
+		);
+	};
+
+/** Book (or Chapter) bar: solid; nothing when the total is unknown or not served. */
 const BookBarShape = (props: BarShapeProps) => {
+	const measure = props.payload as Measure;
 	let height = props.height;
 
-	if (!props.payload.Book) {
+	if (measure.book === null) {
 		return null;
 	}
 
-	if (!props.payload.Chapters) {
+	if (measure.chapters === null) {
 		height = height * 2;
 	}
 
-	return <Rectangle {...props} height={height} />;
+	return <Rectangle {...props} fill={measure.fill} height={height} />;
 };
 
 export const MeasuresTab = ({ doi, isInfoOpen, toggleInfo }: TabProps) => {
-	const { metaData, measures, strokes, csvData, isLoading, includedSources } =
+	const { year, measures, hasChaptersSection, isChapterEmbed, csvData, captions } =
 		useMeasuresTab(doi);
-
-	const processedData = Object.values(measures).map((item) => ({
-		...item,
-		Book: item.Book === 0 ? null : item.Book,
-		Chapters: item.Chapters === 0 ? null : item.Chapters,
-	}));
-
-	if (processedData.length === 0 && !isLoading) {
-		return (
-			<ContentTab value={TABS.MEASURES} title={title} includedSources={[]}>
-				<NoDataPlaceholder />
-			</ContentTab>
-		);
-	}
+	const prefix = `mw${useId().replace(/[^A-Za-z0-9_-]/g, '')}`;
 
 	return (
-		<ContentTab
-			includedSources={includedSources}
-			filter={<ChaptersDropdown chapters={metaData.chapters} />}
-			action={<CSVDownloadButton data={csvData} />}
+		<MetricTab
 			value={TABS.MEASURES}
 			title={title}
+			year={year}
 			isInfoOpen={isInfoOpen}
-			isLoading={isLoading}
-			onToggleInfo={toggleInfo}
+			toggleInfo={toggleInfo}
+			csvData={csvData}
 		>
+			<MetricCaptions captions={captions} />
 			<div style={{ width: '100%', height: '100%', position: 'relative' }}>
-				{processedData.length && (
-					<div className="absolute right-0 top-0 text-xs flex gap-4">
-						<div className="flex items-center gap-1">
-							<div className="colorPlaceholder bg-chart-legend-background" />
-							Book
-						</div>
+				<div className="absolute right-0 top-0 text-xs flex gap-4">
+					<div className="flex items-center gap-1">
+						<div className="colorPlaceholder bg-chart-legend-background" />
+						{isChapterEmbed ? 'Chapter' : 'Book'}
+					</div>
+					{hasChaptersSection && (
 						<div className="flex items-center gap-1">
 							<div className="colorPlaceholder bg-chart-legend-background bg-[repeating-linear-gradient(135deg,white_0px,white_1px,transparent_4px,transparent_4px)]" />
 							Chapters
 						</div>
-					</div>
-				)}
+					)}
+				</div>
 				<ResponsiveContainer>
 					<BarChart
-						data={processedData}
+						data={measures}
 						margin={margin}
 						layout="vertical"
 						barGap={0}
@@ -126,18 +117,20 @@ export const MeasuresTab = ({ doi, isInfoOpen, toggleInfo }: TabProps) => {
 						height="100%"
 					>
 						<defs>
-							{Object.entries(strokes).map(([strokeId, color]) => (
-								<pattern
-									key={strokeId}
-									id={strokeId}
-									width="6"
-									height="4"
-									patternUnits="userSpaceOnUse"
-									patternTransform="rotate(45)"
-								>
-									<rect width="1" height="4" stroke={color} />
-								</pattern>
-							))}
+							{measures
+								.filter((measure) => measure.chapters !== null)
+								.map((measure) => (
+									<pattern
+										key={measure.key}
+										id={patternId(prefix, measure)}
+										width="6"
+										height="4"
+										patternUnits="userSpaceOnUse"
+										patternTransform="rotate(45)"
+									>
+										<rect width="1" height="4" stroke={measure.fill} />
+									</pattern>
+								))}
 						</defs>
 						<XAxis
 							type="number"
@@ -161,14 +154,29 @@ export const MeasuresTab = ({ doi, isInfoOpen, toggleInfo }: TabProps) => {
 								dy: 6,
 							}}
 						/>
-
-						<Bar dataKey="Book" shape={BookBarShape} />
-						<Bar dataKey="Chapters" fillOpacity={1} shape={ChaptersBarShape}>
-							<Tooltip cursor={false} content={MeasuresTooltip} />
-						</Bar>
+						<Tooltip
+							cursor={false}
+							content={(props) => (
+								<MeasuresTooltip
+									active={props.active}
+									payload={
+										props.payload as unknown as ReadonlyArray<{
+											payload: Measure;
+										}>
+									}
+									isChapterEmbed={isChapterEmbed}
+								/>
+							)}
+						/>
+						<Bar dataKey="book" shape={BookBarShape} />
+						<Bar
+							dataKey="chapters"
+							fillOpacity={1}
+							shape={chaptersBarShape(prefix)}
+						/>
 					</BarChart>
 				</ResponsiveContainer>
 			</div>
-		</ContentTab>
+		</MetricTab>
 	);
 };

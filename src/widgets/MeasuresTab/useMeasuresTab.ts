@@ -1,94 +1,52 @@
 import {
-  config,
-  type Doi,
-  type MetricsByYearDto,
-  useMetricsByYear,
-  useTheme,
+	type Doi,
+	measureRows,
+	measuresCsv,
+	toChartNumber,
+	useMetricWidgetYear,
+	viewCaptions,
 } from '@/shared';
-import { getColor, isChapter, updateSource } from '@/shared/utils';
 
 export type Measure = {
-	source: string;
+	key: string;
 	name: string;
-	Book: number;
-	Chapters: number;
+	/** For drawing; `null` draws no bar. */
+	book: number | null;
+	chapters: number | null;
+	/** Exact totals for the tooltip: `null` is unknown, `undefined` is not served by that section. */
+	bookValue: string | null | undefined;
+	chaptersValue: string | null | undefined;
 	fill: string;
-	stroke: string;
+	patternKey: string;
 };
 
-type Measures = {
-	[platform: string]: Measure;
-};
+/** A pattern ID part from a pair key: never a colour string. */
+const sanitize = (key: string) => key.replace(/[^A-Za-z0-9_-]/g, '_');
 
 export const useMeasuresTab = (doi: Doi) => {
-	const { metaData, metricsData, isLoading } = useMetricsByYear(doi);
-	const theme = useTheme();
+	const year = useMetricWidgetYear(doi);
+	const { view } = year;
 
-	const measures: Measures = {};
-	const strokes: Record<string, string> = {};
-
-	const formatMetricsData = (
-		metrics: MetricsByYearDto['data'],
-		keyName: 'Book' | 'Chapters',
-	) => {
-		for (const metric of metrics) {
-			const { source, type, value } = metric;
-			const key = `${updateSource(source)} ${type}`;
-			const color = getColor(source, theme);
-			const strokeId = `stripe-${color}`;
-
-			strokes[strokeId] = color;
-
-			const existingData = measures[key] ?? {
-				source: source,
-				name: key,
-				Book: 0,
-				Chapters: 0,
-				fill: color,
-				stroke: strokeId,
-			};
-
-			existingData[keyName] += value;
-			measures[key] = existingData;
-		}
-
-		return measures;
-	};
-
-	for (const metric of metricsData.bookMetrics) {
-		const metrics = metric.data;
-
-		formatMetricsData(metrics, 'Book');
-	}
-
-	for (const metric of metricsData.chaptersMetrics) {
-		const metrics = metric.data;
-
-		formatMetricsData(metrics, 'Chapters');
-	}
-
-	const isMainWorkChapter = isChapter(metaData.book.type);
-
-	const csvData: string[][] = [config.csv.measuresHeader];
-
-  const includedSources = Object.keys(measures);
-
-	for (const measure of Object.values(measures)) {
-		const { Book, Chapters } = measure;
-
-		csvData.push([
-			measure.source,
-			isMainWorkChapter ? '0' : Book.toString(),
-			isMainWorkChapter ? `${Book + Chapters}` : Chapters.toString(),
-		]);
-	}
+	const measures: Measure[] = view
+		? measureRows(view).map((row) => ({
+				key: row.key,
+				name: row.label,
+				book: toChartNumber(row.values.work),
+				chapters: toChartNumber(row.values.chapters),
+				bookValue: row.values.work,
+				chaptersValue: row.values.chapters,
+				fill: year.colorOf(row.platformId),
+				patternKey: sanitize(row.key),
+			}))
+		: [];
 
 	return {
-		metaData,
+		year,
 		measures,
-		strokes,
-		csvData,
-		isLoading,
-		includedSources,
+		hasChaptersSection:
+			view?.sections.some(({ id }) => id === 'chapters') ?? false,
+		isChapterEmbed: year.isChapterEmbed,
+		csvData: view ? measuresCsv(view) : undefined,
+		captions: view && !view.isEmpty ? viewCaptions(view) : [],
 	};
 };

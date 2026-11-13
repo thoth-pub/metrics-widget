@@ -5,6 +5,10 @@ import { PieChartTooltip } from './PieChartTooltip';
 type PieChartWithListProps = {
 	metricsData: {
 		name: string;
+		/** The exact value, shown in the tooltip. */
+		value: string;
+		/** The value as a number, for drawing only. */
+		metrics: number;
 		percentage: number;
 		fill: string;
 	}[];

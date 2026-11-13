@@ -73,7 +73,7 @@ export const errorFromHttpStatus = (status: number): MetricWidgetError =>
 /** TanStack Query `retry`: one automatic retry, only for the classes that allow it. */
 export const shouldRetryMetricWidgetRead = (
 	failureCount: number,
-	error: unknown,
+	error: Error,
 ) =>
 	failureCount < 1 && error instanceof MetricWidgetFailedError && error.autoRetry;
 

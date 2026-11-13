@@ -1,72 +1,44 @@
 import {
 	config,
+	countriesCsv,
+	countriesTotal,
 	type Doi,
-	getAlignedCountryName,
-	getIncludedSources,
-	getPercentage,
-	roundPercentage,
+	sharePercentage,
 } from '@/shared';
-import { useMetricsByCountryOrRegion } from '@/shared/hooks/useMetricsByCountryOrRegion';
+import { useGeography } from '../MetricTab/useGeography';
 
+/** The top countries of the combined distribution, then `Others` for the rest. */
 export const useCountriesTab = (doi: Doi) => {
-	const {
-		metaData,
-		totalCount,
-		selectedPlatforms,
-		preProcessedData,
-		platformOptions,
-		isLoading,
-		setSelectedPlatforms,
-	} = useMetricsByCountryOrRegion({ doi, dataType: 'country' });
+	const geography = useGeography(doi);
+	const { countries } = geography;
+	const total = countriesTotal(countries);
+	const limit = config.charts.countriesChart.countriesListLimit;
 
-	let topTenCount = 0;
+	const top = countries.slice(0, limit).map((country, index) => ({
+		name: country.countryName,
+		value: country.value,
+		metrics: Number(country.value),
+		percentage: sharePercentage(country.value, total),
+		fill: `var(--mw-color-countries-${index + 1})`,
+	}));
 
-	const processedData = preProcessedData
-		.slice(0, config.charts.countriesChart.countriesListLimit)
-		.map(([country, totalMetrics], index) => {
-			const percentage = getPercentage(totalMetrics, totalCount);
+	const rest = countries
+		.slice(limit)
+		.reduce((sum, { value }) => sum + BigInt(value), BigInt(0));
 
-			topTenCount += totalMetrics;
-
-			return {
-				name: getAlignedCountryName(country),
-				metrics: totalMetrics,
-				percentage: percentage,
-				fill: `var(--mw-color-countries-${index + 1})`,
-			};
-		});
-
-	const restCount = totalCount - topTenCount;
-
-	if (restCount > 0) {
-		processedData.push({
+	if (countries.length > limit) {
+		top.push({
 			name: 'Others',
-			metrics: restCount,
-			percentage: getPercentage(restCount, totalCount),
+			value: rest.toString(),
+			metrics: Number(rest),
+			percentage: sharePercentage(rest.toString(), total),
 			fill: 'var(--mw-color-countries-11)',
 		});
 	}
 
-	const processedCsvData = processedData.map(({ name, percentage }) => [
-		name,
-		roundPercentage(percentage),
-	]);
-
-	const csvData: string[][] = [config.csv.countriesHeader, ...processedCsvData];
-
-	const includedSources = getIncludedSources(
-		selectedPlatforms,
-		platformOptions,
-	);
-
 	return {
-		metaData,
-		metricsData: processedData,
-		csvData,
-		includedSources,
-		selectPlatform: setSelectedPlatforms,
-		selectedPlatforms,
-		platformOptions,
-		isLoading,
+		...geography,
+		metricsData: top,
+		csvData: countriesCsv(countries),
 	};
 };
