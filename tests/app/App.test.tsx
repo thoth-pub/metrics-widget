@@ -39,6 +39,46 @@ import { createSelectableWrapper, createWrapper } from '../helpers/wrapper';
 // The real map package cannot load under Node 22.14 (CI); see the stub.
 vi.mock('react-simple-maps', () => import('../helpers/reactSimpleMapsStub'));
 
+/**
+ * Holds the Timeline tab back until a test releases it, so that it mounts, and reads `E`, later than the other
+ * tabs. Every other test leaves it released, and the real tab mounts as usual.
+ */
+const lateTimeline = vi.hoisted(() => {
+	let isHeld = false;
+	const listeners = new Set<() => void>();
+
+	return {
+		hold: () => {
+			isHeld = true;
+		},
+		release: () => {
+			isHeld = false;
+			for (const listener of listeners) listener();
+		},
+		isHeld: () => isHeld,
+		subscribe: (listener: () => void) => {
+			listeners.add(listener);
+			return () => {
+				listeners.delete(listener);
+			};
+		},
+	};
+});
+
+vi.mock('@/widgets/TimelineTab/TimelineTab', async (importOriginal) => {
+	const actual =
+		await importOriginal<typeof import('@/widgets/TimelineTab/TimelineTab')>();
+	const { createElement, useSyncExternalStore } = await import('react');
+
+	return {
+		...actual,
+		TimelineTab: (props: Parameters<typeof actual.TimelineTab>[0]) =>
+			useSyncExternalStore(lateTimeline.subscribe, lateTimeline.isHeld)
+				? null
+				: createElement(actual.TimelineTab, props),
+	};
+});
+
 const TAB_NAMES = ['Measures', 'Timeline', 'Map', 'Regions', 'Countries'];
 
 const TITLES: Record<string, string> = {
@@ -106,6 +146,7 @@ const captionTexts = (container: HTMLElement) =>
 const pageText = () => document.body.textContent ?? '';
 
 beforeEach(() => {
+	lateTimeline.release();
 	vi.useFakeTimers({ toFake: ['Date'] });
 	vi.setSystemTime(NOW);
 });
@@ -123,19 +164,12 @@ describe('request count, success', () => {
 		expect(otherHostRequests(fetchMock)).toEqual([]);
 	});
 
-	it('tabs mounted on either side of a UTC month boundary share one E and one R-YEAR', async () => {
+	it('a tab that mounts after the clock crosses a UTC month boundary shares the first E and its R-YEAR', async () => {
+		// Every tab but Timeline mounts at 23:59:59 on the last day of November, and the R-YEAR ends at E.
+		lateTimeline.hold();
 		vi.setSystemTime(new Date('2026-11-30T23:59:59Z'));
 		const fetchMock = renderApp(() => graphqlData(yearResponse()));
 
-		await within(activePanel()).findByText(
-			'Mar 2019 – Nov 2026',
-			{},
-			{ timeout: 5000 },
-		);
-		expect(yearInputs(fetchMock).map(({ endDate }) => endDate)).toEqual([E]);
-
-		vi.setSystemTime(new Date('2026-12-01T00:00:05Z'));
-		await openTab('Timeline');
 		await within(activePanel()).findByText(
 			'Mar 2019 – Nov 2026',
 			{},
@@ -147,8 +181,30 @@ describe('request count, success', () => {
 			{},
 			{ timeout: 5000 },
 		);
+		expect(yearInputs(fetchMock).map(({ endDate }) => endDate)).toEqual([E]);
+		expect(screen.queryByText(TITLES.Timeline)).toBeNull();
+
+		// In December a tab computing its own E would read up to 2027-01-01. The Timeline tab mounts only now.
+		vi.setSystemTime(new Date('2026-12-01T00:00:05Z'));
+		await act(async () => lateTimeline.release());
+		// Time for a mounted tab to send its read, if it had a key of its own.
+		await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
+		expect(yearInputs(fetchMock).map(({ endDate }) => endDate)).toEqual([E]);
+
+		await openTab('Timeline');
+		await within(activePanel()).findAllByText(
+			TITLES.Timeline,
+			{},
+			{ timeout: 5000 },
+		);
+		await within(activePanel()).findByText(
+			'Mar 2019 – Nov 2026',
+			{},
+			{ timeout: 5000 },
+		);
 
 		expect(yearInputs(fetchMock).map(({ endDate }) => endDate)).toEqual([E]);
+		expect(monthInputs(fetchMock)).toHaveLength(0);
 	});
 
 	it('a one-bucket response adds one R-MONTH when the Timeline tab is first opened, and not before', async () => {
