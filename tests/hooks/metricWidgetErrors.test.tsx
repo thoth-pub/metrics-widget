@@ -14,6 +14,9 @@ import { jsonResponse } from '../helpers/fetch';
 import { routeFetch, yearInputs } from '../helpers/routeFetch';
 import { createWrapper } from '../helpers/wrapper';
 
+// The real map package cannot load under Node 22.14 (CI); see the stub.
+vi.mock('react-simple-maps', () => import('../helpers/reactSimpleMapsStub'));
+
 const NOT_AVAILABLE = 'Metrics are not available for this work';
 const FAILED = 'Something went wrong';
 

@@ -35,6 +35,9 @@ import {
 } from '../helpers/routeFetch';
 import { createSelectableWrapper, createWrapper } from '../helpers/wrapper';
 
+// The real map package cannot load under Node 22.14 (CI); see the stub.
+vi.mock('react-simple-maps', () => import('../helpers/reactSimpleMapsStub'));
+
 const TAB_NAMES = ['Measures', 'Timeline', 'Map', 'Regions', 'Countries'];
 
 const TITLES: Record<string, string> = {
