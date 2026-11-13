@@ -2,6 +2,7 @@ import { act, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import App from '@/App';
 import {
+	E,
 	graphqlData,
 	graphqlError,
 	NOW,
@@ -20,8 +21,11 @@ vi.mock('react-simple-maps', () => import('../helpers/reactSimpleMapsStub'));
 const NOT_AVAILABLE = 'Metrics are not available for this work';
 const FAILED = 'Something went wrong';
 
+/** Text that only a response body carries; it must never reach the console. */
+const BODY_MARKER = 'BODY-MARKER-7f3a';
+
 const html = (status: number) =>
-	new Response('<html>page</html>', {
+	new Response(`<html>${BODY_MARKER}</html>`, {
 		status,
 		headers: { 'content-type': 'text/html' },
 	});
@@ -31,6 +35,7 @@ const invalidResponse = () => {
 	const data = yearResponse();
 
 	data.work.totals[0] = total(OAPEN_DOWNLOADS, '0120');
+	data.platforms[0] = { ...data.platforms[0], displayName: BODY_MARKER };
 
 	return graphqlData(data);
 };
@@ -79,7 +84,11 @@ const ROWS: [string, () => Response | Promise<Response>, number, string][] = [
 	],
 	[
 		'HTTP 400 with errors and no type',
-		() => jsonResponse({ errors: [{ message: 'Unknown field' }] }, 400),
+		() =>
+			jsonResponse(
+				{ errors: [{ message: `Unknown field ${BODY_MARKER}` }] },
+				400,
+			),
 		1,
 		FAILED,
 	],
@@ -87,7 +96,7 @@ const ROWS: [string, () => Response | Promise<Response>, number, string][] = [
 	['HTTP 429 without a GraphQL body', () => html(429), 1, FAILED],
 	[
 		'a 2xx body with neither errors nor data.metricWidget',
-		() => jsonResponse({ data: {} }),
+		() => jsonResponse({ data: {}, extensions: { note: BODY_MARKER } }),
 		1,
 		FAILED,
 	],
@@ -101,6 +110,11 @@ describe('error mapping in the app: calls and screen per row', () => {
 		vi.useFakeTimers();
 		vi.setSystemTime(NOW);
 		vi.spyOn(Math, 'random').mockReturnValue(0);
+		const consoleSpies = [
+			vi.spyOn(console, 'error'),
+			vi.spyOn(console, 'warn'),
+			vi.spyOn(console, 'log'),
+		];
 
 		const fetchMock = routeFetch({
 			works: { [BOOK_DOI_URL]: workWithChapters },
@@ -128,6 +142,33 @@ describe('error mapping in the app: calls and screen per row', () => {
 		} else {
 			expect(retry).toBeTruthy();
 			expect(screen.queryByText(NOT_AVAILABLE)).toBeNull();
+		}
+
+		// Unit 17: no response body, error body, DOI or variables reach the console on this path.
+		const logged = consoleSpies
+			.flatMap((spy) => spy.mock.calls)
+			.map((args) =>
+				args
+					.map((arg) =>
+						arg instanceof Error
+							? `${arg.message} ${arg.stack ?? ''}`
+							: typeof arg === 'string'
+								? arg
+								: (JSON.stringify(arg) ?? String(arg)),
+					)
+					.join(' '),
+			)
+			.join('\n');
+
+		for (const secret of [
+			BODY_MARKER,
+			'A fixed error message.',
+			BOOK_DOI,
+			E,
+			'timelineGrain',
+			'"input"',
+		]) {
+			expect(logged).not.toContain(secret);
 		}
 	});
 });
