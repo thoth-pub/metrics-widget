@@ -225,3 +225,38 @@ describe('a failed R-MONTH is never sent again by navigation or time', () => {
 		expect(yearInputs(fetchMock)).toHaveLength(1);
 	});
 });
+
+describe('a failed R-MONTH stays cached without an observer (gcTime)', () => {
+	it('open A (fails), open B, wait past the default 5-minute gcTime, reopen A: still one read of A', async () => {
+		vi.useFakeTimers({ shouldAdvanceTime: true });
+		vi.setSystemTime(NOW);
+
+		const { fetchMock, result } = renderTimeline(() =>
+			graphqlError('METRIC_WIDGET_UNAVAILABLE'),
+		);
+		const monthReads = (startDate: string) =>
+			monthInputs(fetchMock).filter((input) => input.startDate === startDate)
+				.length;
+
+		await waitFor(() => expect(result.current.year.view).not.toBeNull());
+
+		act(() => result.current.setSelectedYears([YEAR_A]));
+		await waitFor(() => expect(result.current.month.error).not.toBeNull());
+		expect(monthReads(YEAR_A.value)).toBe(1);
+
+		// A now has no observer: only B's month read is mounted.
+		act(() => result.current.setSelectedYears([YEAR_B]));
+		await waitFor(() => expect(monthReads(YEAR_B.value)).toBe(1));
+		await waitFor(() => expect(result.current.month.error).not.toBeNull());
+
+		await act(() => vi.advanceTimersByTimeAsync(6 * 60 * 1000));
+
+		act(() => result.current.setSelectedYears([YEAR_A]));
+		await act(() => vi.advanceTimersByTimeAsync(100));
+		await waitFor(() => expect(result.current.month.error).not.toBeNull());
+		await act(() => vi.advanceTimersByTimeAsync(5_000));
+
+		expect(monthReads(YEAR_A.value)).toBe(1);
+		expect(monthInputs(fetchMock)).toHaveLength(2);
+	});
+});
