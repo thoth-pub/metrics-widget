@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
 	MEASURE_TICK_LINE_LIMIT,
 	type MeasureTickPair,
+	measureTickLabels,
 	measureTickLines,
 } from '@/widgets/MeasuresTab/measureTickLabel';
 
@@ -244,5 +245,66 @@ describe('Measures axis labels', () => {
 
 		expectEveryLineWithinTheLimit(lines);
 		expectDistinct(lines);
+	});
+
+	describe('one-line drawing, for bands too low for more lines', () => {
+		it('keeps a label that fits as it is', () => {
+			const oapen = pair(PLATFORM_A, DOWNLOADS, 'OAPEN', 'Downloads');
+
+			expect(measureTickLabels([oapen]).get(oapen.label)).toEqual({
+				lines: ['OAPEN · Downloads'],
+				line: 'OAPEN · Downloads',
+			});
+		});
+
+		it('shortens the platform first, keeps the measure, and keeps two pairs of one platform distinct', () => {
+			const downloads = pair(
+				PLATFORM_B,
+				DOWNLOADS,
+				'Open Book Publishers',
+				'Downloads',
+			);
+			const views = pair(PLATFORM_B, VIEWS, 'Open Book Publishers', 'Views');
+			const labels = measureTickLabels([downloads, views]);
+
+			expect(labels.get(downloads.label)?.line).toBe('Open Bo… · Downloads');
+			expect(labels.get(views.label)?.line).toBe('Open Book P… · Views');
+		});
+
+		it('draws pairs still alike as their spec 7.1.2 ID suffix, so every one-line label is distinct and within the limit', () => {
+			const pairs = [
+				pair(PLATFORM_A, VIEWS, 'Open Book Publishers HTML Reader', 'Views'),
+				pair(PLATFORM_B, VIEWS, 'Open Book Publishers PDF Reader', 'Views'),
+				pair(PLATFORM_C, VIEWS, 'OAPEN', 'Views'),
+				pair(
+					PLATFORM_B,
+					DOWNLOADS,
+					'Open Book Publishers',
+					'Downloads',
+					' [0b0b0b0b/1d1d1d1d]',
+				),
+				pair(
+					PLATFORM_C,
+					DOWNLOADS,
+					'Open Book Publishers',
+					'Downloads',
+					' [0c0c0c0c/1d1d1d1d]',
+				),
+			];
+			const lines = [...measureTickLabels(pairs).values()].map(
+				({ line }) => line,
+			);
+
+			expect(lines).toEqual([
+				'[0a0a0a0a/1e1e1e1e]',
+				'[0b0b0b0b/1e1e1e1e]',
+				'OAPEN · Views',
+				'[0b0b0b0b/1d1d1d1d]',
+				'[0c0c0c0c/1d1d1d1d]',
+			]);
+			for (const line of lines) {
+				expect(line.length).toBeLessThanOrEqual(MEASURE_TICK_LINE_LIMIT);
+			}
+		});
 	});
 });

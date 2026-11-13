@@ -14,7 +14,7 @@ import {
 import { MetricTab } from '../MetricTab/MetricTab';
 import { MeasuresTooltip } from './MeasuresTooltip';
 import { MeasureTick } from './MeasureTick';
-import { measureTickLines } from './measureTickLabel';
+import { measureTickLabels } from './measureTickLabel';
 import { type Measure, useMeasuresTab } from './useMeasuresTab';
 
 const margin = {
@@ -84,9 +84,9 @@ export const MeasuresTab = ({ doi, isInfoOpen, toggleInfo }: TabProps) => {
 		captions,
 	} = useMeasuresTab(doi);
 	const prefix = `mw${useId().replace(/[^A-Za-z0-9_-]/g, '')}`;
-	// Long labels are drawn on more than one line and shortened only where a line does not fit; the tooltip shows
-	// the full label.
-	const tickLines = measureTickLines(
+	// Long labels are drawn on more than one line, or on one line where the bars are too close, and shortened only
+	// where a line does not fit; the tooltip shows the full label.
+	const tickLabels = measureTickLabels(
 		measures.map(({ key, name, platformName, measureName }) => ({
 			key,
 			label: name,
@@ -159,9 +159,11 @@ export const MeasuresTab = ({ doi, isInfoOpen, toggleInfo }: TabProps) => {
 							fontSize={12}
 							fontWeight={400}
 							scale="band"
+							// Every bar keeps its label.
+							interval={0}
 							axisLine={{ stroke: 'none' }}
 							tickLine={{ stroke: 'none' }}
-							tick={<MeasureTick linesByLabel={tickLines} />}
+							tick={<MeasureTick labels={tickLabels} />}
 						/>
 						<Tooltip
 							cursor={false}

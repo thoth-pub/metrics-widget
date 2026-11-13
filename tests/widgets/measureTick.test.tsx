@@ -12,7 +12,11 @@ describe('Measures axis tick', () => {
 					x={152}
 					y={20}
 					payload={{ value: 'Views · Views' }}
-					linesByLabel={new Map([['Views · Views', ['Views', 'Views']]])}
+					labels={
+						new Map([
+							['Views · Views', { lines: ['Views', 'Views'], line: 'Views' }],
+						])
+					}
 				/>
 			</svg>,
 		);

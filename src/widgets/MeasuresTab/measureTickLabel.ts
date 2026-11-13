@@ -74,6 +74,30 @@ const linesLayout = (pair: MeasureTickPair, limit: number): Layout => {
 	};
 };
 
+/** Fewest characters the platform keeps on a one-line label when the measure is long. */
+const ONE_LINE_MIN_PLATFORM = 8;
+
+/**
+ * `<platform> · <measure>` on one line of at most `limit` characters: the measure keeps what the platform leaves,
+ * and the platform keeps at least 8 characters. Labels still drawn alike are drawn as their ID suffix alone.
+ */
+const oneLineLayout = (pair: MeasureTickPair, limit: number): Layout => {
+	const room = limit - SEPARATOR.length;
+	const platformRoom = Math.min(
+		pair.platformName.length,
+		Math.max(room - pair.measureName.length, ONE_LINE_MIN_PLATFORM),
+	);
+
+	return {
+		slots: [
+			{ text: pair.platformName, room: platformRoom },
+			{ text: pair.measureName, room: room - platformRoom },
+		],
+		lines: (drawn) => [`${drawn[0]}${SEPARATOR}${drawn[1]}`],
+		tagged: (_drawn, tag) => [tag],
+	};
+};
+
 type Entry = {
 	pair: MeasureTickPair;
 	/** `null` for a label drawn whole. */
@@ -167,3 +191,32 @@ export const measureTickLines = (
 	pairs: readonly MeasureTickPair[],
 	limit = MEASURE_TICK_LINE_LIMIT,
 ) => drawLabels(pairs, (pair) => linesLayout(pair, limit), limit);
+
+/** A Measures axis label drawn on its own lines, and drawn on one line for a band too low for them. */
+export type MeasureTickLabel = { lines: string[]; line: string };
+
+/**
+ * Both drawings of each Measures axis label, by label: on its own lines (`measureTickLines`) and on one line of at
+ * most `limit` characters. In each drawing, the labels of distinct pairs are drawn differently.
+ */
+export const measureTickLabels = (
+	pairs: readonly MeasureTickPair[],
+	limit = MEASURE_TICK_LINE_LIMIT,
+) => {
+	const lines = measureTickLines(pairs, limit);
+	const oneLine = drawLabels(
+		pairs,
+		(pair) => oneLineLayout(pair, limit),
+		limit,
+	);
+
+	return new Map<string, MeasureTickLabel>(
+		pairs.map(({ label }) => [
+			label,
+			{
+				lines: lines.get(label) ?? [label],
+				line: oneLine.get(label)?.[0] ?? label,
+			},
+		]),
+	);
+};
