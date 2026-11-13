@@ -1,6 +1,6 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { useMetricWidgetYear } from '@/shared/hooks';
+import { useMetaData, useMetricWidgetYear } from '@/shared/hooks';
 import type { WorkDto } from '@/shared/interfaces';
 import {
 	E,
@@ -319,5 +319,59 @@ describe('retries', () => {
 		await waitFor(() => expect(result.current.error).not.toBeNull());
 		await new Promise((resolve) => setTimeout(resolve, 50));
 		expect(yearInputs(fetchMock)).toHaveLength(2);
+	});
+});
+
+describe('metadata refetch (invariant 11)', () => {
+	it('a metadata refetch that fails and later succeeds never re-sends a failed R-YEAR with a selection', async () => {
+		vi.useFakeTimers({ shouldAdvanceTime: true });
+		vi.setSystemTime(NOW);
+
+		let isMetadataDown = false;
+		const fetchMock = stubFetch(async (...args: unknown[]) => {
+			const body = JSON.parse(String((args[1] as RequestInit).body));
+
+			if (body.operationName === 'MetricWidget') {
+				return graphqlError('INTERNAL_ERROR');
+			}
+
+			return isMetadataDown
+				? new Response('down', { status: 503 })
+				: jsonResponse({ data: { workByDoi: workWithChapters } });
+		});
+		const { Wrapper } = createSelectableWrapper(null, [
+			{ label: 'One', value: CHAPTER_1_DOI },
+		]);
+
+		const { result } = renderHook(
+			() => ({
+				year: useMetricWidgetYear(BOOK_DOI),
+				meta: useMetaData(BOOK_DOI),
+			}),
+			{ wrapper: Wrapper },
+		);
+
+		await waitFor(() => expect(result.current.year.error).not.toBeNull());
+		expect(yearInputs(fetchMock)).toHaveLength(1);
+		expect(yearInputs(fetchMock)[0].chapterDois).toEqual([CHAPTER_1_DOI]);
+
+		isMetadataDown = true;
+		act(() => {
+			void result.current.meta.refetch();
+		});
+		await act(() => vi.advanceTimersByTimeAsync(30_000));
+		await waitFor(() => expect(result.current.meta.isSuccess).toBe(false));
+		expect(result.current.meta.error).not.toBeNull();
+
+		isMetadataDown = false;
+		act(() => {
+			void result.current.meta.refetch();
+		});
+		await waitFor(() => expect(result.current.meta.isSuccess).toBe(true));
+		await act(() => vi.advanceTimersByTimeAsync(60_000));
+
+		expect(metadataRequests(fetchMock).length).toBeGreaterThan(2);
+		expect(yearInputs(fetchMock)).toHaveLength(1);
+		expect(result.current.year.error?.reason).toBe('INTERNAL_ERROR');
 	});
 });

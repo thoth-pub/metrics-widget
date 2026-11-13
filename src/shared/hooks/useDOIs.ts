@@ -37,14 +37,16 @@ export const selectedChapterDois = (
  * invalid DOI enables no read. A chapter embed (work type `BOOK_CHAPTER`) never sends `chapterDois`.
  */
 export const useDOIs = (doi: Doi) => {
-	const { data, isSuccess } = useMetaData(doi);
+	// Latched: a metadata refetch that fails (and later succeeds) never flips the reads back to waiting, so it can
+	// never re-enable, and so re-send, a failed year read. `data` holds the last successful children.
+	const { data, hasSucceeded } = useMetaData(doi);
 	const { selectedChapters } = useSelectedChapters();
 
 	const canonicalDoi = normalizeDoi(doi);
-	const isChapterEmbed = isSuccess && isChapter(data.book.type);
+	const isChapterEmbed = hasSucceeded && isChapter(data.book.type);
 	const hasSelection = selectedChapters.length > 0;
 	const chapterDois =
-		isSuccess && !isChapterEmbed && hasSelection
+		hasSucceeded && !isChapterEmbed && hasSelection
 			? selectedChapterDois(selectedChapters, data.chapters)
 			: undefined;
 
@@ -52,7 +54,7 @@ export const useDOIs = (doi: Doi) => {
 		doi: canonicalDoi,
 		chapterDois,
 		isChapterEmbed,
-		isMetaDataSettled: isSuccess,
-		isQueryEnabled: canonicalDoi.length > 0 && (!hasSelection || isSuccess),
+		isMetaDataSettled: hasSucceeded,
+		isQueryEnabled: canonicalDoi.length > 0 && (!hasSelection || hasSucceeded),
 	};
 };

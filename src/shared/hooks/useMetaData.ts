@@ -11,7 +11,7 @@ export const useMetaData = (doi: Doi) => {
 	const { metaService } = useServices();
 
 	const {
-		data = { book: { doi, title: '', type: '', ordinal: 0 }, chapters: [] },
+		data: queryData,
 		isLoading,
 		isSuccess,
 		error,
@@ -22,6 +22,10 @@ export const useMetaData = (doi: Doi) => {
 		enabled: isValid && doiUrl.length > 0,
 	});
 
+	const data = queryData ?? {
+		book: { doi, title: '', type: '', ordinal: 0 },
+		chapters: [],
+	};
 	const chaptersDois = data.chapters.map((chapter) => chapter.doi);
 	const normalizedChaptersDois = chaptersDois.map(normalizeDoi);
 
@@ -33,6 +37,11 @@ export const useMetaData = (doi: Doi) => {
 		},
 		isLoading,
 		isSuccess,
+		/**
+		 * True once this DOI's metadata read has succeeded, and it stays true when a later refetch fails: `data` then
+		 * keeps the last successful result. The metrics reads latch on this, never on the live `isSuccess`.
+		 */
+		hasSucceeded: queryData !== undefined,
 		error,
 		refetch,
 	};
