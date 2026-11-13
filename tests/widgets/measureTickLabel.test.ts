@@ -119,7 +119,7 @@ describe('Measures axis labels', () => {
 		expect(lines.get(views.label)).toEqual(['Open Book Publisher…', 'Views']);
 	});
 
-	it('adds the shortest ID tag that tells pairs apart when even the ends of their lines are alike', () => {
+	it('adds the spec 7.1.2 ID suffix when even the ends of their lines are alike', () => {
 		const a = pair(
 			PLATFORM_A,
 			VIEWS,
@@ -137,15 +137,70 @@ describe('Measures axis labels', () => {
 		expect(lines.get(a.label)).toEqual([
 			'Open Book…r the web',
 			'Views',
-			'[0a0a/1e1e]',
+			'[0a0a0a0a/1e1e1e1e]',
 		]);
 		expect(lines.get(b.label)).toEqual([
 			'Open Book…r the web',
 			'Views',
-			'[0b0b/1e1e]',
+			'[0b0b0b0b/1e1e1e1e]',
 		]);
 		expectDistinct(lines);
 		expectEveryLineWithinTheLimit(lines);
+	});
+
+	it('middle-shortens only the line that collides; a measure line drawn alike in full keeps its end-shortening', () => {
+		const measure = 'Total item investigations';
+		const html = pair(
+			PLATFORM_A,
+			VIEWS,
+			'Open Book Publishers HTML Reader',
+			measure,
+		);
+		const pdf = pair(
+			PLATFORM_B,
+			VIEWS,
+			'Open Book Publishers PDF Reader',
+			measure,
+		);
+		const oapen = pair(PLATFORM_C, VIEWS, 'OAPEN', measure);
+		const lines = measureTickLines([html, pdf, oapen]);
+
+		expect(lines.get(html.label)).toEqual([
+			'Open Book…ML Reader',
+			'Total item investig…',
+		]);
+		expect(lines.get(pdf.label)).toEqual([
+			'Open Book…DF Reader',
+			'Total item investig…',
+		]);
+		expect(lines.get(oapen.label)).toEqual(['OAPEN', 'Total item investig…']);
+		expectDistinct(lines);
+	});
+
+	it('middle-shortens a measure line that collides and leaves the shared platform line as it is', () => {
+		const total = pair(
+			PLATFORM_A,
+			DOWNLOADS,
+			'Open Book Publishers PDF Reader',
+			'Total item investigations',
+		);
+		const unique = pair(
+			PLATFORM_A,
+			VIEWS,
+			'Open Book Publishers PDF Reader',
+			'Total item investigations (unique)',
+		);
+		const lines = measureTickLines([total, unique]);
+
+		expect(lines.get(total.label)).toEqual([
+			'Open Book Publisher…',
+			'Total item…tigations',
+		]);
+		expect(lines.get(unique.label)).toEqual([
+			'Open Book Publisher…',
+			'Total item…(unique)',
+		]);
+		expectDistinct(lines);
 	});
 
 	it('draws the spec ID suffix of two pairs sharing one label on a line of its own', () => {

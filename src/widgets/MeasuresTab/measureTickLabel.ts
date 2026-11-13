@@ -7,8 +7,6 @@ export const MEASURE_TICK_LINE_LIMIT = 20;
 
 const ELLIPSIS = '…';
 const SEPARATOR = ' · ';
-const MIN_TAG_ID_CHARS = 4;
-const MAX_TAG_ID_CHARS = 8;
 
 export type MeasureTickPair = {
 	/** `<platformId>/<measureId>`. */
@@ -44,90 +42,128 @@ const suffixOf = ({ label, platformName, measureName }: MeasureTickPair) => {
 	return label.startsWith(base) ? label.slice(base.length).trim() : '';
 };
 
-/**
- * One label: unchanged on one line when it fits; otherwise the platform and the measure on a line each, and the ID
- * suffix (if any) on a third. Only a line that does not fit is shortened.
- */
-const linesOf = (pair: MeasureTickPair, cap: Cap, limit: number) => {
-	if (pair.label.length <= limit) return [pair.label];
-
-	const suffix = suffixOf(pair);
-
-	return [
-		cap(pair.platformName, limit),
-		cap(pair.measureName, limit),
-		...(suffix ? [capEnd(suffix, limit)] : []),
-	];
-};
-
-const textOf = (lines: string[]) => lines.join('\n');
-
-/** The keys whose drawn lines equal those of another pair. */
-const collidingKeys = (lines: Map<string, string[]>) => {
-	const keysByText = new Map<string, string[]>();
-
-	for (const [key, value] of lines) {
-		const text = textOf(value);
-		keysByText.set(text, [...(keysByText.get(text) ?? []), key]);
-	}
-
-	return [...keysByText.values()].filter((keys) => keys.length > 1).flat();
-};
-
-const tagOf = (key: string, length: number) => {
+/** The spec 7.1.2 ID suffix of a pair, without its leading space: `[<first 8 of platformId>/<first 8 of measureId>]`. */
+const tagOf = (key: string) => {
 	const [platformId = '', measureId = ''] = key.split('/');
 
-	return `[${platformId.slice(0, length)}/${measureId.slice(0, length)}]`;
+	return `[${platformId.slice(0, 8)}/${measureId.slice(0, 8)}]`;
+};
+
+/** A part of a drawn label and the most characters it may take. */
+type Slot = { text: string; room: number };
+
+/** How a label too long to stay whole is drawn: its parts, how they make lines, and how a tag is added. */
+type Layout = {
+	slots: Slot[];
+	lines: (drawn: string[]) => string[];
+	tagged: (drawn: string[], tag: string) => string[];
+};
+
+/** The platform and the measure on a line each, and the ID suffix (if any) on a third. */
+const linesLayout = (pair: MeasureTickPair, limit: number): Layout => {
+	const suffix = suffixOf(pair);
+
+	return {
+		slots: [
+			{ text: pair.platformName, room: limit },
+			{ text: pair.measureName, room: limit },
+			...(suffix ? [{ text: suffix, room: limit }] : []),
+		],
+		lines: (drawn) => drawn,
+		tagged: (drawn, tag) => [drawn[0], drawn[1], tag],
+	};
+};
+
+type Entry = {
+	pair: MeasureTickPair;
+	/** `null` for a label drawn whole. */
+	layout: Layout | null;
+	drawn: string[];
+	lines: string[];
+};
+
+/** The entries drawn alike, in groups of two or more. */
+const collidingGroups = (entries: Entry[]) => {
+	const byText = new Map<string, Entry[]>();
+
+	for (const entry of entries) {
+		const text = entry.lines.join('\n');
+		byText.set(text, [...(byText.get(text) ?? []), entry]);
+	}
+
+	return [...byText.values()].filter((group) => group.length > 1);
+};
+
+/**
+ * Draws every label with one layout, keeping the labels of distinct pairs distinct:
+ * 1. a label that fits stays whole; each part of a longer one that does not fit keeps its start and ends with "…";
+ * 2. where labels are still drawn alike, a part that is drawn alike but differs in full keeps its start and its end
+ *    instead (`Open Book…DF Reader`); every other part stays as in step 1;
+ * 3. labels still drawn alike get the spec 7.1.2 ID suffix.
+ */
+const drawLabels = (
+	pairs: readonly MeasureTickPair[],
+	layoutOf: (pair: MeasureTickPair) => Layout,
+	limit: number,
+) => {
+	const entries: Entry[] = pairs.map((pair) => {
+		if (pair.label.length <= limit) {
+			return { pair, layout: null, drawn: [], lines: [pair.label] };
+		}
+
+		const layout = layoutOf(pair);
+		const drawn = layout.slots.map(({ text, room }) => capEnd(text, room));
+
+		return { pair, layout, drawn, lines: layout.lines(drawn) };
+	});
+
+	for (const group of collidingGroups(entries)) {
+		const shaped = group.filter(
+			(entry): entry is Entry & { layout: Layout } => entry.layout !== null,
+		);
+		const slotCount = Math.max(0, ...shaped.map(({ drawn }) => drawn.length));
+
+		for (let index = 0; index < slotCount; index++) {
+			const byDrawn = new Map<string, typeof shaped>();
+
+			for (const entry of shaped) {
+				const drawn = entry.drawn[index];
+				if (drawn === undefined) continue;
+				byDrawn.set(drawn, [...(byDrawn.get(drawn) ?? []), entry]);
+			}
+
+			for (const alike of byDrawn.values()) {
+				const texts = new Set(
+					alike.map(({ layout }) => layout.slots[index].text),
+				);
+				if (texts.size < 2) continue;
+
+				for (const entry of alike) {
+					const { text, room } = entry.layout.slots[index];
+					entry.drawn[index] = capMiddle(text, room);
+				}
+			}
+		}
+
+		for (const entry of shaped) entry.lines = entry.layout.lines(entry.drawn);
+	}
+
+	for (const group of collidingGroups(entries)) {
+		for (const entry of group) {
+			if (entry.layout) {
+				entry.lines = entry.layout.tagged(entry.drawn, tagOf(entry.pair.key));
+			}
+		}
+	}
+
+	return new Map(entries.map(({ pair, lines }) => [pair.label, lines]));
 };
 
 /**
  * The drawn lines of each Measures axis label, by label. Each line holds at most `limit` characters, a part that fits
- * is never shortened, and the labels of distinct pairs are drawn differently:
- * 1. each line too long keeps its start and ends with "…";
- * 2. pairs still drawn alike keep the start and the end of each line too long (`Open Book…DF Reader`);
- * 3. pairs still drawn alike get a last line with the shortest ID tag (spec 7.1.2 form, 4 to 8 characters of each
- *    ID) that tells them apart.
+ * is never shortened, and the labels of distinct pairs are drawn differently (see `drawLabels`).
  */
 export const measureTickLines = (
 	pairs: readonly MeasureTickPair[],
 	limit = MEASURE_TICK_LINE_LIMIT,
-) => {
-	const byKey = new Map(pairs.map((pair) => [pair.key, pair]));
-	const lines = new Map(
-		pairs.map((pair) => [pair.key, linesOf(pair, capEnd, limit)]),
-	);
-
-	for (const key of collidingKeys(lines)) {
-		const pair = byKey.get(key);
-		if (pair) lines.set(key, linesOf(pair, capMiddle, limit));
-	}
-
-	const stillColliding = collidingKeys(lines);
-
-	if (stillColliding.length > 0) {
-		let length = MIN_TAG_ID_CHARS;
-
-		while (
-			length < MAX_TAG_ID_CHARS &&
-			new Set(stillColliding.map((key) => tagOf(key, length))).size <
-				stillColliding.length
-		) {
-			length += 1;
-		}
-
-		for (const key of stillColliding) {
-			const pair = byKey.get(key);
-			if (!pair) continue;
-
-			lines.set(key, [
-				capMiddle(pair.platformName, limit),
-				capMiddle(pair.measureName, limit),
-				tagOf(key, length),
-			]);
-		}
-	}
-
-	return new Map(
-		pairs.map((pair) => [pair.label, lines.get(pair.key) ?? [pair.label]]),
-	);
-};
+) => drawLabels(pairs, (pair) => linesLayout(pair, limit), limit);
