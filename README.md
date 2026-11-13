@@ -433,14 +433,14 @@ World map coloured by each country's share of the distribution:
 
 Regional breakdown, using the UN M49 regions:
 - Africa, Asia, Europe, Latin America and the Caribbean, Northern America, Oceania and Antarctica; a code outside the table goes to "Other or unknown region"
-- Pie chart and list with each region's value and share
+- Pie chart, with each region's value in its tooltip, and a list with each region's share
 - CSV download (`Region, Value, Percentage`)
 
 ### 5. 🌐 Countries Tab
 
 The top countries of the distribution:
 - The top 10 countries, then "Others" for the rest
-- Pie chart and list with each country's value and share
+- Pie chart, with each country's value in its tooltip, and a list with each country's share
 - CSV download (`Country, Value, Percentage`, every country)
 
 ## Architecture
