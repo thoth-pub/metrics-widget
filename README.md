@@ -415,41 +415,33 @@ Perfect for:
 
 The current month and other recent periods show the values collected so far; they may still grow as data arrives.
 
+### Geography (Map, Regions and Countries tabs)
+
+The three geography tabs share **one combined distribution**: for each country, the sum of its values over every platform and measure shown, for the book and its chapters together (or the selected chapters). There is no platform selector. Countries are identified by ISO 3166-1 code.
+
+- **Shares** are each country's (or region's) value over the sum of all country values. If any value is negative or the sum is 0, no shares are drawn: the tab says "Shares cannot be shown", and the CSV gives the values with the share `n/a`.
+- **No country breakdown.** A platform and measure that has usage but no country values in the book or in the chapters is named under the chart, for example `No country breakdown for: OAPEN · Downloads (book), Zenodo · Views (chapters).` Its usage is not part of the distribution.
+- When there are no country values at all, the tabs say "There are no country values for this work." (never 0%).
+
 ### 3. 🗺️ Map Tab
 
-Interactive world map visualization:
-- Geographic distribution of usage
-- Color-coded countries by metric intensity
-- Hover tooltips with detailed country statistics
-- Zoom and pan functionality
-
-Helps identify:
-- Geographic reach of publications
-- Regional popularity
-- International adoption
+World map coloured by each country's share of the distribution:
+- Hover shows `<Country> · <share>%`, or `<Country> · no data` for a country without a value
+- CSV download (`Country, Value, Percentage`, every country)
 
 ### 4. 🌍 Regions Tab
 
-Continental-level breakdown:
-- Pie chart visualization of regional distribution
-- Percentage-based comparisons
-- Sortable region list
-- CSV export capability
-
-Regions include:
-- Africa, Americas, Asia, Europe, Oceania
-- Antarctic (if applicable)
+Regional breakdown, using the UN M49 regions:
+- Africa, Asia, Europe, Latin America and the Caribbean, Northern America, Oceania and Antarctica; a code outside the table goes to "Other or unknown region"
+- Pie chart and list with each region's value and share
+- CSV download (`Region, Value, Percentage`)
 
 ### 5. 🌐 Countries Tab
 
-Detailed country-level analytics:
-- Top countries ranked by usage
-- Percentage distribution
-- Interactive pie chart
-- Sortable country list with percentages
-- CSV download option
-
-Shows top 10 countries by default (configurable).
+The top countries of the distribution:
+- The top 10 countries, then "Others" for the rest
+- Pie chart and list with each country's value and share
+- CSV download (`Country, Value, Percentage`, every country)
 
 ## Architecture
 
