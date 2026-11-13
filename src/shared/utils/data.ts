@@ -62,6 +62,89 @@ export const getColor = (source: string, theme?: MetricsWidgetTheme | null) => {
 	return resolveCssVar(METRIC_DEFAULT_COLOR_VAR);
 };
 
+/** Platforms without a token of their own take these existing tokens, in order (cycling). */
+export const FALLBACK_METRIC_COLOR_TOKENS = [
+	'mw-chart-metric-default',
+	'mw-chart-metric-wikimedia',
+	'mw-chart-metric-crossref',
+	'mw-chart-metric-oapen',
+	'mw-chart-metric-open-book-publishers',
+	'mw-chart-metric-wordpress-com',
+	'mw-chart-metric-twitter',
+] as const;
+
+export type PlatformColor = { token: string; color: string };
+
+type ColorPlatform = {
+	platformId: string;
+	code: string;
+	displayName: string;
+};
+
+const tokenColor = (token: string, theme?: MetricsWidgetTheme | null) =>
+	themeOverride(token, theme) || resolveCssVar(`--${token}`);
+
+/** A token "exists" when the theme overrides it or the stylesheet gives it a non-empty value. */
+const hasToken = (token: string, theme?: MetricsWidgetTheme | null) =>
+	Boolean(themeOverride(token, theme)) || resolveCssVar(`--${token}`) !== '';
+
+const ownToken = (
+	platform: ColorPlatform,
+	theme?: MetricsWidgetTheme | null,
+) =>
+	[platform.code, platform.displayName]
+		.map(slugifySource)
+		.filter((slug) => slug.length > 0)
+		.map((slug) => `${METRIC_COLOR_VAR_PREFIX.slice(2)}${slug}`)
+		.find((token) => hasToken(token, theme));
+
+/**
+ * Colours the platforms of one read (WIDGET-02 specification section 7.1.2). A platform whose `code` slug, else
+ * `displayName` slug, has a `mw-chart-metric-<slug>` token uses it. Every other platform takes, in platform order
+ * (display name, then ID), the next fallback token, skipping any whose value equals the colour of a platform with
+ * its own token in the same read; if that would skip every fallback, they are used in order without skipping.
+ */
+export const assignPlatformColors = (
+	platforms: ColorPlatform[],
+	theme?: MetricsWidgetTheme | null,
+): Map<string, PlatformColor> => {
+	const colors = new Map<string, PlatformColor>();
+	const ordered = [...platforms].sort(
+		(a, b) =>
+			a.displayName.localeCompare(b.displayName, 'en') ||
+			(a.platformId < b.platformId ? -1 : a.platformId > b.platformId ? 1 : 0),
+	);
+	const tokenless: ColorPlatform[] = [];
+
+	for (const platform of ordered) {
+		const token = ownToken(platform, theme);
+
+		if (token) {
+			colors.set(platform.platformId, {
+				token,
+				color: tokenColor(token, theme),
+			});
+		} else {
+			tokenless.push(platform);
+		}
+	}
+
+	const ownColors = new Set([...colors.values()].map(({ color }) => color));
+	const available = FALLBACK_METRIC_COLOR_TOKENS.filter(
+		(token) => !ownColors.has(tokenColor(token, theme)),
+	);
+	const fallbacks =
+		available.length > 0 ? available : [...FALLBACK_METRIC_COLOR_TOKENS];
+
+	tokenless.forEach((platform, index) => {
+		const token = fallbacks[index % fallbacks.length];
+
+		colors.set(platform.platformId, { token, color: tokenColor(token, theme) });
+	});
+
+	return colors;
+};
+
 export const isChapter = (workType: string) => {
 	return workType === 'BOOK_CHAPTER';
 };
