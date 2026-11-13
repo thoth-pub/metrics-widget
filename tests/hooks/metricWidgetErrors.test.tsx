@@ -106,7 +106,7 @@ const ROWS: [string, () => Response | Promise<Response>, number, string][] = [
 describe('error mapping in the app: calls and screen per row', () => {
 	it.each(
 		ROWS,
-	)('%s: %i R-YEAR call(s)', async (_name, answer, calls, shown) => {
+	)('%s: $2 R-YEAR call(s)', async (_name, answer, calls, shown) => {
 		vi.useFakeTimers();
 		vi.setSystemTime(NOW);
 		vi.spyOn(Math, 'random').mockReturnValue(0);
