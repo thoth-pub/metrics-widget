@@ -13,6 +13,7 @@ import {
 } from 'recharts';
 import { MetricTab } from '../MetricTab/MetricTab';
 import { MeasuresTooltip } from './MeasuresTooltip';
+import { measureTickLabel } from './measureTickLabel';
 import { type Measure, useMeasuresTab } from './useMeasuresTab';
 
 const margin = {
@@ -21,13 +22,11 @@ const margin = {
 
 const title = 'Usage by measure';
 
-/** Shortens long labels on the axis; the tooltip shows the full label. */
+/** Shortens long labels on the axis, keeping the measure whole; the tooltip shows the full label. */
 const tickFormatter = (value: string, _index: number) => {
-	const limit = 20;
+	const label = measureTickLabel(value);
 
-	if (value.length < limit) return value;
-
-	return `${value.substring(0, limit)}...`.replace(/ /g, ' ');
+	return label === value ? value : label.replace(/ /g, ' ');
 };
 
 const patternId = (prefix: string, measure: Measure) =>
