@@ -191,9 +191,12 @@ export const monthResponse = (
 	});
 };
 
-/** A response that serves no pair in either section. */
+/**
+ * A response that serves no pair in either section. With nothing served, the contract returns `startDate` as the
+ * first day of the month before `endDate` (here `2026-11-01` for `E`).
+ */
 export const emptyResponse = (
-	startDate = '2026-10-01',
+	startDate = '2026-11-01',
 	endDate = E,
 ): MetricWidgetData => response({ startDate, endDate });
 
