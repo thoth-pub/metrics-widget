@@ -11,6 +11,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import App from '@/App';
 import type { MetricWidgetInput, WorkDto } from '@/shared/interfaces';
 import {
+	E,
 	emptyResponse,
 	graphqlData,
 	graphqlError,
@@ -120,6 +121,34 @@ describe('request count, success', () => {
 		expect(yearInputs(fetchMock)).toHaveLength(1);
 		expect(monthInputs(fetchMock)).toHaveLength(0);
 		expect(otherHostRequests(fetchMock)).toEqual([]);
+	});
+
+	it('tabs mounted on either side of a UTC month boundary share one E and one R-YEAR', async () => {
+		vi.setSystemTime(new Date('2026-11-30T23:59:59Z'));
+		const fetchMock = renderApp(() => graphqlData(yearResponse()));
+
+		await within(activePanel()).findByText(
+			'Mar 2019 – Nov 2026',
+			{},
+			{ timeout: 5000 },
+		);
+		expect(yearInputs(fetchMock).map(({ endDate }) => endDate)).toEqual([E]);
+
+		vi.setSystemTime(new Date('2026-12-01T00:00:05Z'));
+		await openTab('Timeline');
+		await within(activePanel()).findByText(
+			'Mar 2019 – Nov 2026',
+			{},
+			{ timeout: 5000 },
+		);
+		await openTab('Countries');
+		await within(activePanel()).findAllByText(
+			TITLES.Countries,
+			{},
+			{ timeout: 5000 },
+		);
+
+		expect(yearInputs(fetchMock).map(({ endDate }) => endDate)).toEqual([E]);
 	});
 
 	it('a one-bucket response adds one R-MONTH when the Timeline tab is first opened, and not before', async () => {

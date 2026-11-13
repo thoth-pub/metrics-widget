@@ -3,7 +3,7 @@ import {
 	useQueries,
 	useQuery,
 } from '@tanstack/react-query';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { config } from '../config';
 import { QUERY_KEYS } from '../constants';
 import type {
@@ -16,7 +16,6 @@ import {
 	buildMetricWidgetView,
 	type DateRange,
 	type MetricWidgetView,
-	metricWidgetEndDate,
 } from '../metricWidget';
 import {
 	type MetricWidgetError,
@@ -27,6 +26,7 @@ import {
 import { assignPlatformColors, getColor, type PlatformColor } from '../utils';
 import { useDOIs } from './useDOIs';
 import { useMetaData } from './useMetaData';
+import { useMetricWidgetEndDate } from './useMetricWidgetEndDate';
 import { useServices } from './useServices';
 import { useTheme } from './useTheme';
 
@@ -163,8 +163,9 @@ export const useMetricWidgetYear = (doi: Doi) => {
 	const inputs = useDOIs(doi);
 	const theme = useTheme();
 
-	// `E` is fixed for the life of the component, so the key never moves with the clock.
-	const [endDate] = useState(() => metricWidgetEndDate(new Date()));
+	// `E` is fixed once per widget instance, so the key never moves with the clock, even between two tabs that
+	// mount on either side of a UTC month boundary.
+	const endDate = useMetricWidgetEndDate();
 
 	const input = metricWidgetInput('YEAR', inputs.doi, inputs.chapterDois, {
 		endDate,

@@ -1,4 +1,11 @@
-import { type Doi, isValidDoi, type Tab, useMetaData } from '@/shared';
+import {
+	type Doi,
+	isValidDoi,
+	MetricWidgetEndDateContext,
+	type Tab,
+	useMetaData,
+	useNewMetricWidgetEndDate,
+} from '@/shared';
 import {
 	DataPlaceholder,
 	ErrorBoundary,
@@ -51,6 +58,8 @@ function App({ doi }: { doi: Doi }) {
 
 	const [isInfoOpen, setIsInfoOpen] = useState(false);
 	const [activeTab, setActiveTab] = useState<Tab>(TABS.MEASURES);
+	// One `E` for every tab of this widget instance.
+	const endDate = useNewMetricWidgetEndDate();
 
 	if (!isValid) {
 		return (
@@ -73,43 +82,49 @@ function App({ doi }: { doi: Doi }) {
 
 	return (
 		<Wrapper>
-			<Tabs value={activeTab} className="h-full" onValueChange={changeTab}>
-				<MeasuresTab
-					doi={doi}
-					isInfoOpen={isInfoOpen}
-					toggleInfo={toggleInfo}
-				/>
-				<TimelineTab
-					doi={doi}
-					isInfoOpen={isInfoOpen}
-					toggleInfo={toggleInfo}
-					isActive={activeTab === TABS.TIMELINE}
-				/>
-				<MapTab doi={doi} isInfoOpen={isInfoOpen} toggleInfo={toggleInfo} />
-				<RegionsTab doi={doi} isInfoOpen={isInfoOpen} toggleInfo={toggleInfo} />
-				<CountriesTab
-					doi={doi}
-					isInfoOpen={isInfoOpen}
-					toggleInfo={toggleInfo}
-				/>
-				<TabsList className="w-full shrink-0 h-(--mw-footer-height)">
-					<TabsTrigger value={TABS.MEASURES}>
-						<ChartBar /> <span className={textStyles}>Measures</span>
-					</TabsTrigger>
-					<TabsTrigger value={TABS.TIMELINE}>
-						<ChartLine /> <span className={textStyles}>Timeline</span>
-					</TabsTrigger>
-					<TabsTrigger value={TABS.MAP}>
-						<MapIcon /> <span className={textStyles}>Map</span>
-					</TabsTrigger>
-					<TabsTrigger value={TABS.REGIONS}>
-						<Globe /> <span className={textStyles}>Regions</span>
-					</TabsTrigger>
-					<TabsTrigger value={TABS.COUNTRIES}>
-						<Earth /> <span className={textStyles}>Countries</span>
-					</TabsTrigger>
-				</TabsList>
-			</Tabs>
+			<MetricWidgetEndDateContext value={endDate}>
+				<Tabs value={activeTab} className="h-full" onValueChange={changeTab}>
+					<MeasuresTab
+						doi={doi}
+						isInfoOpen={isInfoOpen}
+						toggleInfo={toggleInfo}
+					/>
+					<TimelineTab
+						doi={doi}
+						isInfoOpen={isInfoOpen}
+						toggleInfo={toggleInfo}
+						isActive={activeTab === TABS.TIMELINE}
+					/>
+					<MapTab doi={doi} isInfoOpen={isInfoOpen} toggleInfo={toggleInfo} />
+					<RegionsTab
+						doi={doi}
+						isInfoOpen={isInfoOpen}
+						toggleInfo={toggleInfo}
+					/>
+					<CountriesTab
+						doi={doi}
+						isInfoOpen={isInfoOpen}
+						toggleInfo={toggleInfo}
+					/>
+					<TabsList className="w-full shrink-0 h-(--mw-footer-height)">
+						<TabsTrigger value={TABS.MEASURES}>
+							<ChartBar /> <span className={textStyles}>Measures</span>
+						</TabsTrigger>
+						<TabsTrigger value={TABS.TIMELINE}>
+							<ChartLine /> <span className={textStyles}>Timeline</span>
+						</TabsTrigger>
+						<TabsTrigger value={TABS.MAP}>
+							<MapIcon /> <span className={textStyles}>Map</span>
+						</TabsTrigger>
+						<TabsTrigger value={TABS.REGIONS}>
+							<Globe /> <span className={textStyles}>Regions</span>
+						</TabsTrigger>
+						<TabsTrigger value={TABS.COUNTRIES}>
+							<Earth /> <span className={textStyles}>Countries</span>
+						</TabsTrigger>
+					</TabsList>
+				</Tabs>
+			</MetricWidgetEndDateContext>
 		</Wrapper>
 	);
 }
