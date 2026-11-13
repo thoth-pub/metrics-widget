@@ -1,6 +1,5 @@
 'use client';
 
-import iso from 'iso-3166-1';
 import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
 import { resolveCssVar, useTheme } from '@/shared';
 import geoData from './geoData.json';
@@ -8,9 +7,10 @@ import geoData from './geoData.json';
 type WorldMapProps = {
 	tooltipContent?: string;
 	isTooltipVisible?: boolean;
-	onMouseEnter?: (countryName: string) => void;
+	/** Receives the map feature's own name; the caller matches it to a country code. */
+	onMouseEnter?: (featureName: string) => void;
 	onMouseLeave?: () => void;
-	updateCountryColor: (countryName: string) => string;
+	updateCountryColor: (featureName: string) => string;
 };
 
 export const WorldMap = (props: WorldMapProps) => {
@@ -22,9 +22,11 @@ export const WorldMap = (props: WorldMapProps) => {
 
 	return (
 		<ComposableMap
+			// Fits the land from northern Greenland (83.6° N) to Tierra del Fuego (56° S) in the 800 × 316 view, so
+			// neither edge is clipped (scale 160 on the equator cut the north at any widget size).
 			projectionConfig={{
-				scale: 160,
-				center: [5, 0],
+				scale: 135,
+				center: [5, 6],
 			}}
 			height={316}
 			style={{ width: '100%', height: '100%' }}
@@ -39,13 +41,7 @@ export const WorldMap = (props: WorldMapProps) => {
 							key={geo.rsmKey}
 							geography={geo}
 							onMouseEnter={() => {
-								if (!onMouseEnter) return;
-
-								const countryName =
-									iso.whereCountry(geo.properties.name)?.country ??
-									geo.properties.name;
-
-								onMouseEnter(countryName);
+								onMouseEnter?.(geo.properties.name);
 							}}
 							onMouseLeave={onMouseLeave}
 							style={{

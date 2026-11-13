@@ -1,101 +1,69 @@
 import { useState } from 'react';
 import {
 	config,
+	countriesCsv,
+	countriesTotal,
+	countryCodeOf,
+	countryName,
 	type Doi,
-	getApiCountryName,
 	getChartColorByPercentage,
-	getIncludedSources,
-	getPercentage,
+	NO_DATA_LABEL,
 	roundPercentage,
-	useMetricsByCountryOrRegion,
+	sharePercentage,
 	useTheme,
 } from '@/shared';
+import { useGeography } from '../MetricTab/useGeography';
 
+const separator = config.charts.timeMetricsChartLabelSeparator;
+
+/**
+ * The combined distribution on the world map. Map features are matched to countries by code (through the
+ * dashboard's name-to-code table), never by name.
+ */
 export const useMapTab = (doi: Doi) => {
-	const {
-		metaData,
-		rawData,
-		preProcessedData,
-		totalCount,
-		selectedPlatforms,
-		isLoading,
-		platformOptions,
-		setSelectedPlatforms,
-	} = useMetricsByCountryOrRegion({
-		doi,
-		dataType: 'country',
-	});
+	const geography = useGeography(doi);
+	const { countries } = geography;
 	const theme = useTheme();
+	const total = countriesTotal(countries);
 
-	const [selectedCountry, setSelectedCountry] = useState<{
-		name: string;
-		percentage: string;
-	} | null>(null);
-
-	const processedData = preProcessedData.map(([country, value]) => {
-		return {
-			name: country,
-			metrics: value,
-			percentage: getPercentage(value, totalCount),
-		};
-	});
-
-	const processedCsvData = processedData.map(({ name, percentage }) => [
-		name,
-		roundPercentage(percentage),
-	]);
-
-	const csvData: string[][] = [config.csv.countriesHeader, ...processedCsvData];
-
-	const includedSources = getIncludedSources(
-		selectedPlatforms,
-		platformOptions,
+	const shares = new Map(
+		countries.map(({ countryCode, value }) => [
+			countryCode,
+			sharePercentage(value, total),
+		]),
 	);
+	const topShare = Math.max(0, ...shares.values());
 
-	const tooltipContent = selectedCountry
-		? `${selectedCountry.name} ${selectedCountry.percentage}%`
-		: '';
+	const [tooltipContent, setTooltipContent] = useState('');
 
-	const getCountryColor = (countryName: string) => {
-		const topCountry = processedData[0];
-		const apiCountryName = getApiCountryName(countryName);
-		const country = processedData.find(
-			(country) => country.name === apiCountryName,
-		);
-		const countryValue = country?.percentage ?? 0;
-		const topCountryValue = topCountry?.percentage ?? 0;
+	const getCountryColor = (featureName: string) => {
+		const code = countryCodeOf(featureName);
+		const share = (code && shares.get(code)) || 0;
 
 		return getChartColorByPercentage({
-			highestValue: topCountryValue,
-			lowestValue: countryValue,
+			highestValue: topShare,
+			lowestValue: share,
 			theme,
 		});
 	};
 
-	const updateContent = (countryName: string) => {
-		const countryData = rawData[getApiCountryName(countryName)];
+	/** `<Country> · <share>%`, or `<Country> · no data` for a country without a value (never 0%). */
+	const updateContent = (featureName: string) => {
+		const code = countryCodeOf(featureName);
+		const name = code ? countryName(code) : featureName;
+		const share = code ? shares.get(code) : undefined;
 
-		if (!countryData) return;
-
-		setSelectedCountry({
-			name: countryName,
-			percentage: roundPercentage(getPercentage(countryData, totalCount)),
-		});
+		setTooltipContent(
+			`${name}${separator}${share === undefined ? NO_DATA_LABEL : `${roundPercentage(share)}%`}`,
+		);
 	};
 
-	const resetContent = () => setSelectedCountry(null);
+	const resetContent = () => setTooltipContent('');
 
 	return {
-		metaData,
-		metricsData: processedData,
-		selectedCountry,
-		csvData,
-		selectedPlatforms,
+		...geography,
+		csvData: countriesCsv(countries),
 		tooltipContent,
-		isLoading,
-		platformOptions,
-		includedSources,
-		selectPlatform: setSelectedPlatforms,
 		updateContent,
 		resetContent,
 		getCountryColor,

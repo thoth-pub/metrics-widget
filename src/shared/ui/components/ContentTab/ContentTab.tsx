@@ -1,5 +1,6 @@
 import type { TabsContentProps } from '@radix-ui/react-tabs';
 import { Info } from 'lucide-react';
+import type { InfoEntry } from '../../../metricWidget/info';
 import { Button } from '../../core/Button/Button';
 import { Spinner } from '../../core/Spinner/Spinner';
 import { TabsContent } from '../../core/Tabs/Tabs';
@@ -7,7 +8,7 @@ import { InfoTab } from '../InfoTab/InfoTab';
 
 type ContentTabProps = {
 	title: string;
-	includedSources: string[];
+	info: InfoEntry[];
 	isInfoOpen?: boolean;
 	isLoading?: boolean;
 	filter?: React.ReactNode;
@@ -17,7 +18,7 @@ type ContentTabProps = {
 
 export const ContentTab = ({
 	title,
-	includedSources,
+	info,
 	isInfoOpen = false,
 	isLoading = false,
 	filter,
@@ -52,7 +53,7 @@ export const ContentTab = ({
 							{isInfoOpen ? 'Information' : title}
 						</p>
 					)}
-					{isInfoOpen && <InfoTab includedSources={includedSources} />}
+					{isInfoOpen && <InfoTab entries={info} />}
 					{!isInfoOpen && !isLoading && children}
 					{!isInfoOpen && isLoading && (
 						<Spinner className="m-auto size-12 h-full text-spinner" />

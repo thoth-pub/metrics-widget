@@ -16,7 +16,6 @@ export default defineConfig({
 		// Pin the API endpoints so tests never depend on a local .env file.
 		env: {
 			VITE_THOTH_API_URL: 'https://thoth.test/graphql',
-			VITE_METRICS_API_URL: 'https://metrics.test',
 		},
 	},
 });

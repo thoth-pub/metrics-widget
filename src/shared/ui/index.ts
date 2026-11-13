@@ -1,4 +1,5 @@
 export * from './components/ContentTab/ContentTab';
+export * from './components/MetricState/MetricState';
 export * from './core/Accordion/Accordion';
 export * from './core/Button/Button';
 export * from './core/ChartTooltipWrapper/ChartTooltipWrapper';

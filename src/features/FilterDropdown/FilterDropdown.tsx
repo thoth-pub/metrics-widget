@@ -38,7 +38,8 @@ export const FilterDropdown = ({
 
 	const disabledItems = items.filter((item) => item.disabled);
 	const availableItems = items.filter((item) => !item.disabled);
-	const isEmpty = items.length === 1;
+	// Only an empty list is "No … available"; a single item is shown and can be selected.
+	const isEmpty = items.length === 0;
 
 	return (
 		<Combobox

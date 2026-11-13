@@ -87,7 +87,7 @@ This repository **does not own**, and must not be treated as the authority for:
 - the **Thoth GraphQL schema, resolvers or authorization policy** — owned by
   `thoth-pub/thoth`;
 - the **OPERAS metrics API contract**, its measure identifiers or its response
-  semantics — owned externally by OPERAS;
+  semantics — owned externally by OPERAS, and consumed only by the 2.x line;
 - the Metrics dashboard application — owned by `thoth-pub/metrics-dashboard`;
 - consuming applications' integration code, including `thoth-pub/thoth-pyramid`;
 - Metrics product architecture decisions.
@@ -112,7 +112,10 @@ dev -> main   (default / release)
 Verified branch facts:
 
 - `dev` is the **active development branch** and the normal base for new work;
-- `main` is the **default and release branch**.
+- `main` is the **default and release branch**;
+- `dev` carries the **3.x line** (usage data from Thoth `metricWidget`). No 2.x
+  release may be cut from `dev`; a 2.x fix, if ever needed, starts from the
+  `v2.0.1` tag under its own task.
 
 **Branch normalization is separate work, tracked as `BR-WIDGET-01`.** Nothing in
 this file asserts that normalization has occurred. Until `BR-WIDGET-01` completes,
@@ -211,9 +214,11 @@ A downstream repository must **never** guess an unpublished or unmerged package
 interface, and must never depend on a version that does not exist on the registry.
 Consuming a change ahead of its release is a control failure, not a shortcut.
 
-This repository is also a **verified consumer of the public Thoth GraphQL schema**
-and of the **public OPERAS metrics API**. Breaking upstream changes require impact
-assessment here.
+This repository is also a **verified consumer of the public Thoth GraphQL schema**:
+the 3.x line on `dev` reads publication metadata (`workByDoi`) and usage data
+(`metricWidget`) from it. The 2.x line (up to `v2.0.1`) consumes the **public OPERAS
+metrics API** for usage data. Breaking upstream changes require impact assessment
+here.
 
 Never give one implementing agent unrestricted write access to more than one
 repository for the same task. Each affected repository gets its own bounded task,
@@ -257,6 +262,7 @@ Currently supported checks:
 ```bash
 npm ci
 npm run lint
+npm test
 npm run build
 npm run test:consumer
 ```
@@ -282,8 +288,9 @@ Record the exact commands run and their concise results. Do not report only
 "checks passed". A check that was not run must be reported as not run, never
 implied to have passed.
 
-Note: there is currently **no unit-test suite**. `test:consumer` is a packaging and
-integration smoke test, not unit coverage. Adding a unit-test suite is separate work.
+`npm test` runs the unit-test suite (Vitest, jsdom, Testing Library) under
+`tests/`; every `fetch` is mocked and no test calls a live API. `test:consumer` is a
+packaging and integration smoke test, not unit coverage.
 
 ## 8. CI, release and publication
 
@@ -292,7 +299,8 @@ These are **distinct pipelines** and must never be conflated.
 ### 8.1 Ordinary pull-request CI
 
 `.github/workflows/ci.yml` runs on pull requests and on pushes to `main` and `dev`.
-It installs dependencies and runs lint, build and the consumer smoke test, with
+It installs dependencies and runs lint, the unit tests (`npm test`), build and the
+consumer smoke test, with
 `contents: read` permission.
 
 > **Ordinary PR CI does not publish an npm package.** Opening or updating a pull
@@ -326,13 +334,14 @@ and request separate release authorization. Do not release to unblock yourself.
 
 ## 9. Data and credential boundaries
 
-The widget currently consumes two **public** upstream APIs from the browser:
+The widget (3.x line) consumes one **public** upstream API from the browser:
 
-- the **Thoth GraphQL API** for bibliographic metadata;
-- the **OPERAS metrics API** for usage/metrics measures.
+- the **Thoth GraphQL API**, for bibliographic metadata (`workByDoi`) and for
+  usage metrics (`metricWidget`), read without credentials or cookies.
 
-Endpoint configuration is supplied through build-time `VITE_*` variables
-(`VITE_THOTH_API_URL`, `VITE_METRICS_API_URL`). Treat every `VITE_*` value as
+Endpoint configuration is supplied through the build-time `VITE_THOTH_API_URL`
+variable; `VITE_METRICS_API_URL` (the OPERAS metrics API of the 2.x line) was
+removed in 3.x. Treat every `VITE_*` value as
 **fully public**: Vite inlines them into the built bundle, and this package ships
 that bundle to third-party host pages.
 

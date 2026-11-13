@@ -1,2 +1,2 @@
 export * from './metaService';
-export * from './metricsService';
+export * from './metricWidgetService';

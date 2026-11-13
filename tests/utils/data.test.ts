@@ -1,141 +1,14 @@
 import {
-	convertMonthToKey,
 	convertShortMonthToLongMonth,
-	getAlignedCountryName,
-	getApiCountryName,
 	getChartColorByPercentage,
 	getColor,
-	getContinentNameByCode,
-	getIncludedSources,
 	getPercentage,
 	getSaturationValue,
 	isChapter,
 	resolveCssVar,
 	roundPercentage,
-	updateSource,
 } from '@/shared/utils';
 import { describe, expect, it } from 'vitest';
-
-describe('updateSource', () => {
-	it.each([
-		['Open Book Publishers', 'OBP'],
-		['Open Book Publishers HTML Reader', 'OBP HTML Reader'],
-		['Open Book Publishers PDF Reader', 'OBP PDF Reader'],
-		['Google Books', 'Google Books'],
-		['OAPEN', 'OAPEN'],
-		['', ''],
-	])('maps %j to %j', (source, expected) => {
-		expect(updateSource(source)).toBe(expected);
-	});
-
-	it('only rewrites a matching prefix and keeps the rest of the name', () => {
-		expect(updateSource('Open Book Publishers Podcast')).toBe('OBP Podcast');
-	});
-
-	it('is case sensitive and does not match in the middle of a name', () => {
-		expect(updateSource('open book publishers')).toBe('open book publishers');
-		expect(updateSource('The Open Book Publishers')).toBe(
-			'The Open Book Publishers',
-		);
-	});
-
-	it('leaves names that already use the short label unchanged', () => {
-		expect(updateSource('OBP')).toBe('OBP');
-	});
-});
-
-describe('getAlignedCountryName', () => {
-	it.each([
-		["Cote d'Ivoire Ivory Coast", "Côte d'Ivoire"],
-		['Czech Republic', 'Czechia'],
-		['United Kingdom', 'United Kingdom of Great Britain and Northern Ireland'],
-		['South Korea', 'Republic of Korea'],
-		['North Korea', "Democratic People's Republic of Korea"],
-		['Moldava', 'Moldova'],
-		['Myanmar Burma', 'Myanmar'],
-		['Phillipines', 'Philippines'],
-		['Russia', 'Russian Federation'],
-		['Syria', 'Syrian Arab Republic'],
-		['Turkey', 'Türkiye'],
-		['Vietnam', 'Viet Nam'],
-	])('special case %j -> %j', (name, expected) => {
-		expect(getAlignedCountryName(name)).toBe(expected);
-	});
-
-	it('matches the special cases case-insensitively', () => {
-		expect(getAlignedCountryName('RUSSIA')).toBe('Russian Federation');
-		expect(getAlignedCountryName('vietnam')).toBe('Viet Nam');
-		expect(getAlignedCountryName("COTE D'IVOIRE IVORY COAST")).toBe(
-			"Côte d'Ivoire",
-		);
-	});
-
-	it('resolves other names through the ISO 3166-1 list (case-insensitive, canonical casing)', () => {
-		expect(getAlignedCountryName('Germany')).toBe('Germany');
-		expect(getAlignedCountryName('france')).toBe('France');
-		expect(getAlignedCountryName('United States of America')).toBe(
-			'United States of America',
-		);
-	});
-
-	it('returns names unknown to ISO unchanged, including common short names', () => {
-		expect(getAlignedCountryName('Narnia')).toBe('Narnia');
-		expect(getAlignedCountryName('')).toBe('');
-		// Not an official ISO name, so it is not aligned to the map's naming.
-		expect(getAlignedCountryName('United States')).toBe('United States');
-		expect(getAlignedCountryName('Iran')).toBe('Iran');
-	});
-});
-
-describe('getApiCountryName', () => {
-	it.each([
-		["Côte d'Ivoire", "Cote d'ivoire Ivory Coast"],
-		['Czechia', 'Czech Republic'],
-		['United Kingdom of Great Britain and Northern Ireland', 'United Kingdom'],
-		['Republic of Korea', 'South Korea'],
-		["Democratic People's Republic of Korea", 'North Korea'],
-		['Moldova', 'Moldava'],
-		['Myanmar', 'Myanmar Burma'],
-		['Philippines', 'Phillipines'],
-		['Russian Federation', 'Russia'],
-		['Syrian Arab Republic', 'Syria'],
-		['Türkiye', 'Turkey'],
-		['Viet Nam', 'Vietnam'],
-		['Germany', 'Germany'],
-	])('%j -> %j', (name, expected) => {
-		expect(getApiCountryName(name)).toBe(expected);
-	});
-
-	it('is case-insensitive on input but returns unknown names untouched', () => {
-		expect(getApiCountryName('CZECHIA')).toBe('Czech Republic');
-		expect(getApiCountryName('germany')).toBe('germany');
-	});
-});
-
-describe('getContinentNameByCode', () => {
-	it.each([
-		['AF', 'Africa'],
-		['AS', 'Asia'],
-		['EU', 'Europe'],
-		['NA', 'Northern America'],
-		['AN', 'Antarctica'],
-		['SA', 'Latin America and the Caribbean'],
-		['LA', 'Latin America and the Caribbean'],
-		['OC', 'Oceania'],
-	])('%s -> %s', (code, expected) => {
-		expect(getContinentNameByCode(code)).toBe(expected);
-	});
-
-	it('is case-insensitive', () => {
-		expect(getContinentNameByCode('eu')).toBe('Europe');
-		expect(getContinentNameByCode('Oc')).toBe('Oceania');
-	});
-
-	it('returns unknown codes unchanged', () => {
-		expect(getContinentNameByCode('XX')).toBe('XX');
-		expect(getContinentNameByCode('')).toBe('');
-	});
-});
 
 describe('getPercentage', () => {
 	it('returns metrics / total as a percentage', () => {
@@ -196,30 +69,6 @@ describe('isChapter', () => {
 
 describe('month helpers', () => {
 	it.each([
-		['01', 'Jan'],
-		['02', 'Feb'],
-		['03', 'Mar'],
-		['04', 'Apr'],
-		['05', 'May'],
-		['06', 'Jun'],
-		['07', 'Jul'],
-		['08', 'Aug'],
-		['09', 'Sep'],
-		['10', 'Oct'],
-		['11', 'Nov'],
-		['12', 'Dec'],
-	])('convertMonthToKey(%s) -> %s', (month, key) => {
-		expect(convertMonthToKey(month)).toBe(key);
-	});
-
-	it('convertMonthToKey only understands zero-padded months and returns the rest unchanged', () => {
-		expect(convertMonthToKey('1')).toBe('1');
-		expect(convertMonthToKey('13')).toBe('13');
-		expect(convertMonthToKey('2024-01')).toBe('2024-01');
-		expect(convertMonthToKey('')).toBe('');
-	});
-
-	it.each([
 		['Jan', 'January'],
 		['Feb', 'February'],
 		['Mar', 'March'],
@@ -239,30 +88,6 @@ describe('month helpers', () => {
 
 	it('convertShortMonthToLongMonth returns unknown input unchanged', () => {
 		expect(convertShortMonthToLongMonth('Sept')).toBe('Sept');
-	});
-});
-
-describe('getIncludedSources', () => {
-	const options = [
-		{ label: 'A', value: 'a' },
-		{ label: 'B', value: 'b', disabled: true },
-		{ label: 'C', value: 'c' },
-	];
-
-	it('returns the values of the enabled options when nothing is selected', () => {
-		expect(getIncludedSources([], options)).toEqual(['a', 'c']);
-	});
-
-	it('returns the selected values when something is selected', () => {
-		expect(getIncludedSources([options[2]], options)).toEqual(['c']);
-	});
-
-	it('keeps a selected option even if it is disabled', () => {
-		expect(getIncludedSources([options[1]], options)).toEqual(['b']);
-	});
-
-	it('returns an empty list when there are no options', () => {
-		expect(getIncludedSources([], [])).toEqual([]);
 	});
 });
 

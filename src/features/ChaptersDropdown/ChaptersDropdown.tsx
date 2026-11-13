@@ -5,12 +5,13 @@ import { FilterDropdown } from '../FilterDropdown/FilterDropdown';
 export const ChaptersDropdown = ({ chapters }: { chapters: WorkEntity[] }) => {
 	const { selectedChapters, setSelectedChapters } = useSelectedChapters();
 
-	const chapterItems = chapters.map((chapter) => {
-		return {
+	// Only children with a DOI can be selected: a metrics read selects children by DOI.
+	const chapterItems = chapters
+		.filter((chapter) => chapter.doi.length > 0)
+		.map((chapter) => ({
 			label: chapter.title,
 			value: chapter.doi,
-		};
-	});
+		}));
 
 	return (
 		<FilterDropdown

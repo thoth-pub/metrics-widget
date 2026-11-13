@@ -2,16 +2,16 @@
 
 import { createContext } from 'react';
 import MetaService from '../services/metaService';
-import MetricsService from '../services/metricsService';
+import MetricWidgetService from '../services/metricWidgetService';
 
 export type ServicesMap = {
 	metaService: MetaService;
-	metricsService: MetricsService;
+	metricWidgetService: MetricWidgetService;
 };
 
 export const defaultServices: ServicesMap = {
 	metaService: new MetaService(),
-	metricsService: new MetricsService(),
+	metricWidgetService: new MetricWidgetService(),
 };
 
 export const ServicesContext = createContext({
