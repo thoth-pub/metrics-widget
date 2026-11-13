@@ -2,11 +2,13 @@
 
 A React-based widget for displaying publication metrics from multiple platforms. Designed for publishers to easily embed comprehensive usage statistics for their publications identified by DOI.
 
+From 3.x the widget reads its usage data from the public [Thoth](https://thoth.pub) GraphQL API (`metricWidget`), the same API it uses for publication metadata. The 2.x line reads usage data from the OPERAS metrics API.
+
 ## Features
 
 - 📊 **Multiple Visualization Tabs**: Measures, Timeline, Map, Regions, and Countries
 - 🗺️ **Geographic Distribution**: Interactive world map showing global reach
-- 📈 **Time-based Analytics**: Track metrics over time with customizable date ranges
+- 📈 **Time-based Analytics**: Track metrics by year, and by month within a year
 - 🎨 **Fully Customizable**: Override styles via CSS custom properties or a typed `theme` prop
 - 📱 **Responsive Design**: Works seamlessly on mobile, tablet, and desktop
 - 🔌 **Easy Integration**: Works with React or JavaScript projects
@@ -33,7 +35,7 @@ npm install metrics-widget
 
 ```html
 <!-- CSS -->
-<link rel="stylesheet" href="https://unpkg.com/metrics-widget@2/dist/metrics-widget.css">
+<link rel="stylesheet" href="https://unpkg.com/metrics-widget@3/dist/metrics-widget.css">
 
 <!-- Import map for React dependencies -->
 <script type="importmap">
@@ -49,10 +51,12 @@ npm install metrics-widget
 
 <!-- Widget script -->
 <script type="module">
-  import { initMetricsWidget } from 'https://unpkg.com/metrics-widget@2/dist/metrics-widget.js';
+  import { initMetricsWidget } from 'https://unpkg.com/metrics-widget@3/dist/metrics-widget.js';
   // Use widget here
 </script>
 ```
+
+> **Versions.** `@3` resolves to the 3.x line, which reads usage data from Thoth. `@2` keeps resolving to the 2.x line, which reads usage data from the OPERAS metrics API; embeds pinned to `@2` are not moved to 3.x.
 
 ## Quick Start
 
@@ -116,7 +120,7 @@ For environments without a build tool, use import maps to load React from CDN:
   <title>Metrics Widget Demo</title>
   
   <!-- Load the widget CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/metrics-widget@2/dist/metrics-widget.css">
+  <link rel="stylesheet" href="https://unpkg.com/metrics-widget@3/dist/metrics-widget.css">
   
   <!-- Import map for React dependencies from CDN -->
   <script type="importmap">
@@ -136,7 +140,7 @@ For environments without a build tool, use import maps to load React from CDN:
   
   <!-- Initialize widget using ES modules -->
   <script type="module">
-    import { initMetricsWidget } from 'https://unpkg.com/metrics-widget@2/dist/metrics-widget.js';
+    import { initMetricsWidget } from 'https://unpkg.com/metrics-widget@3/dist/metrics-widget.js';
     
     // Initialize the widget
     const widget = initMetricsWidget('app', 'https://doi.org/10.11647/OBP.0159');
@@ -214,8 +218,9 @@ widget.unmount();
 
 The published widget connects to these default APIs:
 
-- `VITE_THOTH_API_URL`: `https://api.thoth.pub/graphql` (publication metadata)
-- `VITE_METRICS_API_URL`: `https://metrics-api.operas-eu.org` (usage metrics)
+- `VITE_THOTH_API_URL`: `https://api.thoth.pub/graphql` (publication metadata and usage metrics)
+
+Both reads go to that one public GraphQL endpoint, without credentials or cookies: `workByDoi` for the publication and its chapters, and `metricWidget` for usage data. `VITE_METRICS_API_URL` was removed in 3.x, together with the OPERAS metrics API it pointed to.
 
 Endpoint overrides are not currently exposed as part of the public package API. The `VITE_*` names are used only when building this repository from source.
 
@@ -255,6 +260,8 @@ Drop a `:root` block into any stylesheet. The widget's CSS lives inside `@layer 
   /* ...through --mw-color-countries-11 */
 }
 ```
+
+A platform takes its own `--mw-chart-metric-<slug>` token when one exists for its code or display name (slugged). A platform without its own token takes a colour from a fixed list, in platform order: `default`, `wikimedia`, `crossref`, `oapen`, `open-book-publishers`, `wordpress-com`, `twitter`, skipping a colour already used by a platform with its own token. Overriding one of those tokens therefore also changes the colour of any platform that falls back to it.
 
 > **Caveat.** Cascade layers don't beat host `!important`. If another stylesheet already uses `!important` on the same token, your override will need `!important` too.
 
@@ -385,29 +392,28 @@ The widget provides five comprehensive tabs for analyzing publication metrics:
 
 ### 1. 📊 Measures Tab
 
-Displays overall metrics broken down by:
-- **Platform**: Usage across different platforms (OAPEN, OpenEdition, JSTOR, etc.)
-- **Book-level metrics**: Total views, downloads, and sessions
-- **Chapter-level metrics**: Individual chapter performance with filtering options
+Displays the total of each measure on each platform (for example "OAPEN · Downloads"), as Thoth reports it:
+- **Book**: the work's own usage
+- **Chapters**: the summed usage of its chapters (all chapters, or the ones selected)
 
 Features:
-- Filter by specific platforms
-- Search and filter chapters
+- Select chapters
 - Download data as CSV
-- Interactive pie charts with detailed breakdowns
 
 ### 2. 📈 Timeline Tab
 
 Visualizes metrics over time:
-- Monthly aggregated data
-- Multiple metrics displayed simultaneously
+- One point per year, from the first month Thoth has data for up to the current month
+- Opening one year shows that year by month
+- Filter the measures shown
 - Year-based pagination for large datasets
-- Interactive legend to toggle metric visibility
 
 Perfect for:
 - Tracking growth trends
 - Identifying seasonal patterns
 - Comparing platform performance over time
+
+The current month and other recent periods show the values collected so far; they may still grow as data arrives.
 
 ### 3. 🗺️ Map Tab
 
@@ -454,10 +460,9 @@ graph TB
     
     Providers --> Query[React Query Client]
     Query --> ThothAPI[Thoth API GraphQL]
-    Query --> MetricsAPI[Metrics API REST]
     
-    ThothAPI --> MetaData[Publication Metadata]
-    MetricsAPI --> MetricsData[Usage Metrics]
+    ThothAPI --> MetaData[Publication Metadata: workByDoi]
+    ThothAPI --> MetricsData[Usage Metrics: metricWidget]
     
     MetaData --> Tabs[Widget Tabs]
     MetricsData --> Tabs
@@ -479,31 +484,15 @@ graph TB
 
 1. **Initialization**: Widget receives DOI prop
 2. **Validation**: DOI is validated using `doi-utils` library
-3. **Metadata Fetch**: Publication metadata retrieved from Thoth API
-4. **Metrics Fetch**: Usage metrics fetched from Metrics API
-5. **Processing**: Data is transformed and aggregated
+3. **Metadata Fetch**: Publication metadata and its chapters retrieved from the Thoth API (`workByDoi`)
+4. **Metrics Fetch**: One `metricWidget` read from the Thoth API per year view (book and chapter totals, yearly timeline, countries), and one more for each year opened by month
+5. **Processing**: Values are kept exactly as Thoth returns them; a missing value is shown as unknown, never as 0
 6. **Visualization**: Charts and maps render the processed data
 
 
 ## Tracked Platforms
 
-The widget tracks metrics from the following platforms:
-
-- Google Books
-- Open Book Publishers (HTML/PDF readers)
-- OpenEdition
-- OAPEN
-- World Reader
-- JSTOR
-- The Classics Library
-- Unglue.it
-- OpenAIRE
-- Wikimedia/Wikipedia
-- Figshare
-- SUB Göttingen
-- EKT (National Documentation Centre)
-- UPLO
-- WordPress.com references
+The platforms and measures shown are the ones Thoth serves for the work: their names, definitions and descriptions come from the `metricWidget` response, and the info panel of each tab lists the ones shown. Which platforms are available depends on the data each publisher has in Thoth.
 
 ## Development
 
