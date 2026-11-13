@@ -192,7 +192,7 @@ export const TimelineTab = ({
 							margin={{
 								top: 20,
 								// Room for the last tick label, which is centred on the last point.
-								right: 24,
+								right: 32,
 								bottom: 10,
 							}}
 						>
@@ -203,6 +203,8 @@ export const TimelineTab = ({
 								tickLine={{ stroke: 'none' }}
 								tickMargin={tickMargin}
 								type="category"
+								// Every bucket of the page (at most 12) gets its tick; part-year labels take two lines.
+								interval={0}
 								tick={<BucketTick />}
 								height={40}
 							/>
