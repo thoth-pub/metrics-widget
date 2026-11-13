@@ -303,9 +303,11 @@ describe('placement', () => {
 			{},
 			{ timeout: 5000 },
 		);
-		expect(
-			within(timeline).getByPlaceholderText('No years available'),
-		).toBeTruthy();
+		// The only year is shown, selected (it is open) and still enabled.
+		const yearFilter = within(timeline).getByPlaceholderText(
+			'1 year',
+		) as HTMLInputElement;
+		expect(yearFilter.hasAttribute('data-disabled')).toBe(false);
 		expect(
 			within(timeline).queryByRole('button', { name: 'Export CSV' }),
 		).toBeNull();
