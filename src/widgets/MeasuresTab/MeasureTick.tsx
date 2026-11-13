@@ -37,7 +37,9 @@ export const MeasureTick = ({
 			textAnchor={textAnchor ?? 'end'}
 		>
 			{lines.map((line, index) => (
-				<tspan key={line} x={x} dy={index === 0 ? '0.355em' : '1.2em'}>
+				// Two lines of one label can be equal, so the line's place is its key.
+				// biome-ignore lint/suspicious/noArrayIndexKey: the lines of a label never reorder
+				<tspan key={index} x={x} dy={index === 0 ? '0.355em' : '1.2em'}>
 					{line}
 				</tspan>
 			))}
