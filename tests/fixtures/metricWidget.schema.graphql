@@ -1,0 +1,106 @@
+# The public widget read, transcribed from thoth `develop` @ da3e15a364c4d234dc94e9e03c5992dead59ed33:
+# docs/metrics/contract-register.md section 4.4 (MET-WP4-WIDGET-01, MET-WP4-WIDGET-ALLTIME) and the section 4.1
+# and 4.2 types it reuses, plus `MetricMeasureUnit` from thoth-api/src/model/metric_measure/mod.rs. Only what the
+# widget read reaches is declared, with a query root and the scalars it uses.
+
+schema {
+	query: QueryRoot
+}
+
+scalar Doi
+scalar Date
+scalar Uuid
+scalar Timestamp
+scalar BigInt
+
+type QueryRoot {
+	metricWidget(input: MetricWidgetInput!): MetricWidget!
+}
+
+input MetricWidgetInput {
+	doi: Doi!
+	chapterDois: [Doi!]
+	startDate: Date
+	endDate: Date!
+	timelineGrain: MetricWidgetGrain = MONTH
+}
+
+enum MetricWidgetGrain {
+	MONTH
+	YEAR
+}
+
+type MetricWidget {
+	work: MetricWidgetSection!
+	chapters: MetricWidgetSection
+	excludedChildCount: Int!
+	platforms: [MetricWidgetPlatform!]!
+	measures: [MetricWidgetMeasure!]!
+	startDate: Date!
+	endDate: Date!
+	asOf: Timestamp!
+	rollupWatermark: Timestamp!
+}
+
+type MetricWidgetSection {
+	totals: [MetricTotal!]!
+	timeline: [MetricTimeBucket!]!
+	countries: [MetricCountryTotal!]!
+	coverage: [MetricWidgetPairCoverage!]!
+	dataThrough: Date
+	isPartial: Boolean!
+}
+
+type MetricWidgetPairCoverage {
+	platformId: Uuid!
+	measureId: Uuid!
+	status: MetricCoverageStatus!
+	dataThrough: Date
+	countryCoverage: Boolean!
+}
+
+type MetricWidgetPlatform {
+	platformId: Uuid!
+	code: String!
+	displayName: String!
+	publicDescription: String
+}
+
+type MetricWidgetMeasure {
+	measureId: Uuid!
+	code: String!
+	displayName: String!
+	unit: MetricMeasureUnit!
+	definition: String!
+}
+
+type MetricTotal {
+	platformId: Uuid!
+	measureId: Uuid!
+	value: BigInt
+}
+
+type MetricTimeBucket {
+	platformId: Uuid!
+	measureId: Uuid!
+	startDate: Date!
+	endDate: Date!
+	value: BigInt
+}
+
+type MetricCountryTotal {
+	platformId: Uuid!
+	measureId: Uuid!
+	countryCode: String!
+	value: BigInt!
+}
+
+enum MetricCoverageStatus {
+	COMPLETE
+	PARTIAL
+	UNKNOWN
+}
+
+enum MetricMeasureUnit {
+	COUNT
+}
