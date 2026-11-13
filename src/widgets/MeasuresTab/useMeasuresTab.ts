@@ -10,6 +10,8 @@ import {
 export type Measure = {
 	key: string;
 	name: string;
+	platformName: string;
+	measureName: string;
 	/** For drawing; `null` draws no bar. */
 	book: number | null;
 	chapters: number | null;
@@ -31,6 +33,8 @@ export const useMeasuresTab = (doi: Doi) => {
 		? measureRows(view).map((row) => ({
 				key: row.key,
 				name: row.label,
+				platformName: row.platformName,
+				measureName: row.measureName,
 				book: toChartNumber(row.values.work),
 				chapters: toChartNumber(row.values.chapters),
 				bookValue: row.values.work,

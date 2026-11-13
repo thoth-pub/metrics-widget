@@ -1,48 +1,193 @@
 import { describe, expect, it } from 'vitest';
 import {
-	MEASURE_TICK_LIMIT,
-	measureTickLabel,
+	MEASURE_TICK_LINE_LIMIT,
+	type MeasureTickPair,
+	measureTickLines,
 } from '@/widgets/MeasuresTab/measureTickLabel';
 
+const PLATFORM_A = '0a0a0a0a-0000-4000-8000-000000000001';
+const PLATFORM_B = '0b0b0b0b-0000-4000-8000-000000000002';
+const PLATFORM_C = '0c0c0c0c-0000-4000-8000-000000000003';
+const DOWNLOADS = '1d1d1d1d-0000-4000-8000-000000000001';
+const VIEWS = '1e1e1e1e-0000-4000-8000-000000000002';
+
+const pair = (
+	platformId: string,
+	measureId: string,
+	platformName: string,
+	measureName: string,
+	suffix = '',
+): MeasureTickPair => ({
+	key: `${platformId}/${measureId}`,
+	label: `${platformName} · ${measureName}${suffix}`,
+	platformName,
+	measureName,
+});
+
+const drawn = (lines: Map<string, string[]>) => [...lines.values()];
+
+const expectEveryLineWithinTheLimit = (lines: Map<string, string[]>) => {
+	for (const line of drawn(lines).flat()) {
+		expect(line.length).toBeLessThanOrEqual(MEASURE_TICK_LINE_LIMIT);
+	}
+};
+
+const expectDistinct = (lines: Map<string, string[]>) => {
+	const texts = drawn(lines).map((value) => value.join('\n'));
+
+	expect(new Set(texts).size).toBe(texts.length);
+};
+
 describe('Measures axis labels', () => {
-	it('keeps the measure of two pairs of one long-named platform, so their labels differ', () => {
-		const downloads = measureTickLabel('Open Book Publishers · Downloads');
-		const views = measureTickLabel('Open Book Publishers · Views');
+	it('leaves a label that fits unchanged, on one line ("OAPEN · Downloads")', () => {
+		const lines = measureTickLines([
+			pair(PLATFORM_A, DOWNLOADS, 'OAPEN', 'Downloads'),
+		]);
 
-		expect(downloads).toBe('Open... · Downloads');
-		expect(views).toBe('Open Book... · Views');
-		expect(downloads).not.toBe(views);
+		expect(lines.get('OAPEN · Downloads')).toEqual(['OAPEN · Downloads']);
 	});
 
-	it('leaves a label of exactly the limit unchanged, without "..."', () => {
-		const label = 'OAPEN · Downloads 12';
+	it('leaves a label of exactly the limit on one line, and splits one a character longer', () => {
+		const atLimit = pair(PLATFORM_A, VIEWS, 'OAPEN Books', 'Visits');
+		const overLimit = pair(PLATFORM_A, VIEWS, 'OAPEN Library', 'Views');
 
-		expect(label).toHaveLength(MEASURE_TICK_LIMIT);
-		expect(measureTickLabel(label)).toBe(label);
+		expect(atLimit.label).toHaveLength(MEASURE_TICK_LINE_LIMIT);
+		expect(overLimit.label).toHaveLength(MEASURE_TICK_LINE_LIMIT + 1);
+		expect(measureTickLines([atLimit]).get(atLimit.label)).toEqual([
+			'OAPEN Books · Visits',
+		]);
+		expect(measureTickLines([overLimit]).get(overLimit.label)).toEqual([
+			'OAPEN Library',
+			'Views',
+		]);
 	});
 
-	it('shortens one character over the limit', () => {
-		const label = 'OAPEN Library · Views';
-
-		expect(label).toHaveLength(MEASURE_TICK_LIMIT + 1);
-		expect(measureTickLabel(label)).toBe('OAPEN Lib... · Views');
-	});
-
-	it('keeps the ID suffix of repeated labels with the measure', () => {
-		const a = measureTickLabel(
-			'Open Book Publishers · Views [0b0b0b0b/1e1e1e1e]',
+	it('never shortens a part that fits: a short platform keeps its whole name', () => {
+		const label = pair(
+			PLATFORM_A,
+			DOWNLOADS,
+			'OAPEN',
+			'Chapter downloads from the library',
 		);
-		const b = measureTickLabel(
-			'Open Book Publishers · Views [0c0c0c0c/1e1e1e1e]',
-		);
+		const [platform, measure] =
+			measureTickLines([label]).get(label.label) ?? [];
 
-		expect(a).toBe('Open... · Views [0b0b0b0b/1e1e1e1e]');
-		expect(a).not.toBe(b);
+		expect(platform).toBe('OAPEN');
+		expect(measure).toBe('Chapter downloads f…');
 	});
 
-	it('cuts a label without a separator at the limit', () => {
-		expect(measureTickLabel('A very long label without a separator')).toBe(
-			'A very long label wi...',
+	it('draws two platforms with a common prefix and the same measure differently', () => {
+		const html = pair(
+			PLATFORM_A,
+			VIEWS,
+			'Open Book Publishers HTML Reader',
+			'Views',
 		);
+		const pdf = pair(
+			PLATFORM_B,
+			VIEWS,
+			'Open Book Publishers PDF Reader',
+			'Views',
+		);
+		const lines = measureTickLines([html, pdf]);
+
+		expect(lines.get(html.label)).toEqual(['Open Book…ML Reader', 'Views']);
+		expect(lines.get(pdf.label)).toEqual(['Open Book…DF Reader', 'Views']);
+		expectDistinct(lines);
+		expectEveryLineWithinTheLimit(lines);
+	});
+
+	it('keeps the start of a long line when no other label is drawn alike', () => {
+		const downloads = pair(
+			PLATFORM_B,
+			DOWNLOADS,
+			'Open Book Publishers PDF Reader',
+			'Downloads',
+		);
+		const views = pair(
+			PLATFORM_B,
+			VIEWS,
+			'Open Book Publishers PDF Reader',
+			'Views',
+		);
+		const lines = measureTickLines([downloads, views]);
+
+		expect(lines.get(downloads.label)).toEqual([
+			'Open Book Publisher…',
+			'Downloads',
+		]);
+		expect(lines.get(views.label)).toEqual(['Open Book Publisher…', 'Views']);
+	});
+
+	it('adds the shortest ID tag that tells pairs apart when even the ends of their lines are alike', () => {
+		const a = pair(
+			PLATFORM_A,
+			VIEWS,
+			'Open Book Publishers Reader (beta 1) for the web',
+			'Views',
+		);
+		const b = pair(
+			PLATFORM_B,
+			VIEWS,
+			'Open Book Publishers Reader (beta 2) for the web',
+			'Views',
+		);
+		const lines = measureTickLines([a, b]);
+
+		expect(lines.get(a.label)).toEqual([
+			'Open Book…r the web',
+			'Views',
+			'[0a0a/1e1e]',
+		]);
+		expect(lines.get(b.label)).toEqual([
+			'Open Book…r the web',
+			'Views',
+			'[0b0b/1e1e]',
+		]);
+		expectDistinct(lines);
+		expectEveryLineWithinTheLimit(lines);
+	});
+
+	it('draws the spec ID suffix of two pairs sharing one label on a line of its own', () => {
+		const a = pair(
+			PLATFORM_B,
+			VIEWS,
+			'Open Book Publishers',
+			'Views',
+			' [0b0b0b0b/1e1e1e1e]',
+		);
+		const b = pair(
+			PLATFORM_C,
+			VIEWS,
+			'Open Book Publishers',
+			'Views',
+			' [0c0c0c0c/1e1e1e1e]',
+		);
+		const lines = measureTickLines([a, b]);
+
+		expect(lines.get(a.label)).toEqual([
+			'Open Book Publishers',
+			'Views',
+			'[0b0b0b0b/1e1e1e1e]',
+		]);
+		expectDistinct(lines);
+		expectEveryLineWithinTheLimit(lines);
+	});
+
+	it('keeps every drawn line within the limit, for long platform and measure names alike', () => {
+		const lines = measureTickLines([
+			pair(PLATFORM_A, DOWNLOADS, 'OAPEN', 'Downloads'),
+			pair(PLATFORM_B, DOWNLOADS, 'Open Book Publishers', 'Downloads'),
+			pair(PLATFORM_B, VIEWS, 'Open Book Publishers', 'Views'),
+			pair(
+				PLATFORM_C,
+				VIEWS,
+				'A platform with a very long display name indeed',
+				'A measure with a very long display name too',
+			),
+		]);
+
+		expectEveryLineWithinTheLimit(lines);
+		expectDistinct(lines);
 	});
 });

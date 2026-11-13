@@ -13,7 +13,8 @@ import {
 } from 'recharts';
 import { MetricTab } from '../MetricTab/MetricTab';
 import { MeasuresTooltip } from './MeasuresTooltip';
-import { measureTickLabel } from './measureTickLabel';
+import { MeasureTick } from './MeasureTick';
+import { measureTickLines } from './measureTickLabel';
 import { type Measure, useMeasuresTab } from './useMeasuresTab';
 
 const margin = {
@@ -23,13 +24,6 @@ const margin = {
 };
 
 const title = 'Usage by measure';
-
-/** Shortens long labels on the axis, keeping the measure whole; the tooltip shows the full label. */
-const tickFormatter = (value: string, _index: number) => {
-	const label = measureTickLabel(value);
-
-	return label === value ? value : label.replace(/ /g, ' ');
-};
 
 const patternId = (prefix: string, measure: Measure) =>
 	`${prefix}-stripe-${measure.patternKey}`;
@@ -90,6 +84,16 @@ export const MeasuresTab = ({ doi, isInfoOpen, toggleInfo }: TabProps) => {
 		captions,
 	} = useMeasuresTab(doi);
 	const prefix = `mw${useId().replace(/[^A-Za-z0-9_-]/g, '')}`;
+	// Long labels are drawn on more than one line and shortened only where a line does not fit; the tooltip shows
+	// the full label.
+	const tickLines = measureTickLines(
+		measures.map(({ key, name, platformName, measureName }) => ({
+			key,
+			label: name,
+			platformName,
+			measureName,
+		})),
+	);
 
 	return (
 		<MetricTab
@@ -150,16 +154,14 @@ export const MeasuresTab = ({ doi, isInfoOpen, toggleInfo }: TabProps) => {
 						<YAxis
 							dataKey="name"
 							type="category"
-							width={150}
+							// Room for a drawn line of 20 characters (`MEASURE_TICK_LINE_LIMIT`).
+							width={160}
 							fontSize={12}
 							fontWeight={400}
-							tickFormatter={tickFormatter}
 							scale="band"
 							axisLine={{ stroke: 'none' }}
 							tickLine={{ stroke: 'none' }}
-							tick={{
-								dy: 6,
-							}}
+							tick={<MeasureTick linesByLabel={tickLines} />}
 						/>
 						<Tooltip
 							cursor={false}
