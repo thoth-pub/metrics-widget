@@ -314,8 +314,8 @@ The CSS-variable path and the JS-prop path can be combined: pass a `theme` prop 
 A few rules govern how the `theme` prop is applied at runtime:
 
 - **Merge, not replace.** Each new `theme` object merges into the previously applied set. Keys you omit from a subsequent update **keep their previously applied values** — they are not auto-reverted. To clear a single key, pass `undefined` for it (`theme={{ 'mw-color-background': undefined }}`); to clear everything, unmount the widget.
-- **Color values are validated.** Color tokens (everything except layout dimensions, `mw-radius`, and `mw-tooltip-drop-shadow`) are validated before being applied. Accepted formats: named CSS colors (`red`, `rebeccapurple`), 3- or 6-digit hex (`#fff`, `#1a1a1a`), `rgb()` / `rgba()`, and `hsl()` / `hsla()`. Other formats — 4- or 8-digit hex (`#abcd`, `#1a1a1a80`), `oklch()`, `color()`, `lab()`, `lch()` — are not currently validated and will be rejected. Invalid values are silently dropped: the previously applied valid value (or bundle default) stays in place.
-- **Non-color tokens are not validated.** Layout, radius, and shadow tokens accept any string and are written through as-is.
+- **Color values are validated.** Color tokens (everything except layout dimensions, `mw-radius`, `mw-tooltip-drop-shadow`, `mw-font-heading`, `mw-font-body` and `mw-heading-text-transform`) are validated before being applied. Accepted formats: named CSS colors (`red`, `rebeccapurple`), 3- or 6-digit hex (`#fff`, `#1a1a1a`), `rgb()` / `rgba()`, and `hsl()` / `hsla()`. Other formats — 4- or 8-digit hex (`#abcd`, `#1a1a1a80`), `oklch()`, `color()`, `lab()`, `lch()` — are not currently validated and will be rejected. Invalid values are silently dropped: the previously applied valid value (or bundle default) stays in place.
+- **Non-color tokens are not validated.** Layout, radius, shadow, font, and heading-case tokens accept any string and are written through as-is.
 - **Cleanup on unmount.** Every key the widget ever wrote via the prop is removed from `document.documentElement.style` when the widget unmounts, so no overrides leak back to the host.
 - **Hidden until applied.** On first mount the widget keeps its root `visibility: hidden` until tokens have been written to `document.documentElement`. The reveal happens before the first paint, so consumers passing a synchronous `theme` never see a flash of bundle defaults.
 
@@ -330,6 +330,83 @@ return theme ? <MetricsWidget doi={doi} theme={theme} /> : null;
 ```
 
 Mounting with `theme={undefined}` and updating to `theme={resolved}` later will release the gate on the first commit with bundle defaults, then repaint when your theme arrives.
+
+### Matching a publisher site's style
+
+To make the widget look like the site that hosts it, set a handful of tokens: fonts, heading case, background, text, accent, buttons, tabs and the platform colours. With no theme the widget looks exactly as before. Use either a CSS block or a `theme` object; both set the same tokens.
+
+CSS block (in your site's stylesheet, outside any `@layer`):
+
+```css
+:root {
+  /* Fonts and heading case */
+  --mw-font-heading: "Lato", sans-serif;
+  --mw-font-body: "Lato", sans-serif;
+  --mw-heading-text-transform: none; /* default: uppercase */
+
+  /* Background and text */
+  --mw-color-background: #ffffff;
+  --mw-color-background-alt: #f6f6f6;
+  --mw-color-typography: #1b1b1b;
+
+  /* Accent, tabs and buttons */
+  --mw-color-active: #0b6b5d;
+  --mw-color-border: #0b6b5d;
+  --mw-ring: #0b6b5d;
+  --mw-color-nav-background: #ffffff;
+  --mw-color-nav-background-active: #0b6b5d;
+  --mw-color-nav-typography: #0b6b5d;
+  --mw-color-button-background: #ffffff;
+  --mw-color-button-typography: #0b6b5d;
+  --mw-color-button-border: #0b6b5d;
+  --mw-color-button-active-background: #0b6b5d;
+  --mw-color-button-active-typography: #ffffff;
+  --mw-color-button-active-border: #0b6b5d;
+
+  /* Platform colours, one per Thoth platform code */
+  --mw-chart-metric-publisher-website: #e07a1f;
+  --mw-chart-metric-oapen: #5fb0d3;
+}
+```
+
+The same theme as a `theme` object:
+
+```tsx
+import { MetricsWidget, type MetricsWidgetTheme } from 'metrics-widget';
+
+const siteTheme: MetricsWidgetTheme = {
+  'mw-font-heading': '"Lato", sans-serif',
+  'mw-font-body': '"Lato", sans-serif',
+  'mw-heading-text-transform': 'none',
+  'mw-color-background': '#ffffff',
+  'mw-color-background-alt': '#f6f6f6',
+  'mw-color-typography': '#1b1b1b',
+  'mw-color-active': '#0b6b5d',
+  'mw-color-border': '#0b6b5d',
+  'mw-ring': '#0b6b5d',
+  'mw-color-nav-background': '#ffffff',
+  'mw-color-nav-background-active': '#0b6b5d',
+  'mw-color-nav-typography': '#0b6b5d',
+  'mw-color-button-background': '#ffffff',
+  'mw-color-button-typography': '#0b6b5d',
+  'mw-color-button-border': '#0b6b5d',
+  'mw-color-button-active-background': '#0b6b5d',
+  'mw-color-button-active-typography': '#ffffff',
+  'mw-color-button-active-border': '#0b6b5d',
+  'mw-chart-metric-publisher-website': '#e07a1f',
+  'mw-chart-metric-oapen': '#5fb0d3',
+};
+
+<MetricsWidget doi="10.11647/OBP.0067" theme={siteTheme} />;
+```
+
+Things to know:
+
+- **Fonts.** `--mw-font-heading` sets the font of the tab labels and other headings, and `--mw-font-body` the font of the rest of the widget, including chart labels, legends and chart tooltips. Two pop-ups open outside the widget body and keep your page's font: the item list and the hint on an item that cannot be selected. Set the font tokens on `:root`, as in the block above, or through the `theme` prop. The widget bundles Economica and Open Sans, its defaults. If you name any other font, your site must load it (for example with `@font-face` or a `<link>` to your font provider); the widget does not download fonts for you. List a fallback, as in `"Lato", sans-serif`. The older names `--mw-font-economica` and `--mw-font-open-sans` still work when set on `:root`, and are what the new tokens use by default.
+- **Heading case.** `--mw-heading-text-transform` takes any CSS `text-transform` value (`uppercase`, `none`, `capitalize`, `lowercase`). It applies to every heading that is uppercase by default.
+- **Platform colours.** The token for a platform is `--mw-chart-metric-<slug>`, where the slug is the platform's Thoth `code` in lower case, with each run of characters other than the letters a to z and the digits replaced by one hyphen, and any hyphen at the start or end removed. So the code `publisher_website` becomes `--mw-chart-metric-publisher-website`. The widget looks for the token of the code first, then for the one made the same way from the platform's display name. In the `theme` object, any key that starts with `mw-chart-metric-` is accepted, so you can colour any platform; a misspelt token name that does not start with `mw-chart-metric-` is a compile error. A platform token that matches no platform is ignored without a warning, so check the slug against the platform's code. Which platform gets which colour when it has no token of its own is described under "CSS variable overrides" above.
+- **One theme per page.** The `theme` prop writes to the page root (`document.documentElement`), so every widget on a page shares one theme. Do not mount two widgets with different themes.
+- **Colour formats.** Colour tokens accept the formats listed under [Theme prop behavior](#theme-prop-behavior) above. The font and heading-case tokens are not validated; their values are written as given.
 
 ### Token catalog
 
@@ -364,6 +441,9 @@ All overridable tokens, grouped by tier:
 --mw-muted, --mw-muted-foreground
 --mw-destructive, --mw-border
 
+# Fonts and heading case
+--mw-font-heading, --mw-font-body, --mw-heading-text-transform
+
 # Layout
 --mw-max-width, --mw-max-height
 --mw-header-height, --mw-footer-height, --mw-content-height
@@ -381,6 +461,7 @@ All overridable tokens, grouped by tier:
 --mw-chart-metric-twitter, --mw-chart-metric-wikimedia, --mw-chart-metric-wikipedia
 --mw-chart-metric-wordpress-com, --mw-chart-metric-world-reader
 --mw-chart-metric-crossref
+--mw-chart-metric-<slug>  (any other platform: the slug of its code)
 
 # Map gradient
 --mw-chart-map-zero, --mw-chart-map-lowest, --mw-chart-map-highest
