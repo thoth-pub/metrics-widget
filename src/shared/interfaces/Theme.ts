@@ -52,6 +52,10 @@ export type MetricsWidgetTokenName =
 	| 'mw-muted-foreground'
 	| 'mw-destructive'
 	| 'mw-border'
+	// Fonts and heading case
+	| 'mw-font-heading'
+	| 'mw-font-body'
+	| 'mw-heading-text-transform'
 	// Layout
 	| 'mw-max-width'
 	| 'mw-max-height'
@@ -102,4 +106,7 @@ export const NON_COLOR_TOKENS = new Set<MetricsWidgetTokenName>([
 	'mw-content-height',
 	'mw-radius',
 	'mw-tooltip-drop-shadow',
+	'mw-font-heading',
+	'mw-font-body',
+	'mw-heading-text-transform',
 ]);

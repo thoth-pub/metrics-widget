@@ -50,6 +50,10 @@
 	/* Fonts */
 	--mw-font-economica: "Economica", sans-serif;
 	--mw-font-open-sans: "Open Sans", sans-serif;
+	/* Public font tokens; the two names above stay as compatibility aliases. */
+	--mw-font-heading: var(--mw-font-economica);
+	--mw-font-body: var(--mw-font-open-sans);
+	--mw-heading-text-transform: uppercase;
 
 	/* Tier 2 — semantic */
 	--mw-color-background: var(--mw-yellow);
@@ -189,8 +193,8 @@
 	--color-placeholder-icon-bg: var(--mw-color-placeholder-icon-bg);
 
 	/* Font */
-	--font-economica: var(--mw-font-economica);
-	--font-open-sans: var(--mw-font-open-sans);
+	--font-economica: var(--mw-font-heading);
+	--font-open-sans: var(--mw-font-body);
 }
 
 @theme inline {
@@ -217,8 +221,9 @@
 }
 
 .economica {
-	font-family: var(--mw-font-economica);
-	@apply uppercase text-base font-bold;
+	font-family: var(--mw-font-heading);
+	text-transform: var(--mw-heading-text-transform);
+	@apply text-base font-bold;
 }
 
 .colorPlaceholder {
