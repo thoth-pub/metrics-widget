@@ -89,6 +89,8 @@ export type MetricsWidgetTokenName =
 	| 'mw-chart-metric-wordpress-com'
 	| 'mw-chart-metric-world-reader'
 	| 'mw-chart-metric-crossref'
+	// Any other platform, by the slug of its code (e.g. `mw-chart-metric-publisher-website`)
+	| `mw-chart-metric-${string}`
 	// Map chart palette
 	| 'mw-chart-map-zero'
 	| 'mw-chart-map-lowest'
